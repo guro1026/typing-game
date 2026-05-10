@@ -23,7 +23,6 @@
       margin-bottom: 10px;
     }
 
-    /* --- 難易度選択 --- */
     #difficultySelect {
       margin-top: 20px;
     }
@@ -44,7 +43,6 @@
       background: #fff;
     }
 
-    /* --- ゲーム画面 --- */
     #game, #result, #ranking {
       display: none;
     }
@@ -67,9 +65,9 @@
       font-size: 24px;
       padding: 10px;
       width: 300px;
+      ime-mode: disabled;
     }
 
-    /* --- カウントダウン --- */
     #countdownOverlay {
       position: fixed;
       inset: 0;
@@ -91,7 +89,6 @@
       100% { transform: scale(1); opacity: 1; }
     }
 
-    /* --- 光エフェクト --- */
     #flash {
       position: fixed;
       inset: 0;
@@ -105,7 +102,6 @@
       opacity: 1;
     }
 
-    /* --- ランキング --- */
     #rankingList {
       font-size: 22px;
       margin-top: 20px;
@@ -126,19 +122,16 @@
 
   <div id="flash"></div>
 
-  <!-- カウントダウン -->
   <div id="countdownOverlay">
     <div id="countdownNumber"></div>
   </div>
 
-  <!-- タイトル -->
   <div id="title">
     <h1>K.i.r タイピング王</h1>
     <p>名前を入力して Enter キーで開始</p>
     <input id="playerName" placeholder="名前を入力">
   </div>
 
-  <!-- 難易度選択 -->
   <div id="difficultySelect">
     <h2>難易度を選択してください</h2>
     <button class="diff-btn" data-csv="words_easy.csv">挨拶編</button>
@@ -146,15 +139,13 @@
     <button class="diff-btn" data-csv="words_it.csv">IT用語</button>
   </div>
 
-  <!-- ゲーム画面 -->
   <div id="game">
     <div id="timer">60</div>
     <div id="word"></div>
     <div id="romaji"></div>
-    <input id="input" autocomplete="off">
+    <input id="input" autocomplete="off" inputmode="latin">
   </div>
 
-  <!-- 結果画面 -->
   <div id="result">
     <h2>結果</h2>
     <p id="scoreText"></p>
@@ -163,13 +154,12 @@
     <button id="retry">もう一度</button>
   </div>
 
-  <!-- ランキング画面 -->
   <div id="ranking">
     <h2>🏆 ランキング</h2>
     <div id="rankingList"></div>
     <button id="backTitle">タイトルへ戻る</button>
   </div>
 
-  <script src="game.js?v=3"></script>
+  <script src="game.js?v=10"></script>
 </body>
 </html>
