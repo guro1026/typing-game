@@ -39,27 +39,38 @@ async function loadRanking() {
 }
 
 //------------------------------------------------------
-// 漢字 → ひらがな辞書（CSV読み込み）
+// 辞書読み込み
 //------------------------------------------------------
 let kanjiDict = {};
 
 async function loadKanjiDict() {
-  const res = await fetch("kanji_dict.csv");
-  const text = await res.text();
+  try {
+    const res = await fetch("kanji_dict.csv");
+    const text = await res.text();
+    const lines = text.replace(/^\uFEFF/, "").trim().split("\n");
+    lines.shift();
 
-  const lines = text.replace(/^\uFEFF/, "").trim().split("\n");
-  lines.shift();
-
-  lines.forEach(line => {
-    const [kanji, hira] = line.split(",");
-    if (kanji && hira) kanjiDict[kanji] = hira;
-  });
+    kanjiDict = {};
+    lines.forEach(line => {
+      const [kanji, hira] = line.split(",");
+      if (kanji && hira) kanjiDict[kanji] = hira;
+    });
+  } catch (e) {
+    console.error("loadKanjiDict error", e);
+  }
 }
 
+//------------------------------------------------------
+// 複合語対応：全文ひらがな化
+//------------------------------------------------------
 function toHiraganaFull(text) {
   let result = text;
 
-  for (const [kanji, hira] of Object.entries(kanjiDict)) {
+  const entries = Object.entries(kanjiDict).sort(
+    (a, b) => b[0].length - a[0].length
+  );
+
+  for (const [kanji, hira] of entries) {
     result = result.replaceAll(kanji, hira);
   }
 
@@ -114,6 +125,12 @@ const showRankingBtn = document.getElementById("showRanking");
 const retryBtn = document.getElementById("retry");
 const backTitleBtn = document.getElementById("backTitle");
 
+// 管理者ツール
+const generateDictBtn = document.getElementById("generateDictBtn");
+const downloadDictBtn = document.getElementById("downloadDictBtn");
+const dictSrc = document.getElementById("dictSrc");
+const dictOut = document.getElementById("dictOut");
+
 //------------------------------------------------------
 // 音
 //------------------------------------------------------
@@ -156,7 +173,7 @@ function fadeOutBgm(duration = 1500) {
 }
 
 //------------------------------------------------------
-// IME 強制オフ
+// IME 完全無効化
 //------------------------------------------------------
 inputEl.setAttribute("inputmode", "latin");
 inputEl.setAttribute("autocomplete", "off");
@@ -164,9 +181,7 @@ inputEl.setAttribute("autocorrect", "off");
 inputEl.setAttribute("autocapitalize", "off");
 inputEl.setAttribute("spellcheck", "false");
 
-inputEl.addEventListener("compositionstart", (e) => {
-  e.preventDefault();
-});
+inputEl.addEventListener("compositionstart", (e) => e.preventDefault());
 
 //------------------------------------------------------
 // CSV 読み込み
@@ -176,24 +191,20 @@ async function loadWords(csvFile) {
   const text = await res.text();
 
   const lines = text.replace(/^\uFEFF/, "").trim().split("\n");
-  lines.shift();
-
-  words = lines.map(line => line.trim());
+  words = lines.map(line => line.trim()).filter(Boolean);
 }
 
 //------------------------------------------------------
-// 難易度選択（色変化＋メッセージ）
+// 難易度選択
 //------------------------------------------------------
 document.querySelectorAll(".diff-btn").forEach(btn => {
   btn.addEventListener("click", async () => {
-
     document.querySelectorAll(".diff-btn").forEach(b => {
       b.classList.remove("selected");
       b.style.transform = "scale(1)";
     });
 
     btn.classList.add("selected");
-
     selectedCSV = btn.dataset.csv;
 
     await loadKanjiDict();
@@ -209,7 +220,7 @@ document.querySelectorAll(".diff-btn").forEach(btn => {
 });
 
 //------------------------------------------------------
-// Enter キーでゲーム開始
+// Enter で開始
 //------------------------------------------------------
 window.addEventListener("keydown", (e) => {
   if (e.key !== "Enter") return;
@@ -258,7 +269,7 @@ function startCountdown() {
 }
 
 //------------------------------------------------------
-// Ready → Go! 演出
+// Ready → Go!
 //------------------------------------------------------
 function showReadyGo() {
   readyGoOverlay.style.display = "flex";
@@ -278,11 +289,24 @@ function showReadyGo() {
 }
 
 //------------------------------------------------------
-// 光エフェクト
+// フラッシュ（成功）
 //------------------------------------------------------
 function flashEffect() {
+  flash.classList.remove("miss");
   flash.classList.add("active");
-  setTimeout(() => flash.classList.remove("active"), 300);
+  setTimeout(() => flash.classList.remove("active"), 200);
+}
+
+//------------------------------------------------------
+// フラッシュ（ミス）
+//------------------------------------------------------
+function flashMissEffect() {
+  flash.classList.add("miss");
+  flash.classList.add("active");
+  setTimeout(() => {
+    flash.classList.remove("active");
+    flash.classList.remove("miss");
+  }, 200);
 }
 
 //------------------------------------------------------
@@ -317,17 +341,17 @@ function startGame() {
 }
 
 //------------------------------------------------------
-// 単語更新（漢字→ひらがな→ローマ字）
+// 単語更新（複合語辞書 → ひらがな → ローマ字）
 //------------------------------------------------------
 function nextWord() {
   currentWord = words[Math.floor(Math.random() * words.length)];
   wordEl.textContent = currentWord;
 
-  let hira = toHiraganaFull(currentWord);
+  const hira = toHiraganaFull(currentWord);
 
-  currentRomaji = wanakana.toRomaji(hira)
+  currentRomaji = wanakana.toRomaji(hira, { IMEMode: false })
     .replace(/-/g, "")
-    .replace(/ /g, "")
+    .replace(/\s+/g, "") // 半角・全角スペース完全除去
     .toLowerCase();
 
   romajiEl.textContent = currentRomaji;
@@ -351,7 +375,7 @@ function showCombo() {
 }
 
 //------------------------------------------------------
-// 入力処理（寿司打方式＋コンボ）
+// 入力処理（寿司打方式）
 //------------------------------------------------------
 inputEl.addEventListener("input", () => {
   if (!isPlaying) return;
@@ -385,6 +409,9 @@ inputEl.addEventListener("input", () => {
 
     missSound.currentTime = 0;
     missSound.play();
+
+    inputEl.value = "";      // 寿司打と同じ：リセット
+    flashMissEffect();       // 赤フラッシュ
   }
 });
 
@@ -419,7 +446,7 @@ function endGame() {
 }
 
 //------------------------------------------------------
-// ランキング表示
+// ランキング
 //------------------------------------------------------
 showRankingBtn.addEventListener("click", async () => {
   result.style.display = "none";
@@ -449,56 +476,64 @@ retryBtn.addEventListener("click", () => {
   title.style.display = "block";
   difficultySelect.style.display = "block";
 });
-// 管理者用：複合語対応 辞書自動生成
-generateDictBtn.addEventListener("click", () => {
-  const text = dictSrc.value.trim();
-  if (!text) {
-    alert("CSVテキストを入力してください。");
-    return;
-  }
 
-  const lines = text.split("\n");
-  const dict = {};
-
-  lines.forEach(line => {
-    const word = line.trim();
-    if (!word) return;
-
-    // ひらがな化（漢字はそのまま残る）
-    const hiraAll = wanakana.toHiragana(word);
-
-    let i = 0;
-    while (i < word.length) {
-      if (wanakana.isKanji(word[i])) {
-        // ★複合語として漢字が続く部分を抽出
-        let j = i;
-        let kanji = "";
-        while (j < word.length && wanakana.isKanji(word[j])) {
-          kanji += word[j];
-          j++;
-        }
-
-        // ★複合語の読みを生成
-        const hira = wanakana.toHiragana(kanji);
-
-        // ★辞書に登録（重複は無視）
-        if (!dict[kanji]) {
-          dict[kanji] = hira;
-        }
-
-        i = j;
-      } else {
-        i++;
-      }
+//------------------------------------------------------
+// 管理者ツール：複合語対応 辞書自動生成
+//------------------------------------------------------
+if (generateDictBtn && downloadDictBtn && dictSrc && dictOut) {
+  generateDictBtn.addEventListener("click", () => {
+    const text = dictSrc.value.trim();
+    if (!text) {
+      alert("CSVテキストを入力してください。");
+      return;
     }
+
+    const lines = text.split("\n");
+    const dict = {};
+
+    lines.forEach(line => {
+      const word = line.trim();
+      if (!word) return;
+
+      let i = 0;
+      while (i < word.length) {
+        if (wanakana.isKanji(word[i])) {
+          let j = i;
+          let kanji = "";
+          while (j < word.length && wanakana.isKanji(word[j])) {
+            kanji += word[j];
+            j++;
+          }
+
+          const hira = wanakana.toHiragana(kanji);
+
+          if (!dict[kanji]) {
+            dict[kanji] = hira;
+          }
+
+          i = j;
+        } else {
+          i++;
+        }
+      }
+    });
+
+    let output = "kanji,hiragana\n";
+    for (const [k, v] of Object.entries(dict)) {
+      output += `${k},${v}\n`;
+    }
+
+    dictOut.value = output;
+    alert("複合語対応の辞書を生成しました。内容を確認してからダウンロードしてください。");
   });
 
-  // CSV 出力
-  let output = "kanji,hiragana\n";
-  for (const [k, v] of Object.entries(dict)) {
-    output += `${k},${v}\n`;
-  }
-
-  dictOut.value = output;
-  alert("複合語対応の辞書を生成しました！");
-});
+  downloadDictBtn.addEventListener("click", () => {
+    const blob = new Blob([dictOut.value], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "kanji_dict.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+}
