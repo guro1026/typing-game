@@ -39,12 +39,39 @@ async function loadRanking() {
 }
 
 //------------------------------------------------------
+// 漢字 → ひらがな辞書（CSV読み込み）
+//------------------------------------------------------
+let kanjiDict = {};
+
+async function loadKanjiDict() {
+  const res = await fetch("kanji_dict.csv");
+  const text = await res.text();
+
+  const lines = text.replace(/^\uFEFF/, "").trim().split("\n");
+  lines.shift();
+
+  lines.forEach(line => {
+    const [kanji, hira] = line.split(",");
+    if (kanji && hira) kanjiDict[kanji] = hira;
+  });
+}
+
+function toHiraganaFull(text) {
+  let result = text;
+
+  for (const [kanji, hira] of Object.entries(kanjiDict)) {
+    result = result.replaceAll(kanji, hira);
+  }
+
+  return wanakana.toHiragana(result);
+}
+
+//------------------------------------------------------
 // ゲーム変数
 //------------------------------------------------------
 let words = [];
 let currentWord = "";
 let currentRomaji = "";
-let englishWord = "";
 let timer = 60;
 let score = 0;
 let totalTyped = 0;
@@ -53,6 +80,8 @@ let timerId = null;
 let playerName = "";
 let isPlaying = false;
 let selectedCSV = "";
+let combo = 0;
+let maxCombo = 0;
 
 //------------------------------------------------------
 // DOM
@@ -74,7 +103,12 @@ const rankingList = document.getElementById("rankingList");
 
 const countdownOverlay = document.getElementById("countdownOverlay");
 const countdownNumber = document.getElementById("countdownNumber");
+
+const readyGoOverlay = document.getElementById("readyGoOverlay");
+const readyGoText = document.getElementById("readyGoText");
+
 const flash = document.getElementById("flash");
+const comboEl = document.getElementById("combo");
 
 const showRankingBtn = document.getElementById("showRanking");
 const retryBtn = document.getElementById("retry");
@@ -148,16 +182,52 @@ async function loadWords(csvFile) {
 }
 
 //------------------------------------------------------
-// 難易度選択
+// 難易度選択（色変化＋メッセージ）
 //------------------------------------------------------
 document.querySelectorAll(".diff-btn").forEach(btn => {
   btn.addEventListener("click", async () => {
-    selectedCSV = btn.dataset.csv;
-    playerName = document.getElementById("playerName").value || "名無し";
 
+    document.querySelectorAll(".diff-btn").forEach(b => {
+      b.classList.remove("selected");
+      b.style.transform = "scale(1)";
+    });
+
+    btn.classList.add("selected");
+
+    selectedCSV = btn.dataset.csv;
+
+    await loadKanjiDict();
     await loadWords(selectedCSV);
-    startCountdown();
+
+    const modeName =
+      selectedCSV.includes("easy") ? "挨拶編" :
+      selectedCSV.includes("business") ? "ビジネス用語" :
+      selectedCSV.includes("it") ? "IT用語" : "選択したモード";
+
+    alert(`${modeName}を選びました。\nEnter を押すとゲームがスタートします。`);
   });
+});
+
+//------------------------------------------------------
+// Enter キーでゲーム開始
+//------------------------------------------------------
+window.addEventListener("keydown", (e) => {
+  if (e.key !== "Enter") return;
+
+  const name = document.getElementById("playerName").value.trim();
+
+  if (!name) {
+    alert("名前を入力してください。");
+    return;
+  }
+
+  if (!selectedCSV) {
+    alert("難易度を選んでください。");
+    return;
+  }
+
+  playerName = name;
+  startCountdown();
 });
 
 //------------------------------------------------------
@@ -182,9 +252,29 @@ function startCountdown() {
       clearInterval(id);
       countdownOverlay.style.display = "none";
       flashEffect();
-      startGame();
+      showReadyGo();
     }
   }, 1000);
+}
+
+//------------------------------------------------------
+// Ready → Go! 演出
+//------------------------------------------------------
+function showReadyGo() {
+  readyGoOverlay.style.display = "flex";
+
+  readyGoText.textContent = "Ready";
+  readyGoText.style.animation = "pop 0.6s ease-out";
+
+  setTimeout(() => {
+    readyGoText.textContent = "Go!";
+    readyGoText.style.animation = "pop 0.6s ease-out";
+  }, 700);
+
+  setTimeout(() => {
+    readyGoOverlay.style.display = "none";
+    startGame();
+  }, 1300);
 }
 
 //------------------------------------------------------
@@ -192,9 +282,7 @@ function startCountdown() {
 //------------------------------------------------------
 function flashEffect() {
   flash.classList.add("active");
-  setTimeout(() => {
-    flash.classList.remove("active");
-  }, 300);
+  setTimeout(() => flash.classList.remove("active"), 300);
 }
 
 //------------------------------------------------------
@@ -208,6 +296,8 @@ function startGame() {
   score = 0;
   totalTyped = 0;
   missCount = 0;
+  combo = 0;
+  maxCombo = 0;
   timer = 60;
   isPlaying = true;
 
@@ -233,22 +323,35 @@ function nextWord() {
   currentWord = words[Math.floor(Math.random() * words.length)];
   wordEl.textContent = currentWord;
 
-  // ① 漢字 → ひらがな
-  let hira = wanakana.toHiragana(currentWord);
+  let hira = toHiraganaFull(currentWord);
 
-  // ② ひらがな → ローマ字
   currentRomaji = wanakana.toRomaji(hira)
     .replace(/-/g, "")
     .replace(/ /g, "")
     .toLowerCase();
 
   romajiEl.textContent = currentRomaji;
-
   inputEl.value = "";
 }
 
 //------------------------------------------------------
-// 入力処理（寿司打方式）
+// コンボ表示
+//------------------------------------------------------
+function showCombo() {
+  if (combo < 2) {
+    comboEl.style.display = "none";
+    return;
+  }
+
+  comboEl.style.display = "block";
+  comboEl.textContent = combo + " Combo!";
+
+  comboEl.style.transform = "scale(1.3)";
+  setTimeout(() => comboEl.style.transform = "scale(1)", 150);
+}
+
+//------------------------------------------------------
+// 入力処理（寿司打方式＋コンボ）
 //------------------------------------------------------
 inputEl.addEventListener("input", () => {
   if (!isPlaying) return;
@@ -256,18 +359,30 @@ inputEl.addEventListener("input", () => {
   const val = inputEl.value.toLowerCase();
   totalTyped++;
 
-  // 先頭一致
   if (currentRomaji.startsWith(val)) {
     hitSound.currentTime = 0;
     hitSound.play();
 
     if (val === currentRomaji) {
       score++;
+
+      combo++;
+      maxCombo = Math.max(maxCombo, combo);
+      showCombo();
+
+      if (combo % 5 === 0) hitSound.playbackRate = 1.4;
+      else hitSound.playbackRate = 1.0;
+
+      if (combo % 10 === 0) flashEffect();
+
       inputEl.value = "";
       nextWord();
     }
   } else {
     missCount++;
+    combo = 0;
+    comboEl.style.display = "none";
+
     missSound.currentTime = 0;
     missSound.play();
   }
@@ -290,7 +405,7 @@ function endGame() {
 
   scoreText.textContent = `スコア：${score}`;
   detailText.textContent =
-    `総タイプ数：${totalTyped} / ミス：${missCount} / 正確率：${(accuracy * 100).toFixed(1)}%`;
+    `総タイプ数：${totalTyped} / ミス：${missCount} / 最大コンボ：${maxCombo} / 正確率：${(accuracy * 100).toFixed(1)}%`;
 
   saveScore({
     name: playerName,
@@ -298,6 +413,7 @@ function endGame() {
     total: totalTyped,
     miss: missCount,
     accuracy: accuracy,
+    maxCombo: maxCombo,
     mode: selectedCSV
   });
 }
