@@ -44,6 +44,7 @@ async function loadRanking() {
 let words = [];
 let currentWord = "";
 let currentRomaji = "";
+let englishWord = "";
 let timer = 60;
 let score = 0;
 let totalTyped = 0;
@@ -86,12 +87,7 @@ const hitSound = new Audio("./sounds/hit.mp3?v=1");
 const missSound = new Audio("./sounds/beep.mp3?v=1");
 const bgm = new Audio("./sounds/music.mp3?v=1");
 
-hitSound.preload = "auto";
-missSound.preload = "auto";
-bgm.preload = "auto";
 bgm.loop = true;
-
-// BGM 最大音量は 0.3
 const BGM_MAX = 0.3;
 
 //------------------------------------------------------
@@ -126,11 +122,17 @@ function fadeOutBgm(duration = 1500) {
 }
 
 //------------------------------------------------------
-// 入力欄の選択状態を強制解除（バグ対策）
+// IME 強制オフ
 //------------------------------------------------------
-function clearInputSelection() {
-  inputEl.setSelectionRange(inputEl.value.length, inputEl.value.length);
-}
+inputEl.setAttribute("inputmode", "latin");
+inputEl.setAttribute("autocomplete", "off");
+inputEl.setAttribute("autocorrect", "off");
+inputEl.setAttribute("autocapitalize", "off");
+inputEl.setAttribute("spellcheck", "false");
+
+inputEl.addEventListener("compositionstart", (e) => {
+  e.preventDefault();
+});
 
 //------------------------------------------------------
 // CSV 読み込み
@@ -139,8 +141,8 @@ async function loadWords(csvFile) {
   const res = await fetch(csvFile);
   const text = await res.text();
 
-  const lines = text.trim().split("\n");
-  lines.shift(); // ヘッダー削除
+  const lines = text.replace(/^\uFEFF/, "").trim().split("\n");
+  lines.shift();
 
   words = lines.map(line => line.trim());
 }
@@ -156,15 +158,6 @@ document.querySelectorAll(".diff-btn").forEach(btn => {
     await loadWords(selectedCSV);
     startCountdown();
   });
-});
-
-//------------------------------------------------------
-// Enter キーで開始（難易度選択後）
-//------------------------------------------------------
-document.addEventListener("keydown", async (e) => {
-  if (e.code === "Enter" && title.style.display !== "none") {
-    playerName = document.getElementById("playerName").value || "名無し";
-  }
 });
 
 //------------------------------------------------------
@@ -223,7 +216,6 @@ function startGame() {
 
   inputEl.value = "";
   inputEl.focus();
-  clearInputSelection();
 
   fadeInBgm(1200);
 
@@ -235,27 +227,28 @@ function startGame() {
 }
 
 //------------------------------------------------------
-// 単語更新（日本語→ローマ字、英語入力も許可）
+// 単語更新（漢字→ひらがな→ローマ字）
 //------------------------------------------------------
 function nextWord() {
   currentWord = words[Math.floor(Math.random() * words.length)];
   wordEl.textContent = currentWord;
 
-  // 日本語 → ローマ字
-  let romaji = wanakana.toRomaji(currentWord)
+  // ① 漢字 → ひらがな
+  let hira = wanakana.toHiragana(currentWord);
+
+  // ② ひらがな → ローマ字
+  currentRomaji = wanakana.toRomaji(hira)
     .replace(/-/g, "")
     .replace(/ /g, "")
     .toLowerCase();
 
-  currentRomaji = romaji;
   romajiEl.textContent = currentRomaji;
 
   inputEl.value = "";
-  clearInputSelection();
 }
 
 //------------------------------------------------------
-// 入力処理
+// 入力処理（寿司打方式）
 //------------------------------------------------------
 inputEl.addEventListener("input", () => {
   if (!isPlaying) return;
@@ -263,23 +256,14 @@ inputEl.addEventListener("input", () => {
   const val = inputEl.value.toLowerCase();
   totalTyped++;
 
-  // ローマ字一致
-  const isRomajiOK = currentRomaji.startsWith(val);
-
-  // 英語入力（server など）
-  const isEnglishOK =
-    currentWord.match(/^[ァ-ヶー]+$/) &&
-    val.length > 0 &&
-    wanakana.toKatakana(val) === currentWord;
-
-  if (isRomajiOK || isEnglishOK) {
+  // 先頭一致
+  if (currentRomaji.startsWith(val)) {
     hitSound.currentTime = 0;
     hitSound.play();
 
-    if (val === currentRomaji || isEnglishOK) {
+    if (val === currentRomaji) {
       score++;
       inputEl.value = "";
-      clearInputSelection();
       nextWord();
     }
   } else {
