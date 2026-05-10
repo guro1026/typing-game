@@ -132,6 +132,7 @@
       z-index: 30;
     }
 
+    /* フラッシュ（成功） */
     #flash {
       position: fixed;
       inset: 0;
@@ -139,11 +140,44 @@
       opacity: 0;
       pointer-events: none;
       z-index: 9;
-      transition: opacity 0.4s ease-out;
+      transition: opacity 0.2s ease-out;
+    }
+
+    /* フラッシュ（ミス） */
+    #flash.miss {
+      background: radial-gradient(circle, rgba(255,0,0,0.7), transparent 60%);
     }
 
     #flash.active {
       opacity: 1;
+    }
+
+    /* 管理者ツール */
+    #adminPanel {
+      margin-top: 60px;
+      padding: 20px;
+      border-top: 1px solid #444;
+      font-size: 14px;
+      text-align: left;
+      width: 90%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    #adminPanel textarea {
+      width: 100%;
+      background: #111;
+      color: #0f0;
+      border: 1px solid #555;
+      padding: 10px;
+      font-size: 14px;
+    }
+
+    #adminPanel button {
+      margin-top: 10px;
+      padding: 8px 20px;
+      font-size: 14px;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -194,6 +228,19 @@
     <h2>🏆 ランキング</h2>
     <div id="rankingList"></div>
     <button id="backTitle">タイトルへ戻る</button>
+  </div>
+
+  <!-- 🔧 管理者ツール（辞書自動生成） -->
+  <div id="adminPanel">
+    <details>
+      <summary style="cursor:pointer;">🔧 管理者ツール（辞書自動生成）</summary>
+      <p>出題用 CSV（日本語）を貼り付けてください：</p>
+      <textarea id="dictSrc" style="height:150px;"></textarea><br>
+      <button id="generateDictBtn">辞書を生成</button>
+      <button id="downloadDictBtn">kanji_dict.csv をダウンロード</button>
+      <p>生成結果：</p>
+      <textarea id="dictOut" style="height:150px;"></textarea>
+    </details>
   </div>
 
   <script src="game.js?v=1000"></script>
