@@ -1,0 +1,74 @@
+name: Auto Update Kanji Dictionary
+
+on:
+  push:
+    paths:
+      - "words_*.csv"
+
+jobs:
+  build-dict:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install wanakana
+        run: npm install wanakana
+
+      - name: Generate kanji_dict.csv
+        run: |
+          node << 'EOF'
+          const fs = require('fs');
+          const wanakana = require('wanakana');
+
+          const files = fs.readdirSync('.').filter(f => f.startsWith('words_') && f.endsWith('.csv'));
+
+          const dict = {};
+
+          for (const file of files) {
+            const text = fs.readFileSync(file, 'utf8').replace(/^\uFEFF/, '').trim();
+            const lines = text.split('\n');
+
+            for (const line of lines) {
+              const word = line.trim();
+              if (!word) continue;
+
+              for (let i = 0; i < word.length; i++) {
+                const ch = word[i];
+                if (wanakana.isKanji(ch)) {
+                  let j = i;
+                  let kanji = "";
+                  while (j < word.length && wanakana.isKanji(word[j])) {
+                    kanji += word[j];
+                    j++;
+                  }
+                  if (!dict[kanji]) {
+                    dict[kanji] = wanakana.toHiragana(kanji);
+                  }
+                  i = j - 1;
+                }
+              }
+            }
+          }
+
+          let output = "kanji,hiragana\n";
+          for (const [k, v] of Object.entries(dict)) {
+            output += `${k},${v}\n`;
+          }
+
+          fs.writeFileSync('kanji_dict.csv', output);
+          EOF
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add kanji_dict.csv
+          git commit -m "Auto update kanji_dict.csv" || exit 0
+          git push
