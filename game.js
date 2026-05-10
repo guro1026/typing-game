@@ -449,3 +449,56 @@ retryBtn.addEventListener("click", () => {
   title.style.display = "block";
   difficultySelect.style.display = "block";
 });
+// 管理者用：複合語対応 辞書自動生成
+generateDictBtn.addEventListener("click", () => {
+  const text = dictSrc.value.trim();
+  if (!text) {
+    alert("CSVテキストを入力してください。");
+    return;
+  }
+
+  const lines = text.split("\n");
+  const dict = {};
+
+  lines.forEach(line => {
+    const word = line.trim();
+    if (!word) return;
+
+    // ひらがな化（漢字はそのまま残る）
+    const hiraAll = wanakana.toHiragana(word);
+
+    let i = 0;
+    while (i < word.length) {
+      if (wanakana.isKanji(word[i])) {
+        // ★複合語として漢字が続く部分を抽出
+        let j = i;
+        let kanji = "";
+        while (j < word.length && wanakana.isKanji(word[j])) {
+          kanji += word[j];
+          j++;
+        }
+
+        // ★複合語の読みを生成
+        const hira = wanakana.toHiragana(kanji);
+
+        // ★辞書に登録（重複は無視）
+        if (!dict[kanji]) {
+          dict[kanji] = hira;
+        }
+
+        i = j;
+      } else {
+        i++;
+      }
+    }
+  });
+
+  // CSV 出力
+  let output = "kanji,hiragana\n";
+  for (const [k, v] of Object.entries(dict)) {
+    output += `${k},${v}\n`;
+  }
+
+  dictOut.value = output;
+  alert("複合語対応の辞書を生成しました！");
+});
