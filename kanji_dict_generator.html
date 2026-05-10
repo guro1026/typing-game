@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>辞書自動生成ツール</title>
+<script src="https://unpkg.com/wanakana"></script>
+</head>
+<body>
+
+<h2>辞書自動生成ツール</h2>
+<p>CSV（日本語単語リスト）を貼り付けてください：</p>
+
+<textarea id="src" style="width:90%;height:200px;"></textarea>
+<br><br>
+<button onclick="generate()">辞書を生成する</button>
+
+<h3>生成された辞書（kanji_dict.csv 用）：</h3>
+<textarea id="out" style="width:90%;height:200px;"></textarea>
+
+<script>
+function generate() {
+  const text = document.getElementById("src").value.trim();
+  const lines = text.split("\n");
+
+  const dict = {};
+
+  lines.forEach(line => {
+    const word = line.trim();
+
+    // ひらがな化（漢字は残る）
+    const hira = wanakana.toHiragana(word);
+
+    // ひらがな化できなかった部分＝漢字
+    for (let i = 0; i < word.length; i++) {
+      const ch = word[i];
+
+      if (wanakana.isKanji(ch)) {
+        // その漢字を含む語を抽出
+        const reg = new RegExp(ch + "+");
+        const match = word.match(reg);
+
+        if (match) {
+          const kanji = match[0];
+
+          // ひらがな部分を抽出
+          const hiraPart = wanakana.toHiragana(kanji);
+
+          dict[kanji] = hiraPart;
+        }
+      }
+    }
+  });
+
+  let output = "kanji,hiragana\n";
+  for (const [k, v] of Object.entries(dict)) {
+    output += `${k},${v}\n`;
+  }
+
+  document.getElementById("out").value = output;
+}
+</script>
+
+</body>
+</html>
