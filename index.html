@@ -2,25 +2,63 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>Typing Game</title>
+  <title>K.i.r タイピング王</title>
+  <style>
+    body {
+      background: #111;
+      color: #fff;
+      font-family: "Segoe UI", sans-serif;
+      text-align: center;
+      padding-top: 50px;
+    }
+    #game, #result {
+      display: none;
+    }
+    #word {
+      font-size: 48px;
+      margin: 20px 0;
+    }
+    #romaji {
+      font-size: 32px;
+      color: #0ff;
+    }
+    #timer {
+      font-size: 32px;
+      margin: 20px 0;
+    }
+    input {
+      font-size: 24px;
+      padding: 10px;
+      width: 300px;
+    }
+    button {
+      font-size: 24px;
+      padding: 10px 20px;
+      margin-top: 20px;
+    }
+  </style>
 </head>
 <body>
-  <h1>Typing Game</h1>
 
-  <!-- 単語表示 -->
-  <div id="word"></div>
-  <div id="reading"></div>
+  <div id="title">
+    <h1>K.i.r タイピング王</h1>
+    <p>名前を入力してスペースキーで開始</p>
+    <input id="playerName" placeholder="名前を入力">
+  </div>
 
-  <!-- 入力欄 -->
-  <input id="inputEl" type="text">
+  <div id="game">
+    <div id="timer">60</div>
+    <div id="word"></div>
+    <div id="romaji"></div>
+    <input id="input" autocomplete="off">
+  </div>
 
-  <!-- スコア・タイマー -->
-  <div id="score"></div>
-  <div id="timer"></div>
-
-  <!-- ボタン -->
-  <button id="startBtn">スタート</button>
-  <button id="retryBtn" style="display:none;">もう一度</button>
+  <div id="result">
+    <h2>結果</h2>
+    <p id="scoreText"></p>
+    <p id="detailText"></p>
+    <button id="retry">もう一度</button>
+  </div>
 
   <script src="game.js"></script>
 </body>
