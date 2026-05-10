@@ -121,7 +121,7 @@ function playMissSound() {
 // ===== DOM =====
 const wordEl = document.getElementById("word");
 const readingEl = document.getElementById("reading");
-const inputEl = document.getElementById("inputEL");
+const inputEl = document.getElementById("inputEl");
 const scoreEl = document.getElementById("score");
 const timerEl = document.getElementById("timer");
 const startBtn = document.getElementById("startBtn");
