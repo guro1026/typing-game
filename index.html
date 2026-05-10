@@ -3,24 +3,61 @@
 <head>
   <meta charset="UTF-8">
   <title>K.i.r タイピング王</title>
+
+  <!-- wanakana（日本語→ローマ字変換） -->
+  <script src="https://unpkg.com/wanakana"></script>
+
   <style>
     body {
-      background: #111;
+      background: radial-gradient(circle at top, #222, #000);
       color: #fff;
       font-family: "Segoe UI", sans-serif;
       text-align: center;
-      padding-top: 50px;
+      padding-top: 40px;
+      overflow: hidden;
     }
-    #game, #result {
+
+    h1 {
+      font-size: 48px;
+      text-shadow: 0 0 15px #0ff;
+      margin-bottom: 10px;
+    }
+
+    /* --- 難易度選択 --- */
+    #difficultySelect {
+      margin-top: 20px;
+    }
+    .diff-btn {
+      font-size: 24px;
+      padding: 12px 30px;
+      margin: 10px;
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      background: #0ff;
+      color: #000;
+      font-weight: bold;
+      transition: 0.2s;
+    }
+    .diff-btn:hover {
+      transform: scale(1.1);
+      background: #fff;
+    }
+
+    /* --- ゲーム画面 --- */
+    #game, #result, #ranking {
       display: none;
     }
+
     #word {
       font-size: 48px;
       margin: 20px 0;
+      text-shadow: 0 0 10px #0ff;
     }
     #romaji {
       font-size: 32px;
       color: #0ff;
+      text-shadow: 0 0 8px #0ff;
     }
     #timer {
       font-size: 32px;
@@ -31,21 +68,85 @@
       padding: 10px;
       width: 300px;
     }
+
+    /* --- カウントダウン --- */
+    #countdownOverlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+    #countdownNumber {
+      font-size: 120px;
+      font-weight: bold;
+      text-shadow: 0 0 20px #fff, 0 0 40px #0ff;
+      animation: pop 0.6s ease-out;
+    }
+    @keyframes pop {
+      0% { transform: scale(0.2); opacity: 0; }
+      60% { transform: scale(1.2); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* --- 光エフェクト --- */
+    #flash {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle, rgba(255,255,255,0.9), transparent 60%);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 9;
+      transition: opacity 0.4s ease-out;
+    }
+    #flash.active {
+      opacity: 1;
+    }
+
+    /* --- ランキング --- */
+    #rankingList {
+      font-size: 22px;
+      margin-top: 20px;
+      line-height: 1.8;
+    }
+
     button {
-      font-size: 24px;
+      font-size: 22px;
       padding: 10px 20px;
       margin-top: 20px;
+      cursor: pointer;
+      border-radius: 8px;
     }
   </style>
 </head>
+
 <body>
 
+  <div id="flash"></div>
+
+  <!-- カウントダウン -->
+  <div id="countdownOverlay">
+    <div id="countdownNumber"></div>
+  </div>
+
+  <!-- タイトル -->
   <div id="title">
     <h1>K.i.r タイピング王</h1>
-    <p>名前を入力してスペースキーで開始</p>
+    <p>名前を入力して Enter キーで開始</p>
     <input id="playerName" placeholder="名前を入力">
   </div>
 
+  <!-- 難易度選択 -->
+  <div id="difficultySelect">
+    <h2>難易度を選択してください</h2>
+    <button class="diff-btn" data-csv="words_easy.csv">挨拶編</button>
+    <button class="diff-btn" data-csv="words_business.csv">ビジネス用語</button>
+    <button class="diff-btn" data-csv="words_it.csv">IT用語</button>
+  </div>
+
+  <!-- ゲーム画面 -->
   <div id="game">
     <div id="timer">60</div>
     <div id="word"></div>
@@ -53,13 +154,22 @@
     <input id="input" autocomplete="off">
   </div>
 
+  <!-- 結果画面 -->
   <div id="result">
     <h2>結果</h2>
     <p id="scoreText"></p>
     <p id="detailText"></p>
+    <button id="showRanking">ランキングを見る</button>
     <button id="retry">もう一度</button>
   </div>
 
-  <script src="game.js"></script>
+  <!-- ランキング画面 -->
+  <div id="ranking">
+    <h2>🏆 ランキング</h2>
+    <div id="rankingList"></div>
+    <button id="backTitle">タイトルへ戻る</button>
+  </div>
+
+  <script src="game.js?v=1"></script>
 </body>
 </html>
