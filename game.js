@@ -215,7 +215,7 @@ document.querySelectorAll(".diff-btn").forEach(btn => {
       selectedCSV.includes("business") ? "ビジネス用語" :
       selectedCSV.includes("it") ? "IT用語" : "選択したモード";
 
-    alert(`${modeName}を選びました。\nEnter を押すとゲームがスタートします。`);
+
   });
 });
 
