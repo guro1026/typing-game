@@ -1,253 +1,161 @@
-// ===== CSV URL =====
-const CSV_URL =
-  "https://b750490c-c969-4351-92b6-891d5a1963a7.usrfiles.com/ugd/b75049_34112729c0a747dfbc3f10f81ff276ad.csv";
+//------------------------------------------------------
+// Supabase 設定
+//------------------------------------------------------
+const SUPABASE_URL = "https://bznzxcllyocfairwjzzk.supabase.co";
+const SUPABASE_KEY = "sb_publishable_vEVMPFsuyISRzeX8helsHA_xO4y1m8e";
 
-// ===== CSV 読み込み =====
-async function loadWords() {
-  const res = await fetch(CSV_URL);
-  const text = await res.text();
-  const lines = text.trim().split("\n");
-  const words = [];
-
-  for (let i = 1; i < lines.length; i++) {
-    const cols = lines[i].split(",");
-    const [jp, kana, romaji, english] = cols;
-    words.push({
-      jp,
-      kana,
-      romaji: [romaji],
-      english: english ? [english] : []
-    });
-  }
-  return words;
+async function saveScore(data) {
+  await fetch(`${SUPABASE_URL}/rest/v1/score_logs`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "apikey": SUPABASE_KEY,
+      "Authorization": `Bearer ${SUPABASE_KEY}`
+    },
+    body: JSON.stringify(data)
+  });
 }
 
-// ===== ローマ字→ひらがな変換テーブル（簡易 A-2） =====
-const ROMAJI_TABLE = {
-  a:"あ", i:"い", u:"う", e:"え", o:"お",
-  ka:"か", ki:"き", ku:"く", ke:"け", ko:"こ",
-  ca:"か", cu:"く", co:"こ",
-  sa:"さ", si:"し", shi:"し", su:"す", se:"せ", so:"そ", ci:"し",
-  ta:"た", ti:"ち", chi:"ち", tu:"つ", tsu:"つ", te:"て", to:"と",
-  na:"な", ni:"に", nu:"ぬ", ne:"ね", no:"の",
-  ha:"は", hi:"ひ", hu:"ふ", fu:"ふ", he:"へ", ho:"ほ",
-  ma:"ま", mi:"み", mu:"む", me:"め", mo:"も",
-  ya:"や", yu:"ゆ", yo:"よ",
-  ra:"ら", ri:"り", ru:"る", re:"れ", ro:"ろ",
-  wa:"わ", wo:"を",
-  ga:"が", gi:"ぎ", gu:"ぐ", ge:"げ", go:"ご",
-  za:"ざ", zi:"じ", ji:"じ", zu:"ず", ze:"ぜ", zo:"ぞ",
-  da:"だ", di:"ぢ", du:"づ", de:"で", do:"ど",
-  ba:"ば", bi:"び", bu:"ぶ", be:"べ", bo:"ぼ",
-  pa:"ぱ", pi:"ぴ", pu:"ぷ", pe:"ぺ", po:"ぽ",
-  kya:"きゃ", kyu:"きゅ", kyo:"きょ",
-  sha:"しゃ", shu:"しゅ", sho:"しょ",
-  sya:"しゃ", syu:"しゅ", syo:"しょ",
-  cha:"ちゃ", chu:"ちゅ", cho:"ちょ",
-  tya:"ちゃ", tyu:"ちゅ", tyo:"ちょ",
-  nya:"にゃ", nyu:"にゅ", nyo:"にょ",
-  hya:"ひゃ", hyu:"ひゅ", hyo:"ひょ",
-  mya:"みゃ", myu:"みゅ", myo:"みょ",
-  rya:"りゃ", ryu:"りゅ", ryo:"りょ",
-  gya:"ぎゃ", gyu:"ぎゅ", gyo:"ぎょ",
-  ja:"じゃ", ju:"じゅ", jo:"じょ",
-  bya:"びゃ", byu:"びゅ", byo:"びょ",
-  pya:"ぴゃ", pyu:"ぴゅ", pyo:"ぴょ",
-  xa:"ぁ", xi:"ぃ", xu:"ぅ", xe:"ぇ", xo:"ぉ",
-  xya:"ゃ", xyu:"ゅ", xyo:"ょ",
-  xtu:"っ", xtsu:"っ", ltsu:"っ",
-  n:"ん", nn:"ん", "n'":"ん",
-  "-":"ー"
-};
+//------------------------------------------------------
+// ゲーム変数
+//------------------------------------------------------
+const words = [
+  "server", "database", "frontend", "backend", "router",
+  "javascript", "python", "docker", "cloud", "security",
+  "function", "variable", "object", "class", "module"
+];
 
-function romajiToHiragana(input) {
-  let result = "";
-  let i = 0;
-  const s = input.toLowerCase();
-
-  while (i < s.length) {
-    let matched = false;
-
-    if (i + 1 < s.length && s[i] === s[i + 1] && /[bcdfghjklmnpqrstvwxyz]/.test(s[i])) {
-      result += "っ";
-      i++;
-      continue;
-    }
-
-    for (let len = 3; len >= 1; len--) {
-      const chunk = s.slice(i, i + len);
-      if (ROMAJI_TABLE[chunk]) {
-        result += ROMAJI_TABLE[chunk];
-        i += len;
-        matched = true;
-        break;
-      }
-    }
-
-    if (!matched) {
-      result += s[i];
-      i++;
-    }
-  }
-  return result;
-}
-
-// ===== Web Audio API（ヒット／ミス音） =====
-const AudioContext = window.AudioContext || window.webkitAudioContext;
-const audioCtx = new AudioContext();
-
-function playHitSound() {
-  const osc = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-  osc.type = "square";
-  osc.frequency.setValueAtTime(880, audioCtx.currentTime);
-  gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-  osc.connect(gain).connect(audioCtx.destination);
-  osc.start();
-  osc.stop(audioCtx.currentTime + 0.05);
-}
-
-function playMissSound() {
-  const osc = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-  osc.type = "square";
-  osc.frequency.setValueAtTime(220, audioCtx.currentTime);
-  gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-  osc.connect(gain).connect(audioCtx.destination);
-  osc.start();
-  osc.stop(audioCtx.currentTime + 0.15);
-}
-
-// ===== DOM =====
-const wordEl = document.getElementById("word");
-const readingEl = document.getElementById("reading");
-const inputEl = document.getElementById("inputEl");
-const scoreEl = document.getElementById("score");
-const timerEl = document.getElementById("timer");
-const startBtn = document.getElementById("startBtn");
-const retryBtn = document.getElementById("retryBtn");
-
-// ===== ゲーム状態 =====
-let WORDS = [];
-let currentWord = null;
-let remainingKana = "";
+let currentWord = "";
+let currentRomaji = "";
+let timer = 60;
 let score = 0;
-let timeLeft = 60.0;
+let totalTyped = 0;
+let missCount = 0;
 let timerId = null;
-let isPlaying = false;
+let playerName = "";
 
-// ===== 単語選択 =====
-function pickWord() {
-  const idx = Math.floor(Math.random() * WORDS.length);
-  return WORDS[idx];
-}
+//------------------------------------------------------
+// DOM
+//------------------------------------------------------
+const title = document.getElementById("title");
+const game = document.getElementById("game");
+const result = document.getElementById("result");
 
-function setNewWord() {
-  currentWord = pickWord();
-  remainingKana = currentWord.kana;
-  wordEl.textContent = currentWord.jp;
-  readingEl.textContent = remainingKana;
-  inputEl.value = "";
-  inputEl.className = "";
-}
+const wordEl = document.getElementById("word");
+const romajiEl = document.getElementById("romaji");
+const timerEl = document.getElementById("timer");
+const inputEl = document.getElementById("input");
 
-// ===== タイマー =====
-function updateTimer() {
-  timeLeft -= 0.1;
-  if (timeLeft < 0) timeLeft = 0;
-  timerEl.textContent = `残り時間: ${timeLeft.toFixed(1)} 秒`;
-  if (timeLeft <= 0) endGame();
-}
+const scoreText = document.getElementById("scoreText");
+const detailText = document.getElementById("detailText");
+const retryBtn = document.getElementById("retry");
 
-// ===== ゲーム開始 =====
-function startGame() {
-  if (isPlaying || WORDS.length === 0) return;
-  isPlaying = true;
-  score = 0;
-  timeLeft = 60.0;
-  scoreEl.textContent = `スコア: ${score}`;
-  timerEl.textContent = `残り時間: ${timeLeft.toFixed(1)} 秒`;
-  startBtn.style.display = "none";
-  retryBtn.style.display = "none";
-  inputEl.disabled = false;
-  inputEl.focus();
-  setNewWord();
-  if (timerId) clearInterval(timerId);
-  timerId = setInterval(updateTimer, 100);
-}
+//------------------------------------------------------
+// 音
+//------------------------------------------------------
+const hitSound = new Audio("sounds/hit.mp3");
+const missSound = new Audio("sounds/miss.mp3");
+const bgm = new Audio("sounds/bgm.mp3");
+bgm.loop = true;
 
-// ===== ゲーム終了 =====
-function endGame() {
-  isPlaying = false;
-  inputEl.disabled = true;
-  clearInterval(timerId);
-  wordEl.textContent = "終了！";
-  readingEl.textContent = "";
-  retryBtn.style.display = "inline-block";
-}
-
-// ===== 入力処理 =====
-function handleInput() {
-  if (!isPlaying || !currentWord) return;
-
-  const typed = inputEl.value.toLowerCase();
-
-  // 英語スペル完全一致
-  if (currentWord.english && currentWord.english.includes(typed)) {
-    score += currentWord.kana.length;
-    scoreEl.textContent = `スコア: ${score}`;
-    playHitSound();
-    setNewWord();
-    inputEl.value = "";
-    return;
-  }
-
-  // ローマ字→ひらがな
-  const typedKana = romajiToHiragana(typed);
-
-  if (currentWord.kana.startsWith(typedKana)) {
-    inputEl.className = "hit";
-
-    const consumed = typedKana.length;
-    remainingKana = currentWord.kana.slice(consumed);
-    readingEl.textContent = remainingKana;
-
-    score += consumed;
-    scoreEl.textContent = `スコア: ${score}`;
-
-    playHitSound();
-    inputEl.value = "";
-
-    if (remainingKana.length === 0) setNewWord();
-  } else {
-    inputEl.className = "miss";
-    playMissSound();
-  }
-}
-
-// ===== イベント =====
-inputEl.addEventListener("input", handleInput);
-
-startBtn.addEventListener("click", () => {
-  audioCtx.resume();
-  startGame();
-});
-
-retryBtn.addEventListener("click", () => {
-  audioCtx.resume();
-  startGame();
-});
-
-window.addEventListener("keydown", (e) => {
-  if (e.code === "Space" && !isPlaying) {
-    e.preventDefault();
-    audioCtx.resume();
+//------------------------------------------------------
+// ゲーム開始
+//------------------------------------------------------
+document.addEventListener("keydown", (e) => {
+  if (e.code === "Space" && title.style.display !== "none") {
+    playerName = document.getElementById("playerName").value || "名無し";
     startGame();
   }
 });
 
-// ===== 起動時：CSV 読み込み =====
-loadWords().then(data => {
-  WORDS = data;
-  console.log("WORDS loaded:", WORDS.length);
+function startGame() {
+  title.style.display = "none";
+  game.style.display = "block";
+
+  score = 0;
+  totalTyped = 0;
+  missCount = 0;
+  timer = 60;
+
+  nextWord();
+  inputEl.value = "";
+  inputEl.focus();
+
+  bgm.currentTime = 0;
+  bgm.play();
+
+  timerId = setInterval(() => {
+    timer--;
+    timerEl.textContent = timer;
+    if (timer <= 0) endGame();
+  }, 1000);
+}
+
+//------------------------------------------------------
+// 単語更新
+//------------------------------------------------------
+function nextWord() {
+  currentWord = words[Math.floor(Math.random() * words.length)];
+  currentRomaji = currentWord; // 簡易ローマ字（必要なら A-2 に差し替え）
+  wordEl.textContent = currentWord;
+  romajiEl.textContent = currentRomaji;
+}
+
+//------------------------------------------------------
+// 入力処理
+//------------------------------------------------------
+inputEl.addEventListener("input", () => {
+  const val = inputEl.value;
+  totalTyped++;
+
+  if (currentRomaji.startsWith(val)) {
+    hitSound.currentTime = 0;
+    hitSound.play();
+
+    if (val === currentRomaji) {
+      score++;
+      inputEl.value = "";
+      nextWord();
+    }
+  } else {
+    missCount++;
+    missSound.currentTime = 0;
+    missSound.play();
+  }
+});
+
+//------------------------------------------------------
+// ゲーム終了
+//------------------------------------------------------
+function endGame() {
+  clearInterval(timerId);
+  game.style.display = "none";
+  result.style.display = "block";
+
+  bgm.pause();
+  bgm.currentTime = 0;
+
+  const accuracy = totalTyped > 0 ? score / totalTyped : 0;
+
+  scoreText.textContent = `スコア：${score}`;
+  detailText.textContent =
+    `総タイプ数：${totalTyped} / ミス：${missCount} / 正確率：${(accuracy * 100).toFixed(1)}%`;
+
+  // Supabase に保存
+  saveScore({
+    name: playerName,
+    score: score,
+    total: totalTyped,
+    miss: missCount,
+    accuracy: accuracy,
+    mode: "romaji"
+  });
+}
+
+//------------------------------------------------------
+// リトライ
+//------------------------------------------------------
+retryBtn.addEventListener("click", () => {
+  result.style.display = "none";
+  title.style.display = "block";
 });
