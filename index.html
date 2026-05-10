@@ -7,13 +7,22 @@
 <body>
   <h1>Typing Game</h1>
 
+  <!-- 単語表示 -->
+  <div id="word"></div>
+  <div id="reading"></div>
+
   <!-- 入力欄 -->
   <input id="inputEl" type="text">
 
-  <!-- スタートボタン -->
-  <button id="startBtn">スタート</button>
+  <!-- スコア・タイマー -->
+  <div id="score"></div>
+  <div id="timer"></div>
 
-  <!-- ゲーム表示領域 -->
+  <!-- ボタン -->
+  <button id="startBtn">スタート</button>
+  <button id="retryBtn" style="display:none;">もう一度</button>
+
+  <!-- ゲーム領域 -->
   <div id="game"></div>
 
   <script src="game.js"></script>
