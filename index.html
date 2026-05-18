@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>K.i.r タイピング王</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -183,8 +184,6 @@
       margin-bottom: 8px;
     }
 
-    #reading-display { display: none; }
-
     #romaji-display {
       font-size: 22px;
       color: #0ff;
@@ -194,8 +193,6 @@
     #romaji-display span.used {
       opacity: 0.3;
     }
-
-    #romaji-input { display: none; }
 
     #bottom-bar {
       display: flex;
@@ -237,8 +234,24 @@
     }
     #gameover-title { font-size: 24px; margin-bottom: 12px; }
     #gameover-score { font-size: 18px; margin-bottom: 16px; }
+
+    /* ====== カウントダウン ====== */
+    #countdown {
+      position: absolute;
+      inset: 0;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      font-size: 120px;
+      color: #0ff;
+      text-shadow: 0 0 20px #0ff;
+      z-index: 20;
+      background: rgba(0,0,0,0.6);
+      font-weight: bold;
+    }
   </style>
 </head>
+
 <body>
   <div id="game-root">
 
@@ -251,9 +264,9 @@
         <input id="player-name-input" type="text" placeholder="名前を入力（任意）">
 
         <div id="title-hint">
-          通常モード：<br>
-          1. 挨拶　2. ビジネス会話　3. IT用語　4. メール文言<br>
-          （※タイトル画面で <code>keepitreal</code> を10秒以内に入力すると…？）
+          SPACE：ランダム開始<br>
+          ESC：中断<br>
+          keepitreal：無敵モード
         </div>
 
         <div class="stage-buttons">
@@ -261,10 +274,13 @@
           <button class="btn" data-stage="business">ビジネス会話</button>
           <button class="btn" data-stage="it">IT業界あるある</button>
           <button class="btn" data-stage="mail">メール文言</button>
-          <button class="btn btn-secondary" id="title-start-random">ランダム</button>
+          <button class="btn" id="title-start-random">ランダム</button>
         </div>
       </div>
     </div>
+
+    <!-- カウントダウン -->
+    <div id="countdown">3</div>
 
     <!-- ゲームオーバー -->
     <div id="gameover-screen" class="overlay">
@@ -290,9 +306,7 @@
 
       <div id="center-area">
         <div id="kanji-display">準備OK？</div>
-        <div id="reading-display">ステージを選んでください</div>
         <div id="romaji-display"></div>
-        <input id="romaji-input" type="text" autocomplete="off" disabled>
       </div>
 
       <div id="bottom-bar">

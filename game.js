@@ -67,6 +67,37 @@ const retryButton = document.getElementById("retry-button");
 const seHit = document.getElementById("se-hit");
 const seMiss = document.getElementById("se-miss");
 
+const countdownEl = document.getElementById("countdown");
+
+// =========================
+// AudioContext 解放（音が鳴らない対策）
+// =========================
+let audioUnlocked = false;
+
+function unlockAudio() {
+  if (audioUnlocked) return;
+
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (AudioCtx) {
+      const ctx = new AudioCtx();
+      const buffer = ctx.createBuffer(1, 1, 22050);
+      const source = ctx.createBufferSource();
+      source.buffer = buffer;
+      source.connect(ctx.destination);
+      source.start(0);
+    }
+  } catch (e) {
+    console.warn("Audio unlock failed:", e);
+  }
+
+  audioUnlocked = true;
+}
+
+document.addEventListener("keydown", unlockAudio, { once: true });
+document.addEventListener("mousedown", unlockAudio, { once: true });
+document.addEventListener("touchstart", unlockAudio, { once: true });
+
 // =========================
 // CSV 読み込み
 // =========================
@@ -82,7 +113,7 @@ async function loadCsv(path) {
     if (cols.length < 3) continue;
 
     const kanji = cols[0].trim();
-    const romaji = cols[2].trim().toLowerCase();
+    const romaji = cols[2].trim().toLowerCase(); // CSVローマ字をそのまま使う
 
     if (!kanji || !romaji) continue;
     result.push({ kanji, romaji });
@@ -99,6 +130,34 @@ async function loadAllCsv() {
       wordsByStage[key] = [];
     }
   }
+}
+
+// =========================
+// カウントダウン
+// =========================
+function startCountdown(stageKey, options = {}) {
+  countdownEl.style.display = "flex";
+  countdownEl.style.color = "#0ff";
+  countdownEl.style.textShadow = "0 0 20px #0ff";
+
+  let count = 3;
+  countdownEl.textContent = count;
+
+  let interval = setInterval(() => {
+    count--;
+
+    if (count > 0) {
+      countdownEl.textContent = count;
+    } else if (count === 0) {
+      countdownEl.textContent = "GO!";
+      countdownEl.style.color = "#0f0";
+      countdownEl.style.textShadow = "0 0 30px #0f0";
+    } else {
+      clearInterval(interval);
+      countdownEl.style.display = "none";
+      startGame(stageKey, options);
+    }
+  }, 800);
 }
 
 // =========================
@@ -250,17 +309,30 @@ function flashMiss() {
 function handleGameKeydown(e) {
   if (!isPlaying) return;
 
+  // ESC → 中断
+  if (e.code === "Escape") {
+    isPlaying = false;
+    if (timerId) clearInterval(timerId);
+
+    titleScreen.style.display = "flex";
+    gameoverScreen.style.display = "none";
+
+    kanjiDisplay.textContent = "準備OK？";
+    romajiDisplay.textContent = "";
+    messageLabel.textContent = "";
+    return;
+  }
+
   const key = e.key.toLowerCase();
   if (!/^[a-z]$/.test(key)) return;
 
   const expected = currentRomaji[currentRomajiIndex];
 
   if (key === expected) {
-    // 正解
     currentRomajiIndex++;
 
     seHit.currentTime = 0;
-    seHit.play();
+    seHit.play().catch(() => {});
 
     flashHit();
 
@@ -278,7 +350,6 @@ function handleGameKeydown(e) {
       renderWord();
     }
   } else {
-    // ミス
     if (!isInvincible) {
       timeLeft = Math.max(0, timeLeft - TIME_PENALTY_MISS);
       updateTimeLabel();
@@ -286,7 +357,7 @@ function handleGameKeydown(e) {
     }
 
     seMiss.currentTime = 0;
-    seMiss.play();
+    seMiss.play().catch(() => {});
 
     flashMiss();
 
@@ -302,7 +373,8 @@ stageButtons.forEach(btn => {
     const stageKey = btn.dataset.stage;
     const name = playerNameInput.value.trim();
     playerNameLabel.textContent = name || "GUEST";
-    startGame(stageKey);
+
+    startCountdown(stageKey);
   });
 });
 
@@ -310,70 +382,4 @@ randomButton.addEventListener("click", () => {
   const keys = Object.keys(CSV_PATHS);
   const stageKey = keys[Math.floor(Math.random() * keys.length)];
   const name = playerNameInput.value.trim();
-  playerNameLabel.textContent = name || "GUEST";
-  startGame(stageKey);
-});
-
-// =========================
-// 隠しコマンド keepitreal
-// =========================
-document.addEventListener("keydown", (e) => {
-  if (titleScreen.style.display === "none") return;
-
-  const key = e.key.toLowerCase();
-  if (!/^[a-z]$/.test(key)) return;
-
-  const now = performance.now();
-  if (!titleKeyStartTime || now - titleKeyStartTime > SECRET_TIME_LIMIT) {
-    titleKeyStartTime = now;
-    titleKeyBuffer = "";
-  }
-
-  titleKeyBuffer += key;
-
-  if (titleKeyBuffer.endsWith(SECRET_CODE)) {
-    const name = playerNameInput.value.trim();
-    playerNameLabel.textContent = name || "GUEST";
-
-    startGame("it", { invincible: true });
-    messageLabel.textContent = "KEEP IT REAL MODE!";
-  }
-});
-
-// =========================
-// ゲーム中キー入力
-// =========================
-document.addEventListener("keydown", (e) => {
-  if (titleScreen.style.display !== "none") return;
-  if (gameoverScreen.style.display !== "none") return;
-
-  handleGameKeydown(e);
-});
-
-// =========================
-// リトライ
-// =========================
-retryButton.addEventListener("click", () => {
-  titleScreen.style.display = "flex";
-  gameoverScreen.style.display = "none";
-  kanjiDisplay.textContent = "準備OK？";
-  romajiDisplay.textContent = "";
-  messageLabel.textContent = "";
-});
-
-gameoverRetry.addEventListener("click", () => {
-  titleScreen.style.display = "flex";
-  gameoverScreen.style.display = "none";
-  kanjiDisplay.textContent = "準備OK？";
-  romajiDisplay.textContent = "";
-  messageLabel.textContent = "";
-});
-
-// =========================
-// 初期化
-// =========================
-window.addEventListener("load", async () => {
-  await loadAllCsv();
-  kanjiDisplay.textContent = "準備OK？";
-  romajiDisplay.textContent = "";
-});
+  playerName
