@@ -1,0 +1,127 @@
+/* 画面全体をフルHDに */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: black;
+  font-family: "Segoe UI", sans-serif;
+}
+
+/* タイトル背景動画 */
+#bg-video {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  z-index: -1;
+}
+
+/* ゲーム全体 */
+#game-root {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+}
+
+/* タイトル画面 */
+#title-screen {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  top: 0;
+  left: 0;
+}
+
+/* 巨大タイトルロゴ */
+#title-logo {
+  font-size: 90px;
+  font-weight: 900;
+  color: #ff2a2a;
+  margin-top: 120px;
+  text-shadow:
+    0 0 10px #ff0000,
+    0 0 20px #ff0000,
+    0 0 40px #ff0000,
+    0 0 80px #ff0000;
+  letter-spacing: 6px;
+}
+
+/* ステージ選択ボタン */
+#start-buttons {
+  margin-top: 80px;
+}
+
+.stage-btn {
+  font-size: 32px;
+  padding: 20px 60px;
+  margin: 20px;
+  border: none;
+  border-radius: 10px;
+  background: #222;
+  color: white;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.stage-btn:hover {
+  background: #ff2a2a;
+}
+
+/* ゲーム画面 */
+.hidden {
+  display: none;
+}
+
+/* HUD */
+#hud {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  font-size: 32px;
+  color: white;
+  text-shadow: 0 0 10px black;
+}
+
+#word-area {
+  position: absolute;
+  top: 40%;
+  width: 100%;
+  text-align: center;
+  color: white;
+}
+
+#kanji-display {
+  font-size: 80px;
+  margin-bottom: 20px;
+}
+
+#romaji-display {
+  font-size: 48px;
+  letter-spacing: 4px;
+}
+
+#message {
+  position: absolute;
+  bottom: 80px;
+  width: 100%;
+  text-align: center;
+  font-size: 48px;
+  color: yellow;
+}
+
+/* ゲーム中背景（横スクロール） */
+#game-screen {
+  background-image: url("images/game_bg.jpg");
+  background-size: cover;
+  animation: bg-scroll 20s linear infinite;
+}
+
+@keyframes bg-scroll {
+  from { background-position: 0 0; }
+  to   { background-position: -2000px 0; }
+}

@@ -1,327 +1,59 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>K.i.r タイピング王</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: #000;
-      color: #fff;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
-    #game-root {
-      position: relative;
-      width: 960px;
-      height: 540px;
-      overflow: hidden;
-      background-color: #000;
-      border: 2px solid #444;
-      box-shadow: 0 0 40px rgba(0,0,0,0.8);
-    }
-
-    /* ====== 演出 ====== */
-    .flash-hit {
-      animation: flashHit 0.25s ease-out;
-    }
-    @keyframes flashHit {
-      0% { text-shadow: 0 0 20px #0ff; }
-      100% { text-shadow: 0 0 0 #000; }
-    }
-
-    .flash-miss {
-      animation: flashMiss 0.25s ease-out;
-    }
-    @keyframes flashMiss {
-      0% { background: rgba(255,0,0,0.4); }
-      100% { background: transparent; }
-    }
-
-    .score-popup {
-      position: absolute;
-      font-size: 24px;
-      color: #0ff;
-      text-shadow: 0 0 10px #0ff;
-      animation: popup 0.6s ease-out forwards;
-      pointer-events: none;
-    }
-    @keyframes popup {
-      0% { opacity: 1; transform: translateY(0); }
-      100% { opacity: 0; transform: translateY(-40px); }
-    }
-
-    /* ====== オーバーレイ ====== */
-    .overlay {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      background: rgba(0,0,0,0.7);
-      z-index: 10;
-    }
-
-    /* ====== タイトル画面 ====== */
-    #title-screen {
-      background-image: url("assets/title/title_background.png");
-      background-size: cover;
-      background-position: center;
-    }
-    #title-inner {
-      background: rgba(0,0,0,0.6);
-      padding: 24px 32px;
-      border-radius: 12px;
-      border: 1px solid #0ff;
-      box-shadow: 0 0 20px rgba(0,255,255,0.4);
-      text-align: center;
-    }
-    #title-logo {
-      width: 420px;
-      height: 120px;
-      background-image: url("assets/title/title_logo.png");
-      background-size: contain;
-      background-repeat: no-repeat;
-      background-position: center;
-      margin: 0 auto 16px;
-    }
-    #player-name-input {
-      width: 260px;
-      padding: 8px 10px;
-      font-size: 16px;
-      border-radius: 6px;
-      border: 1px solid #0ff;
-      background: rgba(0,0,0,0.7);
-      color: #0ff;
-      margin-bottom: 12px;
-      text-align: center;
-    }
-    #title-hint {
-      font-size: 12px;
-      color: #aaa;
-      margin-bottom: 16px;
-    }
-    .stage-buttons {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-      margin-top: 8px;
-      flex-wrap: wrap;
-    }
-    .btn {
-      min-width: 140px;
-      padding: 8px 14px;
-      border-radius: 999px;
-      border: 2px solid #0ff;
-      background: rgba(0,0,0,0.8);
-      color: #0ff;
-      font-size: 14px;
-      cursor: pointer;
-      transition: all 0.15s ease-out;
-    }
-    .btn:hover {
-      background: #0ff;
-      color: #000;
-      box-shadow: 0 0 12px rgba(0,255,255,0.7);
-    }
-
-    /* ====== HUD ====== */
-    #hud {
-      position: absolute;
-      inset: 0;
-      padding: 16px 20px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      z-index: 1;
-    }
-    #top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 14px;
-      text-shadow: 0 0 6px #000;
-    }
-    #top-left, #top-right {
-      display: flex;
-      gap: 16px;
-      align-items: center;
-    }
-    .label { color: #aaa; margin-right: 4px; }
-
-    #timer-bar-container {
-      position: relative;
-      width: 260px;
-      height: 12px;
-      border-radius: 999px;
-      border: 1px solid #0ff;
-      overflow: hidden;
-      background: rgba(0,0,0,0.6);
-    }
-    #timer-bar {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      background: linear-gradient(90deg, #0f0, #ff0, #f00);
-      transform-origin: left center;
-    }
-
-    #center-area {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-shadow: 0 0 8px #000;
-    }
-    #kanji-display {
-      font-size: 48px;
-      margin-bottom: 8px;
-    }
-
-    #romaji-display {
-      font-size: 22px;
-      color: #0ff;
-      margin-bottom: 16px;
-      letter-spacing: 2px;
-    }
-    #romaji-display span.used {
-      opacity: 0.3;
-    }
-
-    #bottom-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 13px;
-      text-shadow: 0 0 6px #000;
-    }
-    #stage-label {
-      padding: 4px 10px;
-      border-radius: 999px;
-      border: 1px solid #0ff;
-      background: rgba(0,0,0,0.6);
-      color: #0ff;
-    }
-    #message { flex: 1; text-align: center; color: #ffd700; }
-    #retry-button {
-      padding: 6px 14px;
-      border-radius: 999px;
-      border: 1px solid #0ff;
-      background: rgba(0,0,0,0.8);
-      color: #0ff;
-      cursor: pointer;
-      display: none;
-    }
-    #retry-button:hover {
-      background: #0ff;
-      color: #000;
-    }
-
-    /* ====== ゲームオーバー ====== */
-    #gameover-screen { display: none; text-align: center; }
-    #gameover-inner {
-      background: rgba(0,0,0,0.7);
-      padding: 24px 32px;
-      border-radius: 12px;
-      border: 1px solid #f0f;
-      box-shadow: 0 0 20px rgba(255,0,255,0.5);
-    }
-    #gameover-title { font-size: 24px; margin-bottom: 12px; }
-    #gameover-score { font-size: 18px; margin-bottom: 16px; }
-
-    /* ====== カウントダウン ====== */
-    #countdown {
-      position: absolute;
-      inset: 0;
-      display: none;
-      justify-content: center;
-      align-items: center;
-      font-size: 120px;
-      color: #0ff;
-      text-shadow: 0 0 20px #0ff;
-      z-index: 20;
-      background: rgba(0,0,0,0.6);
-      font-weight: bold;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>KIR タイピング王 決定戦</title>
+<link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-  <div id="game-root">
 
-    <!-- タイトル画面 -->
-    <div id="title-screen" class="overlay">
-      <div id="title-inner">
-        <div id="title-logo"></div>
-        <div style="margin-bottom: 8px; font-size: 14px;">K.i.r タイピング王</div>
+<!-- 背景動画（タイトル画面専用） -->
+<video id="bg-video" autoplay loop muted playsinline>
+  <source src="videos/title_bg.mp4" type="video/mp4">
+</video>
 
-        <input id="player-name-input" type="text" placeholder="名前を入力（任意）">
+<!-- ゲーム全体のルート -->
+<div id="game-root">
 
-        <div id="title-hint">
-          SPACE：ランダム開始<br>
-          ESC：中断<br>
-          keepitreal：無敵モード
-        </div>
+  <!-- タイトル画面 -->
+  <div id="title-screen">
+    <div id="title-logo">KIR タイピング王 決定戦</div>
 
-        <div class="stage-buttons">
-          <button class="btn" data-stage="greeting">挨拶ステージ</button>
-          <button class="btn" data-stage="business">ビジネス会話</button>
-          <button class="btn" data-stage="it">IT業界あるある</button>
-          <button class="btn" data-stage="mail">メール文言</button>
-          <button class="btn" id="title-start-random">ランダム</button>
-        </div>
-      </div>
+    <div id="start-buttons">
+      <button class="stage-btn" data-stage="greeting">挨拶ステージ</button>
+      <button class="stage-btn" data-stage="business">ビジネス会話</button>
+      <button class="stage-btn" data-stage="it">IT業界あるある</button>
+      <button class="stage-btn" data-stage="mail">メール文言</button>
+      <button class="stage-btn" data-stage="keepitreal">裏モード</button>
     </div>
-
-    <!-- カウントダウン -->
-    <div id="countdown">3</div>
-
-    <!-- ゲームオーバー -->
-    <div id="gameover-screen" class="overlay">
-      <div id="gameover-inner">
-        <div id="gameover-title">結果発表</div>
-        <div id="gameover-score"></div>
-        <button class="btn" id="gameover-retry">タイトルに戻る</button>
-      </div>
-    </div>
-
-    <!-- HUD -->
-    <div id="hud">
-      <div id="top-bar">
-        <div id="top-left">
-          <div><span class="label">PLAYER</span><span id="player-name-label">GUEST</span></div>
-          <div><span class="label">SCORE</span><span id="score-label">0</span></div>
-        </div>
-        <div id="top-right">
-          <div><span class="label">TIME</span><span id="time-label">60.0</span></div>
-          <div id="timer-bar-container"><div id="timer-bar"></div></div>
-        </div>
-      </div>
-
-      <div id="center-area">
-        <div id="kanji-display">準備OK？</div>
-        <div id="romaji-display"></div>
-      </div>
-
-      <div id="bottom-bar">
-        <div id="stage-label">STAGE: -</div>
-        <div id="message"></div>
-        <button id="retry-button">もう一度</button>
-      </div>
-    </div>
-
   </div>
 
-  <!-- 音声 -->
-  <audio id="se-hit" src="sounds/hit.mp3" preload="auto"></audio>
-  <audio id="se-miss" src="sounds/beep.mp3" preload="auto"></audio>
+  <!-- ゲーム画面 -->
+  <div id="game-screen" class="hidden">
+    <div id="hud">
+      <div id="player-label">PLAYER: GUEST</div>
+      <div id="score-label">SCORE: 0</div>
+      <div id="multi-label">MULTI: x1</div>
+      <div id="time-label">TIME: 60</div>
+    </div>
 
-  <script src="game.js"></script>
+    <div id="word-area">
+      <div id="kanji-display"></div>
+      <div id="romaji-display"></div>
+    </div>
+
+    <div id="message"></div>
+  </div>
+
+</div>
+
+<!-- BGMスロット（まだ中身は未定） -->
+<audio id="bgm-greeting" src="sounds/greeting.mp3" preload="auto" loop></audio>
+<audio id="bgm-business" src="sounds/business.mp3" preload="auto" loop></audio>
+<audio id="bgm-it" src="sounds/it.mp3" preload="auto" loop></audio>
+<audio id="bgm-mail" src="sounds/mail.mp3" preload="auto" loop></audio>
+<audio id="bgm-keepitreal" src="sounds/keepitreal.mp3" preload="auto" loop></audio>
+
+<script src="game.js"></script>
 </body>
 </html>
