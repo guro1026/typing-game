@@ -7,12 +7,13 @@
 </head>
 <body>
 
-<!-- 背景動画（タイトル画面専用） -->
+<!-- 背景動画（コメントアウト済み） -->
+<!--
 <video id="bg-video" autoplay loop muted playsinline>
   <source src="videos/title_bg.mp4" type="video/mp4">
 </video>
+-->
 
-<!-- ゲーム全体のルート -->
 <div id="game-root">
 
   <!-- タイトル画面 -->
@@ -24,8 +25,10 @@
       <button class="stage-btn" data-stage="business">ビジネス会話</button>
       <button class="stage-btn" data-stage="it">IT業界あるある</button>
       <button class="stage-btn" data-stage="mail">メール文言</button>
-      <button class="stage-btn" data-stage="keepitreal">裏モード</button>
+      <button class="stage-btn" data-stage="keepitreal">KEEP IT REAL</button>
     </div>
+
+    <div id="secret-input"></div>
   </div>
 
   <!-- ゲーム画面 -->
@@ -47,12 +50,14 @@
 
 </div>
 
-<!-- BGMスロット（まだ中身は未定） -->
+<!-- BGM（コメントアウト済み） -->
+<!--
 <audio id="bgm-greeting" src="sounds/greeting.mp3" preload="auto" loop></audio>
 <audio id="bgm-business" src="sounds/business.mp3" preload="auto" loop></audio>
 <audio id="bgm-it" src="sounds/it.mp3" preload="auto" loop></audio>
 <audio id="bgm-mail" src="sounds/mail.mp3" preload="auto" loop></audio>
 <audio id="bgm-keepitreal" src="sounds/keepitreal.mp3" preload="auto" loop></audio>
+-->
 
 <script src="game.js"></script>
 </body>
