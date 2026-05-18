@@ -5,11 +5,7 @@
   <title>K.i.r タイピング王</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       background: #000;
       color: #fff;
@@ -31,6 +27,7 @@
       box-shadow: 0 0 40px rgba(0,0,0,0.8);
     }
 
+    /* オーバーレイ */
     .overlay {
       position: absolute;
       inset: 0;
@@ -114,7 +111,7 @@
       box-shadow: 0 0 12px rgba(255,255,255,0.4);
     }
 
-    /* ゲームUI */
+    /* HUD */
     #hud {
       position: absolute;
       inset: 0;
@@ -136,10 +133,8 @@
       gap: 16px;
       align-items: center;
     }
-    .label {
-      color: #aaa;
-      margin-right: 4px;
-    }
+    .label { color: #aaa; margin-right: 4px; }
+
     #timer-bar-container {
       position: relative;
       width: 260px;
@@ -169,12 +164,10 @@
       margin-bottom: 8px;
     }
 
-    /* ひらがなは使わないので非表示にしておく（残してもOK） */
-    #reading-display {
-      display: none;
-    }
+    /* ひらがなは非表示 */
+    #reading-display { display: none; }
 
-    /* ローマ字表示（寿司打風） */
+    /* ローマ字（寿司打風） */
     #romaji-display {
       font-size: 22px;
       color: #0ff;
@@ -185,10 +178,8 @@
       opacity: 0.3;
     }
 
-    /* input は使わないが、既存構造は残して非表示に */
-    #romaji-input {
-      display: none;
-    }
+    /* input は使わない */
+    #romaji-input { display: none; }
 
     #bottom-bar {
       display: flex;
@@ -204,11 +195,7 @@
       background: rgba(0,0,0,0.6);
       color: #0ff;
     }
-    #message {
-      flex: 1;
-      text-align: center;
-      color: #ffd700;
-    }
+    #message { flex: 1; text-align: center; color: #ffd700; }
     #retry-button {
       padding: 6px 14px;
       border-radius: 999px;
@@ -223,11 +210,8 @@
       color: #000;
     }
 
-    /* ゲームオーバーオーバーレイ */
-    #gameover-screen {
-      display: none;
-      text-align: center;
-    }
+    /* ゲームオーバー */
+    #gameover-screen { display: none; text-align: center; }
     #gameover-inner {
       background: rgba(0,0,0,0.7);
       padding: 24px 32px;
@@ -235,29 +219,27 @@
       border: 1px solid #f0f;
       box-shadow: 0 0 20px rgba(255,0,255,0.5);
     }
-    #gameover-title {
-      font-size: 24px;
-      margin-bottom: 12px;
-    }
-    #gameover-score {
-      font-size: 18px;
-      margin-bottom: 16px;
-    }
+    #gameover-title { font-size: 24px; margin-bottom: 12px; }
+    #gameover-score { font-size: 18px; margin-bottom: 16px; }
   </style>
 </head>
 <body>
   <div id="game-root">
+
     <!-- タイトル画面 -->
     <div id="title-screen" class="overlay">
       <div id="title-inner">
         <div id="title-logo"></div>
         <div style="margin-bottom: 8px; font-size: 14px;">K.i.r タイピング王</div>
+
         <input id="player-name-input" type="text" placeholder="名前を入力（任意）">
+
         <div id="title-hint">
           通常モード：<br>
-          1. 挨拶　2. ビジネス会話　3. IT用語（エンジニアあるある）<br>
+          1. 挨拶　2. ビジネス会話　3. IT用語　4. メール文言<br>
           （※タイトル画面で <code>keepitreal</code> を10秒以内に入力すると…？）
         </div>
+
         <div class="stage-buttons">
           <button class="btn" data-stage="greeting">挨拶ステージ</button>
           <button class="btn" data-stage="business">ビジネス会話</button>
@@ -268,7 +250,7 @@
       </div>
     </div>
 
-    <!-- ゲームオーバー画面 -->
+    <!-- ゲームオーバー -->
     <div id="gameover-screen" class="overlay">
       <div id="gameover-inner">
         <div id="gameover-title">結果発表</div>
@@ -277,7 +259,7 @@
       </div>
     </div>
 
-    <!-- HUD / ゲーム画面 -->
+    <!-- HUD -->
     <div id="hud">
       <div id="top-bar">
         <div id="top-left">
@@ -303,6 +285,7 @@
         <button id="retry-button">もう一度</button>
       </div>
     </div>
+
   </div>
 
   <script src="game.js"></script>

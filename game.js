@@ -5,12 +5,12 @@ const GAME_TIME = 60.0; // 秒
 const TIME_BONUS_PER_WORD = 1.5; // 正解ごとの時間ボーナス
 const TIME_PENALTY_MISS = 2.0;   // ミス時の減少秒数
 
-// CSV パス（漢字,ローマ字 の2列想定）
+// CSV パス（日本語,ひらがな,ローマ字 の3列 → ひらがな無視）
 const CSV_PATHS = {
-  greeting: "words_greeting.csv",
+  greeting: "words_easy.csv",
   business: "words_business.csv",
-  it: "words_engineer.csv",   // IT業界あるある
-  mail: "words_mail.csv"      // メール文言
+  it: "words_it.csv",
+  mail: "words_mail.csv"
 };
 
 // =========================
@@ -24,7 +24,6 @@ let wordsByStage = {
   mail: []
 };
 
-let currentWordIndex = 0;
 let currentWord = null;      // { kanji, romaji }
 let currentRomaji = "";
 let currentRomajiIndex = 0;
@@ -72,16 +71,18 @@ const retryButton = document.getElementById("retry-button");
 async function loadCsv(path) {
   const res = await fetch(path);
   const text = await res.text();
+
   const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l);
   const result = [];
 
-  // 1行目はヘッダ想定：日本語,ローマ字
+  // 1行目はヘッダ：日本語,ひらがな,ローマ字
   for (let i = 1; i < lines.length; i++) {
-    const line = lines[i];
-    const cols = line.split(",");
-    if (cols.length < 2) continue;
+    const cols = lines[i].split(",");
+    if (cols.length < 3) continue;
+
     const kanji = cols[0].trim();
-    const romaji = cols[1].trim().toLowerCase();
+    const romaji = cols[2].trim().toLowerCase(); // ← ひらがな無視して3列目を読む
+
     if (!kanji || !romaji) continue;
     result.push({ kanji, romaji });
   }
@@ -105,12 +106,12 @@ async function loadAllCsv() {
 function resetGameState() {
   score = 0;
   timeLeft = GAME_TIME;
-  currentWordIndex = 0;
   currentWord = null;
   currentRomaji = "";
   currentRomajiIndex = 0;
   isPlaying = false;
   isInvincible = false;
+
   updateScoreLabel();
   updateTimeLabel();
   updateTimerBar();
@@ -130,6 +131,7 @@ function startGame(stageKey, options = {}) {
 
   resetGameState();
   setStageLabel(stageKey);
+
   titleScreen.style.display = "none";
   gameoverScreen.style.display = "none";
 
@@ -139,20 +141,19 @@ function startGame(stageKey, options = {}) {
 }
 
 function setStageLabel(stageKey) {
-  let label = "STAGE: -";
-  if (stageKey === "greeting") label = "STAGE: 挨拶";
-  else if (stageKey === "business") label = "STAGE: ビジネス会話";
-  else if (stageKey === "it") label = "STAGE: IT業界あるある";
-  else if (stageKey === "mail") label = "STAGE: メール文言";
-  stageLabel.textContent = label;
+  const labels = {
+    greeting: "挨拶",
+    business: "ビジネス会話",
+    it: "IT業界あるある",
+    mail: "メール文言"
+  };
+  stageLabel.textContent = "STAGE: " + (labels[stageKey] || "-");
 }
 
 function pickNextWord() {
   const words = wordsByStage[currentStageKey];
-  if (!words || !words.length) return;
+  currentWord = words[Math.floor(Math.random() * words.length)];
 
-  currentWordIndex = Math.floor(Math.random() * words.length);
-  currentWord = words[currentWordIndex];
   currentRomaji = currentWord.romaji;
   currentRomajiIndex = 0;
 
@@ -160,46 +161,40 @@ function pickNextWord() {
 }
 
 function renderWord() {
-  if (!currentWord) return;
   kanjiDisplay.textContent = currentWord.kanji;
 
-  // ローマ字を1文字ずつ span に
   romajiDisplay.innerHTML = "";
   for (let i = 0; i < currentRomaji.length; i++) {
-    const ch = currentRomaji[i];
     const span = document.createElement("span");
-    span.textContent = ch;
-    if (i < currentRomajiIndex) {
-      span.classList.add("used");
-    }
+    span.textContent = currentRomaji[i];
+    if (i < currentRomajiIndex) span.classList.add("used");
     romajiDisplay.appendChild(span);
   }
 }
 
 function startTimer() {
   if (timerId) clearInterval(timerId);
-  const startTime = performance.now();
-  let lastTime = startTime;
 
+  let last = performance.now();
   timerId = setInterval(() => {
     if (!isPlaying) return;
+
     const now = performance.now();
-    const dt = (now - lastTime) / 1000;
-    lastTime = now;
+    const dt = (now - last) / 1000;
+    last = now;
 
     timeLeft -= dt;
     if (timeLeft < 0) timeLeft = 0;
+
     updateTimeLabel();
     updateTimerBar();
 
-    if (timeLeft <= 0) {
-      endGame();
-    }
+    if (timeLeft <= 0) endGame();
   }, 50);
 }
 
 function updateScoreLabel() {
-  scoreLabel.textContent = score.toString();
+  scoreLabel.textContent = score;
 }
 
 function updateTimeLabel() {
@@ -213,10 +208,8 @@ function updateTimerBar() {
 
 function endGame() {
   isPlaying = false;
-  if (timerId) {
-    clearInterval(timerId);
-    timerId = null;
-  }
+  if (timerId) clearInterval(timerId);
+
   gameoverScore.textContent = `SCORE: ${score}`;
   gameoverScreen.style.display = "flex";
   retryButton.style.display = "inline-block";
@@ -227,11 +220,8 @@ function endGame() {
 // =========================
 function handleGameKeydown(e) {
   if (!isPlaying) return;
-  if (!currentWord || !currentRomaji) return;
 
   const key = e.key.toLowerCase();
-
-  // アルファベット以外は無視
   if (!/^[a-z]$/.test(key)) return;
 
   const expected = currentRomaji[currentRomajiIndex];
@@ -239,12 +229,15 @@ function handleGameKeydown(e) {
   if (key === expected) {
     // 正解
     currentRomajiIndex++;
+
     if (currentRomajiIndex >= currentRomaji.length) {
       // 単語クリア
       score += 10;
       updateScoreLabel();
+
       timeLeft = Math.min(GAME_TIME, timeLeft + TIME_BONUS_PER_WORD);
       messageLabel.textContent = "GOOD!";
+
       pickNextWord();
     } else {
       renderWord();
@@ -284,14 +277,10 @@ randomButton.addEventListener("click", () => {
 // タイトル画面：隠しコマンド keepitreal
 // =========================
 document.addEventListener("keydown", (e) => {
-  // タイトル画面表示中のみ
   if (titleScreen.style.display === "none") return;
 
-  const key = e.key;
-  if (key.length !== 1) return;
-
-  const ch = key.toLowerCase();
-  if (!/[a-z]/.test(ch)) return;
+  const key = e.key.toLowerCase();
+  if (!/^[a-z]$/.test(key)) return;
 
   const now = performance.now();
   if (!titleKeyStartTime || now - titleKeyStartTime > SECRET_TIME_LIMIT) {
@@ -299,16 +288,14 @@ document.addEventListener("keydown", (e) => {
     titleKeyBuffer = "";
   }
 
-  titleKeyBuffer += ch;
+  titleKeyBuffer += key;
 
   if (titleKeyBuffer.endsWith(SECRET_CODE)) {
     const name = playerNameInput.value.trim();
     playerNameLabel.textContent = name || "GUEST";
-    // 無敵モードで IT業界あるあるステージへ
+
     startGame("it", { invincible: true });
     messageLabel.textContent = "KEEP IT REAL MODE!";
-    titleKeyBuffer = "";
-    titleKeyStartTime = null;
   }
 });
 
@@ -316,9 +303,9 @@ document.addEventListener("keydown", (e) => {
 // ゲーム中キー入力
 // =========================
 document.addEventListener("keydown", (e) => {
-  // タイトル画面中のキーは上のハンドラで処理
   if (titleScreen.style.display !== "none") return;
   if (gameoverScreen.style.display !== "none") return;
+
   handleGameKeydown(e);
 });
 
