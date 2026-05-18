@@ -1,58 +1,49 @@
-// ==============================
+// =========================
 // 設定
-// ==============================
-const GAME_TIME_SECONDS = 60;
-const HIDDEN_CODE = "keepitreal";
-const HIDDEN_CODE_TIME_LIMIT_MS = 10000;
+// =========================
+const GAME_TIME = 60.0; // 秒
+const TIME_BONUS_PER_WORD = 1.5; // 正解ごとの時間ボーナス
+const TIME_PENALTY_MISS = 2.0;   // ミス時の減少秒数
 
-// ステージ定義
-const STAGES = {
-  greeting: {
-    id: "greeting",
-    label: "挨拶",
-    csv: "words_easy.csv",
-    background: "car",
-    correctSound: "gear_shift",
-    missSound: "car_crash",
-    bgLoop: "car_pass",
-    invincible: false
-  },
-  business: {
-    id: "business",
-    label: "ビジネス会話",
-    csv: "words_business.csv",
-    background: "car",
-    correctSound: "gear_shift",
-    missSound: "car_crash",
-    bgLoop: "car_pass",
-    invincible: false
-  },
-  it: {
-    id: "it",
-    label: "IT用語",
-    csv: "words_it.csv",
-    background: "space",
-    correctSound: "warp",
-    missSound: "beep",
-    bgLoop: "space_charge",
-    invincible: false
-  },
-  flight_cheat: {
-    id: "flight_cheat",
-    label: "KEEPITREAL（無敵）",
-    csv: "words_business.csv", // 好きなCSVに変えてOK
-    background: "flight",
-    correctSound: "hit",
-    missSound: "beep",
-    bgLoop: "plane_flyby",
-    invincible: true
-  }
+// CSV パス（漢字,ローマ字 の2列想定）
+const CSV_PATHS = {
+  greeting: "words_greeting.csv",
+  business: "words_business.csv",
+  it: "words_engineer.csv",   // IT業界あるある
+  mail: "words_mail.csv"      // メール文言
 };
 
-// ==============================
+// =========================
+// 状態
+// =========================
+let currentStageKey = null;
+let wordsByStage = {
+  greeting: [],
+  business: [],
+  it: [],
+  mail: []
+};
+
+let currentWordIndex = 0;
+let currentWord = null;      // { kanji, romaji }
+let currentRomaji = "";
+let currentRomajiIndex = 0;
+
+let score = 0;
+let timeLeft = GAME_TIME;
+let timerId = null;
+let isPlaying = false;
+let isInvincible = false;    // keepitreal 用
+
+// タイトルでの隠しコマンド検出
+let titleKeyBuffer = "";
+let titleKeyStartTime = null;
+const SECRET_CODE = "keepitreal";
+const SECRET_TIME_LIMIT = 10 * 1000; // 10秒
+
+// =========================
 // DOM 取得
-// ==============================
-const root = document.getElementById("game-root");
+// =========================
 const titleScreen = document.getElementById("title-screen");
 const gameoverScreen = document.getElementById("gameover-screen");
 const gameoverScore = document.getElementById("gameover-score");
@@ -61,359 +52,300 @@ const gameoverRetry = document.getElementById("gameover-retry");
 const playerNameInput = document.getElementById("player-name-input");
 const playerNameLabel = document.getElementById("player-name-label");
 
+const stageButtons = document.querySelectorAll(".stage-buttons .btn[data-stage]");
+const randomButton = document.getElementById("title-start-random");
+
+const kanjiDisplay = document.getElementById("kanji-display");
+const romajiDisplay = document.getElementById("romaji-display");
+
 const scoreLabel = document.getElementById("score-label");
 const timeLabel = document.getElementById("time-label");
 const timerBar = document.getElementById("timer-bar");
-
-const kanjiDisplay = document.getElementById("kanji-display");
-const readingDisplay = document.getElementById("reading-display");
-const romajiInput = document.getElementById("romaji-input");
 
 const stageLabel = document.getElementById("stage-label");
 const messageLabel = document.getElementById("message");
 const retryButton = document.getElementById("retry-button");
 
-const titleStageButtons = document.querySelectorAll("#title-screen .btn[data-stage]");
-const titleStartRandom = document.getElementById("title-start-random");
-
-// ==============================
-// サウンド管理（簡易ラッパ）
-// ==============================
-const soundFiles = {
-  beep: "sounds/beep.mp3",
-  hit: "sounds/hit.mp3",
-  music: "sounds/music.mp3",
-  car_pass: "sounds/car_pass.mp3",
-  car_crash: "sounds/car_crash.mp3",
-  gear_shift: "sounds/gear_shift.mp3",
-  plane_flyby: "sounds/plane_flyby.mp3",
-  space_charge: "sounds/space_charge.mp3",
-  warp: "sounds/warp.mp3"
-};
-
-const sounds = {};
-let bgmAudio = null;
-let bgLoopAudio = null;
-
-function loadSounds() {
-  for (const [key, path] of Object.entries(soundFiles)) {
-    const audio = new Audio(path);
-    audio.preload = "auto";
-    sounds[key] = audio;
-  }
-  // BGM
-  bgmAudio = new Audio(soundFiles.music);
-  bgmAudio.loop = true;
-  bgmAudio.volume = 0.2;
-}
-
-function playOneShot(name, volume = 1.0) {
-  const base = sounds[name];
-  if (!base) return;
-  const a = base.cloneNode(true);
-  a.volume = volume;
-  a.play().catch(() => {});
-}
-
-function startBgLoop(name, volume = 0.4) {
-  stopBgLoop();
-  const base = sounds[name];
-  if (!base) return;
-  bgLoopAudio = base.cloneNode(true);
-  bgLoopAudio.loop = true;
-  bgLoopAudio.volume = volume;
-  bgLoopAudio.play().catch(() => {});
-}
-
-function stopBgLoop() {
-  if (bgLoopAudio) {
-    bgLoopAudio.pause();
-    bgLoopAudio.currentTime = 0;
-    bgLoopAudio = null;
-  }
-}
-
-function startBgm() {
-  if (!bgmAudio) return;
-  bgmAudio.play().catch(() => {});
-}
-
-function stopBgm() {
-  if (!bgmAudio) return;
-  bgmAudio.pause();
-  bgmAudio.currentTime = 0;
-}
-
-// ==============================
-// ゲーム状態
-// ==============================
-let currentStage = null;
-let words = []; // {kanji, reading, romaji}
-let currentIndex = 0;
-let score = 0;
-let timeLeft = GAME_TIME_SECONDS;
-let timerId = null;
-let running = false;
-let hiddenCodeBuffer = "";
-let hiddenCodeStartTime = null;
-let hiddenCodeActive = false;
-
-// ==============================
-// CSV ロード
-// ==============================
+// =========================
+// CSV 読み込み
+// =========================
 async function loadCsv(path) {
   const res = await fetch(path);
   const text = await res.text();
-  const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
+  const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l);
   const result = [];
-  for (const line of lines) {
+
+  // 1行目はヘッダ想定：日本語,ローマ字
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i];
     const cols = line.split(",");
-    if (cols.length >= 3) {
-      const [kanji, reading, romaji] = cols;
-      result.push({
-        kanji: kanji.trim(),
-        reading: reading.trim(),
-        romaji: romaji.trim().toLowerCase()
-      });
-    }
+    if (cols.length < 2) continue;
+    const kanji = cols[0].trim();
+    const romaji = cols[1].trim().toLowerCase();
+    if (!kanji || !romaji) continue;
+    result.push({ kanji, romaji });
   }
   return result;
 }
 
-// ==============================
-// ステージ背景切り替え
-// ==============================
-function setBackgroundForStage(stage) {
-  let bgPath = "";
-  if (stage.background === "car") {
-    bgPath = "assets/car/car_background.png";
-  } else if (stage.background === "flight") {
-    bgPath = "assets/flight/flight_background.png";
-  } else if (stage.background === "space") {
-    bgPath = "assets/space/space_background.png";
-  } else {
-    bgPath = "assets/title/title_background.png";
+async function loadAllCsv() {
+  for (const [key, path] of Object.entries(CSV_PATHS)) {
+    try {
+      wordsByStage[key] = await loadCsv(path);
+    } catch (e) {
+      console.error("CSV load error:", key, e);
+      wordsByStage[key] = [];
+    }
   }
-  root.style.backgroundImage = `url("${bgPath}")`;
 }
 
-// ==============================
-// ゲーム開始・終了
-// ==============================
-async function startGame(stageId) {
-  currentStage = STAGES[stageId];
-  if (!currentStage) return;
-
-  // 名前
-  const name = playerNameInput.value.trim();
-  playerNameLabel.textContent = name || "GUEST";
-
-  // 背景
-  setBackgroundForStage(currentStage);
-
-  // スコア・タイム初期化
+// =========================
+// ゲーム制御
+// =========================
+function resetGameState() {
   score = 0;
-  timeLeft = GAME_TIME_SECONDS;
-  scoreLabel.textContent = "0";
-  timeLabel.textContent = timeLeft.toFixed(1);
-  timerBar.style.transform = "scaleX(1)";
+  timeLeft = GAME_TIME;
+  currentWordIndex = 0;
+  currentWord = null;
+  currentRomaji = "";
+  currentRomajiIndex = 0;
+  isPlaying = false;
+  isInvincible = false;
+  updateScoreLabel();
+  updateTimeLabel();
+  updateTimerBar();
   messageLabel.textContent = "";
   retryButton.style.display = "none";
+}
 
-  // ステージラベル
-  stageLabel.textContent = `STAGE: ${currentStage.label}`;
+function startGame(stageKey, options = {}) {
+  currentStageKey = stageKey;
+  isInvincible = !!options.invincible;
 
-  // CSV ロード
-  words = await loadCsv(currentStage.csv);
-  shuffle(words);
-  currentIndex = 0;
+  const words = wordsByStage[stageKey] || [];
+  if (!words.length) {
+    alert("このステージの単語が読み込めていません。CSV を確認してください。");
+    return;
+  }
 
-  // 最初の問題
-  showCurrentWord();
-
-  // 入力有効化
-  romajiInput.disabled = false;
-  romajiInput.value = "";
-  romajiInput.focus();
-
-  // タイトル・ゲームオーバー非表示
+  resetGameState();
+  setStageLabel(stageKey);
   titleScreen.style.display = "none";
   gameoverScreen.style.display = "none";
 
-  // サウンド
-  startBgm();
-  startBgLoop(currentStage.bgLoop);
+  isPlaying = true;
+  pickNextWord();
+  startTimer();
+}
 
-  // タイマー開始
-  running = true;
+function setStageLabel(stageKey) {
+  let label = "STAGE: -";
+  if (stageKey === "greeting") label = "STAGE: 挨拶";
+  else if (stageKey === "business") label = "STAGE: ビジネス会話";
+  else if (stageKey === "it") label = "STAGE: IT業界あるある";
+  else if (stageKey === "mail") label = "STAGE: メール文言";
+  stageLabel.textContent = label;
+}
+
+function pickNextWord() {
+  const words = wordsByStage[currentStageKey];
+  if (!words || !words.length) return;
+
+  currentWordIndex = Math.floor(Math.random() * words.length);
+  currentWord = words[currentWordIndex];
+  currentRomaji = currentWord.romaji;
+  currentRomajiIndex = 0;
+
+  renderWord();
+}
+
+function renderWord() {
+  if (!currentWord) return;
+  kanjiDisplay.textContent = currentWord.kanji;
+
+  // ローマ字を1文字ずつ span に
+  romajiDisplay.innerHTML = "";
+  for (let i = 0; i < currentRomaji.length; i++) {
+    const ch = currentRomaji[i];
+    const span = document.createElement("span");
+    span.textContent = ch;
+    if (i < currentRomajiIndex) {
+      span.classList.add("used");
+    }
+    romajiDisplay.appendChild(span);
+  }
+}
+
+function startTimer() {
   if (timerId) clearInterval(timerId);
   const startTime = performance.now();
+  let lastTime = startTime;
+
   timerId = setInterval(() => {
-    const elapsed = (performance.now() - startTime) / 1000;
-    const remain = GAME_TIME_SECONDS - elapsed;
-    timeLeft = Math.max(0, remain);
-    timeLabel.textContent = timeLeft.toFixed(1);
-    timerBar.style.transform = `scaleX(${timeLeft / GAME_TIME_SECONDS})`;
+    if (!isPlaying) return;
+    const now = performance.now();
+    const dt = (now - lastTime) / 1000;
+    lastTime = now;
+
+    timeLeft -= dt;
+    if (timeLeft < 0) timeLeft = 0;
+    updateTimeLabel();
+    updateTimerBar();
+
     if (timeLeft <= 0) {
       endGame();
     }
   }, 50);
 }
 
+function updateScoreLabel() {
+  scoreLabel.textContent = score.toString();
+}
+
+function updateTimeLabel() {
+  timeLabel.textContent = timeLeft.toFixed(1);
+}
+
+function updateTimerBar() {
+  const ratio = Math.max(0, Math.min(1, timeLeft / GAME_TIME));
+  timerBar.style.transform = `scaleX(${ratio})`;
+}
+
 function endGame() {
-  if (!running) return;
-  running = false;
+  isPlaying = false;
   if (timerId) {
     clearInterval(timerId);
     timerId = null;
   }
-  romajiInput.disabled = true;
-  stopBgLoop();
-  // BGM はタイトルに戻るまで流しっぱなしでもOK（好み）
-
   gameoverScore.textContent = `SCORE: ${score}`;
   gameoverScreen.style.display = "flex";
+  retryButton.style.display = "inline-block";
 }
 
-// ==============================
-// 問題表示・判定
-// ==============================
-function showCurrentWord() {
-  if (!words.length) {
-    kanjiDisplay.textContent = "単語がありません";
-    readingDisplay.textContent = "";
-    return;
-  }
-  const w = words[currentIndex % words.length];
-  kanjiDisplay.textContent = w.kanji;
-  readingDisplay.textContent = w.reading;
-}
+// =========================
+// キー入力（疑似寿司打）
+// =========================
+function handleGameKeydown(e) {
+  if (!isPlaying) return;
+  if (!currentWord || !currentRomaji) return;
 
-function handleInputEnter() {
-  if (!running || !currentStage) return;
-  const w = words[currentIndex % words.length];
-  const input = romajiInput.value.trim().toLowerCase();
-  romajiInput.value = "";
+  const key = e.key.toLowerCase();
 
-  if (!input) return;
+  // アルファベット以外は無視
+  if (!/^[a-z]$/.test(key)) return;
 
-  if (input === w.romaji) {
+  const expected = currentRomaji[currentRomajiIndex];
+
+  if (key === expected) {
     // 正解
-    score += 10;
-    scoreLabel.textContent = String(score);
-    messageLabel.textContent = "GOOD!";
-    playOneShot(currentStage.correctSound, 0.9);
-    currentIndex++;
-    showCurrentWord();
+    currentRomajiIndex++;
+    if (currentRomajiIndex >= currentRomaji.length) {
+      // 単語クリア
+      score += 10;
+      updateScoreLabel();
+      timeLeft = Math.min(GAME_TIME, timeLeft + TIME_BONUS_PER_WORD);
+      messageLabel.textContent = "GOOD!";
+      pickNextWord();
+    } else {
+      renderWord();
+    }
   } else {
     // ミス
-    messageLabel.textContent = "MISS...";
-    playOneShot(currentStage.missSound, 0.9);
-    if (!currentStage.invincible) {
-      // 無敵でない場合のみペナルティ
-      timeLeft = Math.max(0, timeLeft - 3);
+    if (!isInvincible) {
+      timeLeft = Math.max(0, timeLeft - TIME_PENALTY_MISS);
+      updateTimeLabel();
+      updateTimerBar();
     }
+    messageLabel.textContent = "MISS!";
   }
 }
 
-// ==============================
-// ユーティリティ
-// ==============================
-function shuffle(arr) {
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = (Math.random() * (i + 1)) | 0;
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-}
-
-// ==============================
+// =========================
 // タイトル画面：ステージ選択
-// ==============================
-titleStageButtons.forEach(btn => {
+// =========================
+stageButtons.forEach(btn => {
   btn.addEventListener("click", () => {
-    const stageId = btn.getAttribute("data-stage");
-    startGame(stageId);
+    const stageKey = btn.dataset.stage;
+    const name = playerNameInput.value.trim();
+    playerNameLabel.textContent = name || "GUEST";
+    startGame(stageKey);
   });
 });
 
-titleStartRandom.addEventListener("click", () => {
-  const keys = ["greeting", "business", "it"];
-  const stageId = keys[(Math.random() * keys.length) | 0];
-  startGame(stageId);
+randomButton.addEventListener("click", () => {
+  const keys = Object.keys(CSV_PATHS);
+  const stageKey = keys[Math.floor(Math.random() * keys.length)];
+  const name = playerNameInput.value.trim();
+  playerNameLabel.textContent = name || "GUEST";
+  startGame(stageKey);
 });
 
-// ==============================
+// =========================
 // タイトル画面：隠しコマンド keepitreal
-// ==============================
+// =========================
 document.addEventListener("keydown", (e) => {
-  // タイトル画面中のみ
+  // タイトル画面表示中のみ
   if (titleScreen.style.display === "none") return;
 
   const key = e.key;
-  if (key.length === 1 && /[a-zA-Z]/.test(key)) {
-    const now = performance.now();
-    if (!hiddenCodeActive) {
-      hiddenCodeActive = true;
-      hiddenCodeStartTime = now;
-      hiddenCodeBuffer = "";
-    }
-    // 時間制限チェック
-    if (now - hiddenCodeStartTime > HIDDEN_CODE_TIME_LIMIT_MS) {
-      hiddenCodeBuffer = "";
-      hiddenCodeStartTime = now;
-    }
-    hiddenCodeBuffer += key.toLowerCase();
+  if (key.length !== 1) return;
 
-    if (hiddenCodeBuffer === HIDDEN_CODE) {
-      // 成功
-      hiddenCodeActive = false;
-      hiddenCodeBuffer = "";
-      messageLabel.textContent = "KEEP IT REAL MODE!";
-      startGame("flight_cheat");
-    } else if (!HIDDEN_CODE.startsWith(hiddenCodeBuffer)) {
-      // 途中で不一致 → リセット
-      hiddenCodeBuffer = "";
-      hiddenCodeStartTime = now;
-    }
+  const ch = key.toLowerCase();
+  if (!/[a-z]/.test(ch)) return;
+
+  const now = performance.now();
+  if (!titleKeyStartTime || now - titleKeyStartTime > SECRET_TIME_LIMIT) {
+    titleKeyStartTime = now;
+    titleKeyBuffer = "";
+  }
+
+  titleKeyBuffer += ch;
+
+  if (titleKeyBuffer.endsWith(SECRET_CODE)) {
+    const name = playerNameInput.value.trim();
+    playerNameLabel.textContent = name || "GUEST";
+    // 無敵モードで IT業界あるあるステージへ
+    startGame("it", { invincible: true });
+    messageLabel.textContent = "KEEP IT REAL MODE!";
+    titleKeyBuffer = "";
+    titleKeyStartTime = null;
   }
 });
 
-// ==============================
-// ゲームオーバー → タイトルへ
-// ==============================
-gameoverRetry.addEventListener("click", () => {
-  gameoverScreen.style.display = "none";
-  titleScreen.style.display = "flex";
-  romajiInput.value = "";
-  romajiInput.disabled = true;
-  kanjiDisplay.textContent = "準備OK？";
-  readingDisplay.textContent = "ステージを選んでください";
-  messageLabel.textContent = "";
-  stageLabel.textContent = "STAGE: -";
-  stopBgLoop();
-  stopBgm();
+// =========================
+// ゲーム中キー入力
+// =========================
+document.addEventListener("keydown", (e) => {
+  // タイトル画面中のキーは上のハンドラで処理
+  if (titleScreen.style.display !== "none") return;
+  if (gameoverScreen.style.display !== "none") return;
+  handleGameKeydown(e);
 });
 
-// 下部の「もう一度」ボタン（ゲーム中に使いたければ）
+// =========================
+// リトライ
+// =========================
 retryButton.addEventListener("click", () => {
   titleScreen.style.display = "flex";
   gameoverScreen.style.display = "none";
-  romajiInput.value = "";
-  romajiInput.disabled = true;
   kanjiDisplay.textContent = "準備OK？";
-  readingDisplay.textContent = "ステージを選んでください";
+  romajiDisplay.textContent = "";
   messageLabel.textContent = "";
-  stageLabel.textContent = "STAGE: -";
-  stopBgLoop();
-  stopBgm();
 });
 
-// ==============================
-// 初期化
-// ==============================
-window.addEventListener("load", () => {
-  loadSounds();
+gameoverRetry.addEventListener("click", () => {
   titleScreen.style.display = "flex";
   gameoverScreen.style.display = "none";
-  romajiInput.disabled = true;
+  kanjiDisplay.textContent = "準備OK？";
+  romajiDisplay.textContent = "";
+  messageLabel.textContent = "";
+});
+
+// =========================
+// 初期化
+// =========================
+window.addEventListener("load", async () => {
+  await loadAllCsv();
+  kanjiDisplay.textContent = "準備OK？";
+  romajiDisplay.textContent = "";
 });

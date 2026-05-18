@@ -31,7 +31,6 @@
       box-shadow: 0 0 40px rgba(0,0,0,0.8);
     }
 
-    /* オーバーレイ共通 */
     .overlay {
       position: absolute;
       inset: 0;
@@ -169,20 +168,26 @@
       font-size: 48px;
       margin-bottom: 8px;
     }
+
+    /* ひらがなは使わないので非表示にしておく（残してもOK） */
     #reading-display {
-      font-size: 20px;
+      display: none;
+    }
+
+    /* ローマ字表示（寿司打風） */
+    #romaji-display {
+      font-size: 22px;
       color: #0ff;
       margin-bottom: 16px;
+      letter-spacing: 2px;
     }
+    #romaji-display span.used {
+      opacity: 0.3;
+    }
+
+    /* input は使わないが、既存構造は残して非表示に */
     #romaji-input {
-      width: 320px;
-      padding: 10px 12px;
-      font-size: 18px;
-      border-radius: 8px;
-      border: 1px solid #0ff;
-      background: rgba(0,0,0,0.7);
-      color: #0ff;
-      text-align: center;
+      display: none;
     }
 
     #bottom-bar {
@@ -250,13 +255,14 @@
         <input id="player-name-input" type="text" placeholder="名前を入力（任意）">
         <div id="title-hint">
           通常モード：<br>
-          1. 挨拶　2. ビジネス会話　3. IT用語<br>
+          1. 挨拶　2. ビジネス会話　3. IT用語（エンジニアあるある）<br>
           （※タイトル画面で <code>keepitreal</code> を10秒以内に入力すると…？）
         </div>
         <div class="stage-buttons">
           <button class="btn" data-stage="greeting">挨拶ステージ</button>
           <button class="btn" data-stage="business">ビジネス会話</button>
-          <button class="btn" data-stage="it">IT用語</button>
+          <button class="btn" data-stage="it">IT業界あるある</button>
+          <button class="btn" data-stage="mail">メール文言</button>
           <button class="btn btn-secondary" id="title-start-random">ランダム</button>
         </div>
       </div>
@@ -287,6 +293,7 @@
       <div id="center-area">
         <div id="kanji-display">準備OK？</div>
         <div id="reading-display">ステージを選んでください</div>
+        <div id="romaji-display"></div>
         <input id="romaji-input" type="text" autocomplete="off" disabled>
       </div>
 
