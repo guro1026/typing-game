@@ -1,11 +1,10 @@
 // =========================
 // 設定
 // =========================
-const GAME_TIME = 60.0; // 秒
-const TIME_BONUS_PER_WORD = 1.5; // 正解ごとの時間ボーナス
-const TIME_PENALTY_MISS = 2.0;   // ミス時の減少秒数
+const GAME_TIME = 60.0;
+const TIME_BONUS_PER_WORD = 1.5;
+const TIME_PENALTY_MISS = 2.0;
 
-// CSV パス（日本語,ひらがな,ローマ字 の3列 → ひらがな無視）
 const CSV_PATHS = {
   greeting: "words_easy.csv",
   business: "words_business.csv",
@@ -24,7 +23,7 @@ let wordsByStage = {
   mail: []
 };
 
-let currentWord = null;      // { kanji, romaji }
+let currentWord = null;
 let currentRomaji = "";
 let currentRomajiIndex = 0;
 
@@ -32,16 +31,16 @@ let score = 0;
 let timeLeft = GAME_TIME;
 let timerId = null;
 let isPlaying = false;
-let isInvincible = false;    // keepitreal 用
+let isInvincible = false;
 
-// タイトルでの隠しコマンド検出
+// 隠しコマンド
 let titleKeyBuffer = "";
 let titleKeyStartTime = null;
 const SECRET_CODE = "keepitreal";
-const SECRET_TIME_LIMIT = 10 * 1000; // 10秒
+const SECRET_TIME_LIMIT = 10 * 1000;
 
 // =========================
-// DOM 取得
+// DOM
 // =========================
 const titleScreen = document.getElementById("title-screen");
 const gameoverScreen = document.getElementById("gameover-screen");
@@ -65,6 +64,9 @@ const stageLabel = document.getElementById("stage-label");
 const messageLabel = document.getElementById("message");
 const retryButton = document.getElementById("retry-button");
 
+const seHit = document.getElementById("se-hit");
+const seMiss = document.getElementById("se-miss");
+
 // =========================
 // CSV 読み込み
 // =========================
@@ -75,13 +77,12 @@ async function loadCsv(path) {
   const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l);
   const result = [];
 
-  // 1行目はヘッダ：日本語,ひらがな,ローマ字
   for (let i = 1; i < lines.length; i++) {
     const cols = lines[i].split(",");
     if (cols.length < 3) continue;
 
     const kanji = cols[0].trim();
-    const romaji = cols[2].trim().toLowerCase(); // ← ひらがな無視して3列目を読む
+    const romaji = cols[2].trim().toLowerCase();
 
     if (!kanji || !romaji) continue;
     result.push({ kanji, romaji });
@@ -123,9 +124,9 @@ function startGame(stageKey, options = {}) {
   currentStageKey = stageKey;
   isInvincible = !!options.invincible;
 
-  const words = wordsByStage[stageKey] || [];
-  if (!words.length) {
-    alert("このステージの単語が読み込めていません。CSV を確認してください。");
+  const words = wordsByStage[stageKey];
+  if (!words || !words.length) {
+    alert("CSV が読み込めていません。");
     return;
   }
 
@@ -216,7 +217,35 @@ function endGame() {
 }
 
 // =========================
-// キー入力（疑似寿司打）
+// 演出
+// =========================
+function showScorePopup(text) {
+  const popup = document.createElement("div");
+  popup.className = "score-popup";
+  popup.textContent = text;
+
+  const rect = romajiDisplay.getBoundingClientRect();
+  popup.style.left = rect.left + rect.width / 2 + "px";
+  popup.style.top = rect.top + "px";
+
+  document.body.appendChild(popup);
+
+  setTimeout(() => popup.remove(), 600);
+}
+
+function flashHit() {
+  kanjiDisplay.classList.add("flash-hit");
+  setTimeout(() => kanjiDisplay.classList.remove("flash-hit"), 250);
+}
+
+function flashMiss() {
+  const root = document.getElementById("game-root");
+  root.classList.add("flash-miss");
+  setTimeout(() => root.classList.remove("flash-miss"), 250);
+}
+
+// =========================
+// キー入力（寿司打式）
 // =========================
 function handleGameKeydown(e) {
   if (!isPlaying) return;
@@ -230,10 +259,16 @@ function handleGameKeydown(e) {
     // 正解
     currentRomajiIndex++;
 
+    seHit.currentTime = 0;
+    seHit.play();
+
+    flashHit();
+
     if (currentRomajiIndex >= currentRomaji.length) {
-      // 単語クリア
       score += 10;
       updateScoreLabel();
+
+      showScorePopup("+10");
 
       timeLeft = Math.min(GAME_TIME, timeLeft + TIME_BONUS_PER_WORD);
       messageLabel.textContent = "GOOD!";
@@ -249,6 +284,12 @@ function handleGameKeydown(e) {
       updateTimeLabel();
       updateTimerBar();
     }
+
+    seMiss.currentTime = 0;
+    seMiss.play();
+
+    flashMiss();
+
     messageLabel.textContent = "MISS!";
   }
 }
@@ -274,7 +315,7 @@ randomButton.addEventListener("click", () => {
 });
 
 // =========================
-// タイトル画面：隠しコマンド keepitreal
+// 隠しコマンド keepitreal
 // =========================
 document.addEventListener("keydown", (e) => {
   if (titleScreen.style.display === "none") return;

@@ -21,13 +21,41 @@
       height: 540px;
       overflow: hidden;
       background-color: #000;
-      background-size: cover;
-      background-position: center;
       border: 2px solid #444;
       box-shadow: 0 0 40px rgba(0,0,0,0.8);
     }
 
-    /* オーバーレイ */
+    /* ====== 演出 ====== */
+    .flash-hit {
+      animation: flashHit 0.25s ease-out;
+    }
+    @keyframes flashHit {
+      0% { text-shadow: 0 0 20px #0ff; }
+      100% { text-shadow: 0 0 0 #000; }
+    }
+
+    .flash-miss {
+      animation: flashMiss 0.25s ease-out;
+    }
+    @keyframes flashMiss {
+      0% { background: rgba(255,0,0,0.4); }
+      100% { background: transparent; }
+    }
+
+    .score-popup {
+      position: absolute;
+      font-size: 24px;
+      color: #0ff;
+      text-shadow: 0 0 10px #0ff;
+      animation: popup 0.6s ease-out forwards;
+      pointer-events: none;
+    }
+    @keyframes popup {
+      0% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-40px); }
+    }
+
+    /* ====== オーバーレイ ====== */
     .overlay {
       position: absolute;
       inset: 0;
@@ -39,7 +67,7 @@
       z-index: 10;
     }
 
-    /* タイトル画面 */
+    /* ====== タイトル画面 ====== */
     #title-screen {
       background-image: url("assets/title/title_background.png");
       background-size: cover;
@@ -101,17 +129,8 @@
       color: #000;
       box-shadow: 0 0 12px rgba(0,255,255,0.7);
     }
-    .btn-secondary {
-      border-color: #888;
-      color: #ddd;
-    }
-    .btn-secondary:hover {
-      background: #888;
-      color: #000;
-      box-shadow: 0 0 12px rgba(255,255,255,0.4);
-    }
 
-    /* HUD */
+    /* ====== HUD ====== */
     #hud {
       position: absolute;
       inset: 0;
@@ -164,10 +183,8 @@
       margin-bottom: 8px;
     }
 
-    /* ひらがなは非表示 */
     #reading-display { display: none; }
 
-    /* ローマ字（寿司打風） */
     #romaji-display {
       font-size: 22px;
       color: #0ff;
@@ -178,7 +195,6 @@
       opacity: 0.3;
     }
 
-    /* input は使わない */
     #romaji-input { display: none; }
 
     #bottom-bar {
@@ -210,7 +226,7 @@
       color: #000;
     }
 
-    /* ゲームオーバー */
+    /* ====== ゲームオーバー ====== */
     #gameover-screen { display: none; text-align: center; }
     #gameover-inner {
       background: rgba(0,0,0,0.7);
@@ -287,6 +303,10 @@
     </div>
 
   </div>
+
+  <!-- 音声 -->
+  <audio id="se-hit" src="sounds/hit.mp3" preload="auto"></audio>
+  <audio id="se-miss" src="sounds/miss.mp3" preload="auto"></audio>
 
   <script src="game.js"></script>
 </body>
