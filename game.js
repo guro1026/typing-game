@@ -164,7 +164,10 @@ document.addEventListener("keydown", (e) => {
 
   if (key === expected) {
 
+<<<<<<< HEAD
     // 1タイプ成功音
+=======
+>>>>>>> 7c9a02a56c9a46fa45ff6abe25885dd78a8ad21c
     playBuffer(hitBuffer, 0.25);
 
     inputIndex++;
