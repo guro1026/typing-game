@@ -12,7 +12,7 @@ let isKeepItReal = false;
 let secretBuffer = "";
 let secretStartTime = 0;
 
-let words = []; // CSVから読み込んだ単語リスト
+let words = [];
 let currentWord = null;
 let inputIndex = 0;
 
@@ -73,7 +73,7 @@ document.addEventListener("keydown", (e) => {
 });
 
 // ===============================
-// CSV読み込み
+// CSV読み込み（ヘッダー除外 + CRLF除去）
 // ===============================
 async function loadCSV(stageKey) {
   const fileMap = {
@@ -90,8 +90,10 @@ async function loadCSV(stageKey) {
   words = text
     .trim()
     .split("\n")
+    .slice(1) // ★ ヘッダー行をスキップ
     .map(line => {
-      const [jp, hira, roma] = line.split(",");
+      const [jp, hira, romaRaw] = line.split(",");
+      const roma = romaRaw.replace(/\r/g, "").trim(); // ★ CRLF対策
       return { jp, hira, roma };
     });
 }
@@ -164,7 +166,6 @@ document.addEventListener("keydown", (e) => {
 
   if (key === expected) {
 
-    // 1タイプ成功音
     playBuffer(hitBuffer, 0.25);
 
     inputIndex++;
