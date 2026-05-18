@@ -73,7 +73,7 @@ document.addEventListener("keydown", (e) => {
 });
 
 // ===============================
-// CSV読み込み（ヘッダー除外 + CRLF除去）
+// CSV読み込み（ヘッダー除外 + CRLF除去 + 全角ハイフン対策）
 // ===============================
 async function loadCSV(stageKey) {
   const fileMap = {
@@ -92,10 +92,20 @@ async function loadCSV(stageKey) {
     .split("\n")
     .slice(1) // ★ ヘッダー行をスキップ
     .map(line => {
-      const [jp, hira, romaRaw] = line.split(",");
-      const roma = romaRaw.replace(/\r/g, "").trim(); // ★ CRLF対策
+      const cols = line.split(",");
+      if (cols.length < 3) return null;
+
+      const jp = cols[0].trim();
+      const hira = cols[1].trim();
+
+      let roma = cols[2]
+        .replace(/\r/g, "")   // ★ CR除去
+        .replace(/ー/g, "-")  // ★ 全角ハイフン → 半角
+        .trim();
+
       return { jp, hira, roma };
-    });
+    })
+    .filter(v => v !== null);
 }
 
 // ===============================
@@ -144,6 +154,8 @@ function updateHud() {
 function nextWord() {
   currentWord = words[Math.floor(Math.random() * words.length)];
   inputIndex = 0;
+
+  console.log("次の単語:", currentWord); // ★ デバッグログ
 
   document.getElementById("kanji-display").textContent = currentWord.jp;
   document.getElementById("romaji-display").textContent = currentWord.roma;
