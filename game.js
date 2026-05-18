@@ -81,17 +81,10 @@ document.addEventListener("keydown", (e) => {
 // ===============================
 async function loadCSV(stageKey) {
   const fileMap = {
-<<<<<<< HEAD
     greeting: "words_easy.csv",
     business: "words_business.csv",
     it: "words_it.csv",
     mail: "words_mail.csv"
-=======
-    greeting: "greeting.csv",
-    business: "business.csv",
-    it: "it.csv",
-    mail: "mail.csv"
->>>>>>> e16d44e632f69791fa3a05f2d1ab61d11d54b679
   };
 
   const file = fileMap[stageKey];
@@ -106,6 +99,7 @@ async function loadCSV(stageKey) {
       return { jp, hira, roma };
     });
 }
+
 
 // ===============================
 // ゲーム開始
