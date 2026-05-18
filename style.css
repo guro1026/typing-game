@@ -1,13 +1,18 @@
-html, body {
+/* 全体リセット */
+* {
   margin: 0;
   padding: 0;
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
-  background: black;
-  font-family: "Segoe UI", sans-serif;
+  box-sizing: border-box;
 }
 
+body {
+  background: #000;
+  color: #fff;
+  font-family: "Segoe UI", sans-serif;
+  overflow: hidden;
+}
+
+/* ゲーム全体 */
 #game-root {
   width: 100vw;
   height: 100vh;
@@ -16,96 +21,109 @@ html, body {
 
 /* タイトル画面 */
 #title-screen {
-  position: absolute;
   width: 100%;
   height: 100%;
   text-align: center;
-  top: 0;
-  left: 0;
+  padding-top: 120px;
 }
 
 #title-logo {
-  font-size: 90px;
-  font-weight: 900;
+  font-size: 48px;
+  font-weight: bold;
   color: #ff2a2a;
-  margin-top: 120px;
-  text-shadow:
-    0 0 10px #ff0000,
-    0 0 20px #ff0000,
-    0 0 40px #ff0000,
-    0 0 80px #ff0000;
-  letter-spacing: 6px;
+  text-shadow: 0 0 10px #ff0000, 0 0 20px #ff2a2a;
+  margin-bottom: 60px;
 }
 
+/* ステージボタン */
 #start-buttons {
-  margin-top: 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 300px;
+  margin: 0 auto;
 }
 
 .stage-btn {
-  font-size: 32px;
-  padding: 20px 60px;
-  margin: 20px;
+  padding: 15px;
+  font-size: 20px;
+  font-weight: bold;
   border: none;
-  border-radius: 10px;
-  background: #222;
-  color: white;
+  border-radius: 8px;
   cursor: pointer;
+  background: #222;
+  color: #fff;
   transition: 0.2s;
 }
 
 .stage-btn:hover {
-  background: #ff2a2a;
+  background: #444;
+  transform: scale(1.05);
+}
+
+/* 裏モード発動表示 */
+#secret-input {
+  margin-top: 40px;
+  font-size: 24px;
+  color: #00ffea;
+  text-shadow: 0 0 10px #00ffee;
 }
 
 /* ゲーム画面 */
-.hidden {
-  display: none;
-}
-
-#hud {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  font-size: 32px;
-  color: white;
-  text-shadow: 0 0 10px black;
-}
-
-#word-area {
-  position: absolute;
-  top: 40%;
+#game-screen {
   width: 100%;
+  height: 100%;
+  position: relative;
+  padding-top: 20px;
+
+  /* レース背景（横スクロール） */
+  background-image: url("https://i.imgur.com/3ZQZQ2F.png");
+  background-size: cover;
+  background-repeat: repeat-x;
+  animation: scroll-bg 6s linear infinite;
+}
+
+@keyframes scroll-bg {
+  from { background-position-x: 0; }
+  to   { background-position-x: -1000px; }
+}
+
+/* HUD */
+#hud {
+  display: flex;
+  justify-content: space-around;
+  font-size: 20px;
+  margin-bottom: 40px;
+}
+
+/* 単語表示 */
+#word-area {
   text-align: center;
-  color: white;
+  margin-top: 80px;
 }
 
 #kanji-display {
-  font-size: 80px;
+  font-size: 48px;
   margin-bottom: 20px;
 }
 
 #romaji-display {
-  font-size: 48px;
+  font-size: 32px;
   letter-spacing: 4px;
+  color: #00ffea;
+  text-shadow: 0 0 10px #00ffee;
 }
 
+/* メッセージ（ミスなど） */
 #message {
-  position: absolute;
-  bottom: 80px;
-  width: 100%;
   text-align: center;
-  font-size: 48px;
-  color: yellow;
+  margin-top: 40px;
+  font-size: 28px;
+  color: #ff2a2a;
+  text-shadow: 0 0 10px #ff0000;
 }
 
-/* ゲーム中背景（横スクロール） */
-#game-screen {
-  background-image: url("images/game_bg.jpg");
-  background-size: cover;
-  animation: bg-scroll 20s linear infinite;
-}
-
-@keyframes bg-scroll {
-  from { background-position: 0 0; }
-  to   { background-position: -2000px 0; }
+/* 非表示 */
+.hidden {
+  display: none;
 }
