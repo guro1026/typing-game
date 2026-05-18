@@ -73,7 +73,7 @@ document.addEventListener("keydown", (e) => {
 });
 
 // ===============================
-// CSV読み込み（ヘッダー除外 + CRLF除去 + 全角ハイフン対策）
+// CSV読み込み（壊れた行を除外 + CRLF除去）
 // ===============================
 async function loadCSV(stageKey) {
   const fileMap = {
@@ -93,7 +93,7 @@ async function loadCSV(stageKey) {
     .slice(1)
     .map(line => {
       const cols = line.split(",");
-      if (cols.length < 3) return null;
+      if (cols.length < 3) return null; // ★ 壊れた行を除外
 
       const jp = cols[0].trim();
       const hira = cols[1].trim();
@@ -106,9 +106,13 @@ async function loadCSV(stageKey) {
         .replace(/\s+/g, "")
         .trim();
 
+      if (!roma) return null; // ★ romaji が空なら除外
+
       return { jp, hira, roma };
     })
     .filter(v => v !== null);
+
+  console.log("読み込んだ単語数:", words.length);
 }
 
 // ===============================
