@@ -12,7 +12,11 @@ let isKeepItReal = false;
 let secretBuffer = "";
 let secretStartTime = 0;
 
+<<<<<<< HEAD
 let words = [];
+=======
+let words = []; // ← CSVから読み込んだ単語リスト
+>>>>>>> e16d44e632f69791fa3a05f2d1ab61d11d54b679
 let currentWord = null;
 let inputIndex = 0;
 
@@ -77,10 +81,17 @@ document.addEventListener("keydown", (e) => {
 // ===============================
 async function loadCSV(stageKey) {
   const fileMap = {
+<<<<<<< HEAD
     greeting: "words_easy.csv",
     business: "words_business.csv",
     it: "words_it.csv",
     mail: "words_mail.csv"
+=======
+    greeting: "greeting.csv",
+    business: "business.csv",
+    it: "it.csv",
+    mail: "mail.csv"
+>>>>>>> e16d44e632f69791fa3a05f2d1ab61d11d54b679
   };
 
   const file = fileMap[stageKey];
@@ -112,10 +123,13 @@ async function startGame(stageKey) {
 
   updateHud();
 
+<<<<<<< HEAD
   if (!audioCtx) {
     await initAudio();
   }
 
+=======
+>>>>>>> e16d44e632f69791fa3a05f2d1ab61d11d54b679
   await loadCSV(stageKey);
   nextWord();
 
