@@ -1,4 +1,3 @@
-/* 全体リセット */
 * {
   margin: 0;
   padding: 0;
@@ -12,14 +11,12 @@ body {
   overflow: hidden;
 }
 
-/* ゲーム全体 */
 #game-root {
   width: 100vw;
   height: 100vh;
   position: relative;
 }
 
-/* タイトル画面 */
 #title-screen {
   width: 100%;
   height: 100%;
@@ -35,7 +32,6 @@ body {
   margin-bottom: 60px;
 }
 
-/* ステージボタン */
 #start-buttons {
   display: flex;
   flex-direction: column;
@@ -61,7 +57,6 @@ body {
   transform: scale(1.05);
 }
 
-/* 裏モード発動表示 */
 #secret-input {
   margin-top: 40px;
   font-size: 24px;
@@ -69,15 +64,13 @@ body {
   text-shadow: 0 0 10px #00ffee;
 }
 
-/* ゲーム画面 */
 #game-screen {
   width: 100%;
   height: 100%;
   position: relative;
   padding-top: 20px;
 
-  /* レース背景（横スクロール） */
-  background-image: url("https://i.imgur.com/3ZQZQ2F.png");
+  background-image: url("assets/car/car_background.png");
   background-size: cover;
   background-repeat: repeat-x;
   animation: scroll-bg 6s linear infinite;
@@ -88,7 +81,6 @@ body {
   to   { background-position-x: -1000px; }
 }
 
-/* HUD */
 #hud {
   display: flex;
   justify-content: space-around;
@@ -96,7 +88,6 @@ body {
   margin-bottom: 40px;
 }
 
-/* 単語表示 */
 #word-area {
   text-align: center;
   margin-top: 80px;
@@ -114,7 +105,6 @@ body {
   text-shadow: 0 0 10px #00ffee;
 }
 
-/* メッセージ（ミスなど） */
 #message {
   text-align: center;
   margin-top: 40px;
@@ -123,7 +113,6 @@ body {
   text-shadow: 0 0 10px #ff0000;
 }
 
-/* 非表示 */
 .hidden {
   display: none;
 }

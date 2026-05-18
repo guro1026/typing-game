@@ -12,12 +12,42 @@ let isKeepItReal = false;
 let secretBuffer = "";
 let secretStartTime = 0;
 
-let currentWord = "";
-let currentRomaji = "";
+let words = [];
+let currentWord = null;
 let inputIndex = 0;
 
 // ===============================
-// 裏モード入力判定（10秒以内）
+// Web Audio API
+// ===============================
+let audioCtx;
+let hitBuffer = null;
+let beepBuffer = null;
+
+async function initAudio() {
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+  async function loadSound(url) {
+    const res = await fetch(url);
+    const arrayBuf = await res.arrayBuffer();
+    return await audioCtx.decodeAudioData(arrayBuf);
+  }
+
+  hitBuffer = await loadSound("sounds/hit.mp3");
+  beepBuffer = await loadSound("sounds/beep.mp3");
+}
+
+function playBuffer(buffer, volume = 0.25) {
+  if (!audioCtx || !buffer) return;
+  const source = audioCtx.createBufferSource();
+  const gain = audioCtx.createGain();
+  source.buffer = buffer;
+  gain.gain.value = volume;
+  source.connect(gain).connect(audioCtx.destination);
+  source.start(0);
+}
+
+// ===============================
+// 裏モード入力判定
 // ===============================
 document.addEventListener("keydown", (e) => {
   const titleVisible = !document.getElementById("title-screen").classList.contains("hidden");
@@ -43,9 +73,33 @@ document.addEventListener("keydown", (e) => {
 });
 
 // ===============================
+// CSV読み込み
+// ===============================
+async function loadCSV(stageKey) {
+  const fileMap = {
+    greeting: "words_easy.csv",
+    business: "words_business.csv",
+    it: "words_it.csv",
+    mail: "words_mail.csv"
+  };
+
+  const file = fileMap[stageKey];
+  const res = await fetch(file);
+  const text = await res.text();
+
+  words = text
+    .trim()
+    .split("\n")
+    .map(line => {
+      const [jp, hira, roma] = line.split(",");
+      return { jp, hira, roma };
+    });
+}
+
+// ===============================
 // ゲーム開始
 // ===============================
-function startGame(stageKey) {
+async function startGame(stageKey) {
   currentStage = stageKey;
 
   document.getElementById("title-screen").classList.add("hidden");
@@ -57,6 +111,12 @@ function startGame(stageKey) {
   timeLeft = 60;
 
   updateHud();
+
+  if (!audioCtx) {
+    await initAudio();
+  }
+
+  await loadCSV(stageKey);
   nextWord();
 
   timerId = setInterval(() => {
@@ -77,35 +137,18 @@ function updateHud() {
 }
 
 // ===============================
-// 単語リスト（仮）
-// ===============================
-const wordList = [
-  "hello",
-  "system",
-  "engineer",
-  "project",
-  "meeting",
-  "keyboard",
-  "monitor",
-  "network",
-  "server",
-  "cloud"
-];
-
-// ===============================
 // 次の単語
 // ===============================
 function nextWord() {
-  currentWord = wordList[Math.floor(Math.random() * wordList.length)];
-  currentRomaji = currentWord;
+  currentWord = words[Math.floor(Math.random() * words.length)];
   inputIndex = 0;
 
-  document.getElementById("kanji-display").textContent = currentWord;
-  document.getElementById("romaji-display").textContent = currentRomaji;
+  document.getElementById("kanji-display").textContent = currentWord.jp;
+  document.getElementById("romaji-display").textContent = currentWord.roma;
 }
 
 // ===============================
-// キー入力（ゲーム中）
+// キー入力
 // ===============================
 document.addEventListener("keydown", (e) => {
   const gameVisible = !document.getElementById("game-screen").classList.contains("hidden");
@@ -116,23 +159,25 @@ document.addEventListener("keydown", (e) => {
     return;
   }
 
-  const expected = currentRomaji[inputIndex];
+  const expected = currentWord.roma[inputIndex];
   const key = e.key.toLowerCase();
 
   if (key === expected) {
+
+    // ★ 1タイプ成功音
+    playBuffer(hitBuffer, 0.25);
+
     inputIndex++;
 
-    // 全部打ち切ったらワードクリア
-    if (inputIndex >= currentRomaji.length) {
+    if (inputIndex >= currentWord.roma.length) {
       combo++;
       applyComboBonus();
       score += 10 * multiplier;
       updateHud();
       nextWord();
     } else {
-      // 途中の文字更新
       document.getElementById("romaji-display").textContent =
-        currentRomaji.slice(inputIndex);
+        currentWord.roma.slice(inputIndex);
     }
   } else {
     onMiss();
@@ -140,7 +185,7 @@ document.addEventListener("keydown", (e) => {
 });
 
 // ===============================
-// コンボボーナス（裏モードぶっ壊し版）
+// コンボボーナス（裏モード）
 // ===============================
 function applyComboBonus() {
   if (isKeepItReal) {
@@ -162,7 +207,6 @@ function applyComboBonus() {
       multiplier = 1;
     }
   } else {
-    // 通常モード
     if (combo >= 10) multiplier = 3;
     else if (combo >= 5) multiplier = 2;
     else multiplier = 1;
@@ -176,6 +220,8 @@ function onMiss() {
   combo = 0;
   multiplier = 1;
   updateHud();
+
+  playBuffer(beepBuffer, 0.25);
 
   document.getElementById("message").textContent = "MISS!";
   setTimeout(() => {
