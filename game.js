@@ -90,7 +90,7 @@ async function loadCSV(stageKey) {
   words = text
     .trim()
     .split("\n")
-    .slice(1) // ★ ヘッダー行をスキップ
+    .slice(1)
     .map(line => {
       const cols = line.split(",");
       if (cols.length < 3) return null;
@@ -99,8 +99,11 @@ async function loadCSV(stageKey) {
       const hira = cols[1].trim();
 
       let roma = cols[2]
-        .replace(/\r/g, "")   // ★ CR除去
-        .replace(/ー/g, "-")  // ★ 全角ハイフン → 半角
+        .replace(/\r/g, "")
+        .replace(/\uFEFF/g, "")
+        .replace(/ー/g, "-")
+        .replace(/　/g, "")
+        .replace(/\s+/g, "")
         .trim();
 
       return { jp, hira, roma };
@@ -155,7 +158,7 @@ function nextWord() {
   currentWord = words[Math.floor(Math.random() * words.length)];
   inputIndex = 0;
 
-  console.log("次の単語:", currentWord); // ★ デバッグログ
+  console.log("次の単語:", currentWord);
 
   document.getElementById("kanji-display").textContent = currentWord.jp;
   document.getElementById("romaji-display").textContent = currentWord.roma;
