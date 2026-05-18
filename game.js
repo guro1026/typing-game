@@ -382,4 +382,85 @@ randomButton.addEventListener("click", () => {
   const keys = Object.keys(CSV_PATHS);
   const stageKey = keys[Math.floor(Math.random() * keys.length)];
   const name = playerNameInput.value.trim();
-  playerName
+  playerNameLabel.textContent = name || "GUEST";
+
+  startCountdown(stageKey);
+});
+
+// =========================
+// タイトル画面：SPACE で開始
+// =========================
+document.addEventListener("keydown", (e) => {
+  if (titleScreen.style.display === "none") return;
+
+  if (e.code === "Space") {
+    e.preventDefault();
+
+    const name = playerNameInput.value.trim();
+    playerNameLabel.textContent = name || "GUEST";
+
+    const keys = Object.keys(CSV_PATHS);
+    const stageKey = keys[Math.floor(Math.random() * keys.length)];
+
+    startCountdown(stageKey);
+    return;
+  }
+
+  // keepitreal 判定
+  const key = e.key.toLowerCase();
+  if (!/^[a-z]$/.test(key)) return;
+
+  const now = performance.now();
+  if (!titleKeyStartTime || now - titleKeyStartTime > SECRET_TIME_LIMIT) {
+    titleKeyStartTime = now;
+    titleKeyBuffer = "";
+  }
+
+  titleKeyBuffer += key;
+
+  if (titleKeyBuffer.endsWith(SECRET_CODE)) {
+    const name = playerNameInput.value.trim();
+    playerNameLabel.textContent = name || "GUEST";
+
+    startCountdown("it", { invincible: true });
+    messageLabel.textContent = "KEEP IT REAL MODE!";
+  }
+});
+
+// =========================
+// ゲーム中キー入力
+// =========================
+document.addEventListener("keydown", (e) => {
+  if (titleScreen.style.display !== "none") return;
+  if (gameoverScreen.style.display !== "none") return;
+
+  handleGameKeydown(e);
+});
+
+// =========================
+// リトライ
+// =========================
+retryButton.addEventListener("click", () => {
+  titleScreen.style.display = "flex";
+  gameoverScreen.style.display = "none";
+  kanjiDisplay.textContent = "準備OK？";
+  romajiDisplay.textContent = "";
+  messageLabel.textContent = "";
+});
+
+gameoverRetry.addEventListener("click", () => {
+  titleScreen.style.display = "flex";
+  gameoverScreen.style.display = "none";
+  kanjiDisplay.textContent = "準備OK？";
+  romajiDisplay.textContent = "";
+  messageLabel.textContent = "";
+});
+
+// =========================
+// 初期化
+// =========================
+window.addEventListener("load", async () => {
+  await loadAllCsv();
+  kanjiDisplay.textContent = "準備OK？";
+  romajiDisplay.textContent = "";
+});
