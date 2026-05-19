@@ -1,7 +1,6 @@
 // ===============================
 //  4言語フェードインのテキスト設定
 // ===============================
-
 document.getElementById("line1").textContent = "最速は誰だ！！スピードキングを目指せ！";
 document.getElementById("line2").textContent = "Who is the fastest? Aim for the Speed King!";
 document.getElementById("line3").textContent = "Qui est le plus rapide ? Deviens le Speed King!";
@@ -11,7 +10,6 @@ document.getElementById("line4").textContent = "Chi è il più veloce? Punta al 
 // ===============================
 //  名前入力
 // ===============================
-
 const nameInput = document.getElementById("fullname");
 const nameBtn = document.getElementById("name-confirm");
 const nameError = document.getElementById("name-error");
@@ -40,7 +38,6 @@ nameBtn.addEventListener("click", () => {
 // ===============================
 //  コース選択 → READY
 // ===============================
-
 document.querySelectorAll(".course-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     const course = btn.dataset.course;
@@ -81,7 +78,6 @@ document.addEventListener("keydown", (e) => {
 // ===============================
 //  ゲーム本編
 // ===============================
-
 const gameUI = document.getElementById("game-ui");
 const timeValue = document.getElementById("time-value");
 const scoreValue = document.getElementById("score-value");
@@ -92,6 +88,8 @@ const typeInput = document.getElementById("type-input");
 
 let words = [];
 let currentIndex = 0;
+let currentWord = null;
+
 let timeLeft = 60;
 let timerId = null;
 let score = 0;
@@ -100,6 +98,10 @@ let maxCombo = 0;
 let multi = 1;
 let isKeepItReal = false;
 
+
+// ===============================
+//  CSV 読み込み（日本語,ひらがな,ローマ字）
+// ===============================
 function getCsvFileForCourse(course) {
   switch (course) {
     case "easy": return "words_easy.csv";
@@ -113,9 +115,20 @@ async function loadCsv(course) {
   const file = getCsvFileForCourse(course);
   const res = await fetch(file);
   const text = await res.text();
-  return text.split(/\r?\n/).map(l => l.trim()).filter(l => l).map(l => l.split(",")[0]);
+
+  return text.split(/\r?\n/)
+    .map(l => l.trim())
+    .filter(l => l)
+    .map(l => {
+      const [jp, hira, roma] = l.split(",");
+      return { jp, hira, roma };
+    });
 }
 
+
+// ===============================
+//  ゲーム開始
+// ===============================
 async function startGame(course) {
   overlay.classList.add("hidden");
 
@@ -148,6 +161,10 @@ async function startGame(course) {
   }, 1000);
 }
 
+
+// ===============================
+//  HUD 更新
+// ===============================
 function updateHud() {
   timeValue.textContent = timeLeft;
   scoreValue.textContent = score;
@@ -155,15 +172,24 @@ function updateHud() {
   multiValue.textContent = `x${multi}`;
 }
 
+
+// ===============================
+//  次の単語を表示（ローマ字）
+// ===============================
 function showNextWord() {
-  currentWordElem.textContent = words[currentIndex];
+  currentWord = words[currentIndex];
+  currentWordElem.textContent = currentWord.roma;  // ローマ字表示
   currentIndex = (currentIndex + 1) % words.length;
 }
 
+
+// ===============================
+//  タイピング判定
+// ===============================
 typeInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter") {
     const input = typeInput.value.trim();
-    const target = currentWordElem.textContent.trim();
+    const target = currentWord.roma.trim();
 
     if (input === target) handleCorrect();
     else handleMiss();
@@ -173,6 +199,10 @@ typeInput.addEventListener("keydown", (e) => {
   }
 });
 
+
+// ===============================
+//  正解処理
+// ===============================
 function handleCorrect() {
   if (isKeepItReal) {
     combo++;
@@ -192,12 +222,20 @@ function handleCorrect() {
   updateHud();
 }
 
+
+// ===============================
+//  ミス処理
+// ===============================
 function handleMiss() {
   combo = 0;
   multi = 1;
   updateHud();
 }
 
+
+// ===============================
+//  ゲーム終了
+// ===============================
 function endGame() {
   clearInterval(timerId);
   gameUI.classList.add("hidden");

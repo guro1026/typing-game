@@ -1,16 +1,20 @@
 /* ============================
-   基本設定
+   基本設定（背景をHUD風に）
 ============================ */
 body {
   margin: 0;
   overflow: hidden;
-  background: #000;
-  font-family: "Yu Gothic", sans-serif;
+  background:
+    linear-gradient(#0a0a0a 1px, transparent 1px),
+    linear-gradient(90deg, #0a0a0a 1px, transparent 1px),
+    #000;
+  background-size: 40px 40px;
+  font-family: "Orbitron", "Yu Gothic", sans-serif;
   color: white;
 }
 
 /* ============================
-   ロゴ（光なし・フェードイン）
+   タイトルロゴ（ネオン化）
 ============================ */
 .title-logo {
   position: absolute;
@@ -24,12 +28,17 @@ body {
   font-weight: 900;
   color: #ff4d4d;
 
+  text-shadow:
+    0 0 10px #ff4d4d,
+    0 0 20px #ff1a1a,
+    0 0 40px #ff0000;
+
   opacity: 0;
   animation: fadeIn 1.5s ease forwards;
 }
 
 /* ============================
-   4言語フェードイン
+   4言語フェードイン（光らせる）
 ============================ */
 #fadein-container {
   position: absolute;
@@ -44,6 +53,9 @@ body {
   font-weight: 700;
   opacity: 0;
   margin: 0.4vw 0;
+
+  text-shadow: 0 0 8px #ffffffaa;
+
   animation: fadeIn 1.5s ease forwards;
 }
 
@@ -56,8 +68,8 @@ body {
    フェードイン共通
 ============================ */
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* ============================
@@ -74,28 +86,36 @@ body {
 }
 
 #fullname {
-  width: 300px;
-  height: 40px;
+  width: 320px;
+  height: 42px;
   font-size: 18px;
   padding: 5px 10px;
   border: 2px solid #ff4d4d;
   background: rgba(0,0,0,0.6);
   color: white;
+  box-shadow: 0 0 10px #ff4d4d55;
 }
 
 #name-confirm {
   margin-left: 10px;
-  height: 40px;
+  height: 42px;
   font-size: 17px;
   padding: 0 14px;
   background: #ff4d4d;
   border: none;
   color: white;
   cursor: pointer;
+  box-shadow: 0 0 10px #ff4d4d;
+  transition: 0.2s;
+}
+
+#name-confirm:hover {
+  background: #ff1a1a;
+  box-shadow: 0 0 20px #ff1a1a;
 }
 
 /* ============================
-   コース選択
+   コース選択（ゲームボタン化）
 ============================ */
 #course-container {
   position: absolute;
@@ -108,20 +128,25 @@ body {
 }
 
 .course-btn {
-  width: 180px;
-  height: 58px;
-  margin: 0 10px;
-  font-size: 18px;
-  background: rgba(0,0,0,0.6);
+  width: 200px;
+  height: 60px;
+  margin: 0 12px;
+  font-size: 20px;
+
+  background: rgba(0,0,0,0.4);
   border: 2px solid #ff4d4d;
   color: white;
+
   cursor: pointer;
   transition: 0.2s;
+
+  box-shadow: 0 0 12px #ff4d4d55;
 }
 
 .course-btn:hover {
-  transform: scale(1.05);
+  transform: scale(1.08);
   background: #ff4d4d;
+  box-shadow: 0 0 25px #ff1a1a;
 }
 
 /* ============================
@@ -157,11 +182,16 @@ body {
 #score-value,
 #combo-value,
 #multi-value {
-  font-size: 20px;
+  font-size: 22px;
+  text-shadow: 0 0 8px #ff4d4d;
 }
 
+/* ★ タイピング単語をデカく・強く */
 #current-word {
-  font-size: 38px;
+  font-size: 70px;
+  font-weight: 900;
+  letter-spacing: 3px;
+  text-shadow: 0 0 12px #ffffffaa;
 }
 
 #word-area {
@@ -179,12 +209,13 @@ body {
 }
 
 #type-input {
-  width: 400px;
-  height: 40px;
-  font-size: 18px;
+  width: 420px;
+  height: 42px;
+  font-size: 20px;
   border: 2px solid #ff4d4d;
   background: rgba(0,0,0,0.6);
   color: white;
+  box-shadow: 0 0 10px #ff4d4d55;
 }
 
 /* ============================
@@ -199,30 +230,37 @@ body {
   align-items: center;
   justify-content: center;
 
-  /* ← 追加：これで “画面が覆われる” 感が消える */
   pointer-events: none;
 }
 
 #overlay .main-text {
-  font-size: 34px;
+  font-size: 40px;
   margin-bottom: 20px;
+  text-shadow: 0 0 12px #ffffffaa;
 }
 
 #overlay .sub-text {
-  font-size: 16px;
+  font-size: 18px;
   opacity: 0.8;
   margin-bottom: 10px;
 }
 
 #overlay button {
   margin-top: 20px;
-  padding: 10px 22px;
-  font-size: 16px;
+  padding: 12px 26px;
+  font-size: 18px;
   background: #ff4d4d;
   border: none;
   color: white;
   cursor: pointer;
 
-  /* ボタンだけクリック可能にする */
   pointer-events: auto;
+
+  box-shadow: 0 0 15px #ff4d4d;
+  transition: 0.2s;
+}
+
+#overlay button:hover {
+  background: #ff1a1a;
+  box-shadow: 0 0 25px #ff1a1a;
 }
