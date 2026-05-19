@@ -1,3 +1,6 @@
+/* ============================
+   基本設定
+============================ */
 body {
   margin: 0;
   overflow: hidden;
@@ -6,17 +9,23 @@ body {
   color: white;
 }
 
-/* 超巨大ネオンロゴ */
+/* ============================
+   超巨大ネオンロゴ（最適化済み）
+============================ */
 .title-logo {
   position: absolute;
   top: 3%;
   left: 50%;
   transform: translateX(-50%);
   white-space: nowrap;
-  font-size: 11vw;
+
+  /* ← ここが今回の最重要修正点 */
+  font-size: 6.8vw;          /* 画面にピッタリ収まる最適値 */
+  letter-spacing: 0.12vw;    /* 文字間隔も最適化 */
+
   font-weight: 900;
   color: #ff4d4d;
-  letter-spacing: 0.25vw;
+
   text-shadow:
     0 0 10px #ff1a1a,
     0 0 20px #ff1a1a,
@@ -26,10 +35,12 @@ body {
     0 0 80px #ff3333;
 }
 
-/* サブタイトル（TYPE-ATTACK） */
+/* ============================
+   サブタイトル（TYPE-ATTACK 対象）
+============================ */
 #catch-container {
   position: absolute;
-  top: 22%;
+  top: 28%;                 /* ← ロゴと干渉しない最適位置 */
   left: 50%;
   transform: translateX(-50%);
   text-align: center;
@@ -39,13 +50,15 @@ body {
   font-size: 4vw;
   font-weight: 700;
   letter-spacing: 0.15vw;
-  color: #ffffff;
+  color: #ffffff;           /* ← 白で統一 */
 }
 
-/* 多言語（普通表示） */
+/* ============================
+   多言語（普通表示）
+============================ */
 #multi-lang {
   position: absolute;
-  top: 32%;
+  top: 38%;                 /* ← サブタイトルと自然な距離 */
   left: 50%;
   transform: translateX(-50%);
   text-align: center;
@@ -54,7 +67,9 @@ body {
   line-height: 1.4;
 }
 
-/* 名前入力 */
+/* ============================
+   名前入力
+============================ */
 #name-container {
   position: absolute;
   bottom: 20%;
@@ -83,6 +98,14 @@ body {
   cursor: pointer;
 }
 
+#name-error {
+  color: #ff8080;
+  margin-top: 10px;
+}
+
+/* ============================
+   コース選択
+============================ */
 #course-container {
   position: absolute;
   bottom: 10%;
@@ -99,11 +122,19 @@ body {
   border: 3px solid #ff4d4d;
   color: white;
   cursor: pointer;
+  transition: 0.2s;
+}
+
+.course-btn:hover {
+  transform: scale(1.1);
+  background: #ff4d4d;
 }
 
 .hidden { display: none; }
 
-/* ゲームUI */
+/* ============================
+   ゲームUI
+============================ */
 #game-ui { position: absolute; inset: 0; }
 
 #hud-left {
@@ -117,6 +148,17 @@ body {
   top: 20px;
   right: 20px;
   text-align: right;
+}
+
+.hud-label {
+  font-size: 18px;
+  opacity: 0.7;
+}
+
+#score-value,
+#combo-value,
+#multi-value {
+  font-size: 28px;
 }
 
 #current-word {
@@ -146,7 +188,9 @@ body {
   color: white;
 }
 
-/* READY / RESULT */
+/* ============================
+   READY / RESULT
+============================ */
 #overlay {
   position: absolute;
   inset: 0;
@@ -155,4 +199,25 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+}
+
+#overlay .main-text {
+  font-size: 48px;
+  margin-bottom: 20px;
+}
+
+#overlay .sub-text {
+  font-size: 24px;
+  opacity: 0.8;
+  margin-bottom: 10px;
+}
+
+#overlay button {
+  margin-top: 20px;
+  padding: 10px 30px;
+  font-size: 20px;
+  background: #ff4d4d;
+  border: none;
+  color: white;
+  cursor: pointer;
 }
