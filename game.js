@@ -1,40 +1,9 @@
 // ===============================
-//  TYPE-ATTACK（光なし・拡大なし）
+//  サブタイトル：フェードインのみ
 // ===============================
 
-const mainLine = "最速は誰だ！！スピードキングを目指せ！";
-const mainElem = document.getElementById("catch-main");
-
-async function typeAttack(line, elem) {
-  elem.innerHTML = "";
-  const chars = line.split("");
-  const totalTime = 5000;
-  const perChar = totalTime / chars.length;
-
-  const spans = chars.map(c => {
-    const span = document.createElement("span");
-    span.textContent = c;
-    span.style.opacity = 0;
-    span.style.display = "inline-block";
-    span.style.transform = "scale(1.0)";   // ← 拡大なし
-    span.style.transition = `opacity 0.1s linear`;
-    elem.appendChild(span);
-    return span;
-  });
-
-  const order = [...Array(chars.length).keys()].sort(() => Math.random() - 0.5);
-
-  for (let i = 0; i < order.length; i++) {
-    const idx = order[i];
-    const span = spans[idx];
-
-    span.style.opacity = 1;
-
-    await new Promise(res => setTimeout(res, perChar));
-  }
-}
-
-typeAttack(mainLine, mainElem);
+// もう TYPE-ATTACK は使わないので、JS 側の処理は不要。
+// HTML に書かれたテキストがそのままフェードインするだけ。
 
 
 // ===============================
