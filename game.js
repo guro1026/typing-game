@@ -1,79 +1,47 @@
 // ===============================
-//  キャッチコピー 4行（TYPE-ATTACK）
+//  TYPE-ATTACK（サブタイトル1行）
 // ===============================
 
-const lines = [
-  "最速は誰だ！！スピードキングを目指せ！",
-  "Who is the fastest? Aim for the Speed King!",
-  "Qui est le plus rapide ? Deviens le Speed King!",
-  "Chi è il più veloce? Punta al Speed King!"
-];
+const mainLine = "最速は誰だ！！スピードキングを目指せ！";
+const mainElem = document.getElementById("catch-main");
 
-const lineElems = [
-  document.getElementById("line1"),
-  document.getElementById("line2"),
-  document.getElementById("line3"),
-  document.getElementById("line4")
-];
+async function typeAttack(line, elem) {
+  elem.innerHTML = "";
+  const chars = line.split("");
+  const totalTime = 5000;
+  const perChar = totalTime / chars.length;
 
-function randomColor() {
-  const colors = [
-    "#ff4d4d", "#ff884d", "#ffd24d", "#a6ff4d",
-    "#4dffb8", "#4dd2ff", "#4d6aff", "#b84dff",
-    "#ff4df2", "#ff4d88"
-  ];
-  return colors[Math.floor(Math.random() * colors.length)];
-}
+  const spans = chars.map(c => {
+    const span = document.createElement("span");
+    span.textContent = c;
+    span.style.opacity = 0;
+    span.style.display = "inline-block";
+    span.style.transform = "scale(0.8)";
+    span.style.transition = `opacity 0.1s linear, transform 0.12s ease-out`;
+    span.style.color = "#ffffff";
+    elem.appendChild(span);
+    return span;
+  });
 
-// 4行同時 TYPE-ATTACK（1行5秒・ランダム順・ランダム色）
-async function typeAttackAllLines(lines, elems) {
-  const allSpans = [];
+  const order = [...Array(chars.length).keys()].sort(() => Math.random() - 0.5);
 
-  for (let i = 0; i < lines.length; i++) {
-    const text = lines[i];
-    const elem = elems[i];
-    elem.innerHTML = "";
+  for (let i = 0; i < order.length; i++) {
+    const idx = order[i];
+    const span = spans[idx];
 
-    const chars = text.split("");
-    const totalTime = 5000;
-    const perChar = totalTime / chars.length;
+    span.style.opacity = 1;
+    span.style.transform = "scale(1.15)";
 
-    const spans = chars.map(c => {
-      const span = document.createElement("span");
-      span.textContent = c;
-      span.style.opacity = 0;
-      span.style.display = "inline-block";
-      span.style.transform = "scale(0.2) rotate(0deg)";
-      span.style.transition = `opacity 0.1s linear, transform 0.15s ease-out`;
-      span.style.color = randomColor();
-      elem.appendChild(span);
-      return span;
-    });
+    setTimeout(() => {
+      span.style.transform = "scale(1.0)";
+    }, 100);
 
-    const order = [...Array(chars.length).keys()].sort(() => Math.random() - 0.5);
-    allSpans.push({ spans, order, perChar });
-  }
-
-  const maxLen = Math.max(...allSpans.map(x => x.order.length));
-
-  for (let step = 0; step < maxLen; step++) {
-    for (let row = 0; row < allSpans.length; row++) {
-      const { spans, order } = allSpans[row];
-      if (step < order.length) {
-        const idx = order[step];
-        const span = spans[idx];
-        span.style.opacity = 1;
-        span.style.transform = "scale(1.4) rotate(8deg)";
-        setTimeout(() => {
-          span.style.transform = "scale(1.0) rotate(0deg)";
-        }, 120);
-      }
-    }
-    await new Promise(res => setTimeout(res, allSpans[0].perChar));
+    await new Promise(res => setTimeout(res, perChar));
   }
 }
 
-typeAttackAllLines(lines, lineElems);
+typeAttack(mainLine, mainElem);
+
 
 // ===============================
 //  名前入力
@@ -98,18 +66,14 @@ nameBtn.addEventListener("click", () => {
     return;
   }
 
-  if (!/^[\u3000-\u303F\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF]+\s[\u3000-\u303F\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF]+$/.test(name)) {
-    nameError.textContent = "日本語のフルネーム（姓＋名）を入力してください。";
-    return;
-  }
-
   localStorage.setItem("kir_fullname", name);
   nameError.textContent = "";
   courseContainer.classList.remove("hidden");
 });
 
+
 // ===============================
-//  コース選択 → READY画面
+//  コース選択 → READY
 // ===============================
 
 document.querySelectorAll(".course-btn").forEach(btn => {
@@ -121,22 +85,12 @@ document.querySelectorAll(".course-btn").forEach(btn => {
 });
 
 function hideTitleScreen() {
-  const title = document.querySelector(".title-logo");
-  if (title) title.style.display = "none";
-
-  const catchContainer = document.getElementById("catch-container");
-  if (catchContainer) catchContainer.style.display = "none";
-
-  const nameBox = document.getElementById("name-container");
-  if (nameBox) nameBox.style.display = "none";
-
-  const courseBox = document.getElementById("course-container");
-  if (courseBox) courseBox.style.display = "none";
+  document.querySelector(".title-logo").style.display = "none";
+  document.getElementById("catch-container").style.display = "none";
+  document.getElementById("multi-lang").style.display = "none";
+  document.getElementById("name-container").style.display = "none";
+  document.getElementById("course-container").style.display = "none";
 }
-
-// ===============================
-//  READY画面（スペースで開始）
-// ===============================
 
 const overlay = document.getElementById("overlay");
 let waitingForSpace = false;
@@ -153,12 +107,12 @@ function showReadyScreen(course) {
 }
 
 document.addEventListener("keydown", (e) => {
-  if (!waitingForSpace) return;
-  if (e.code === "Space") {
+  if (waitingForSpace && e.code === "Space") {
     waitingForSpace = false;
     startGame(selectedCourse);
   }
 });
+
 
 // ===============================
 //  ゲーム本編
@@ -188,7 +142,6 @@ function getCsvFileForCourse(course) {
     case "normal": return "words_business.csv";
     case "hard": return "words_it.csv";
     case "expert": return "words_mail.csv";
-    default: return "words_easy.csv";
   }
 }
 
@@ -196,8 +149,7 @@ async function loadCsv(course) {
   const file = getCsvFileForCourse(course);
   const res = await fetch(file);
   const text = await res.text();
-  const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l);
-  return lines.map(line => line.split(",")[0]);
+  return text.split(/\r?\n/).map(l => l.trim()).filter(l => l).map(l => l.split(",")[0]);
 }
 
 async function startGame(course) {
@@ -207,14 +159,6 @@ async function startGame(course) {
   isKeepItReal = name.toLowerCase().includes("keepitreal");
 
   words = await loadCsv(course);
-  if (words.length === 0) {
-    overlay.classList.remove("hidden");
-    overlay.innerHTML = `
-      <div class="main-text">辞書が空です</div>
-      <div class="sub-text">${getCsvFileForCourse(course)} を確認してください</div>
-    `;
-    return;
-  }
 
   gameUI.classList.remove("hidden");
   timeLeft = 60;
@@ -236,9 +180,7 @@ async function startGame(course) {
       timeLeft = 0;
       updateHud();
       endGame();
-    } else {
-      updateHud();
-    }
+    } else updateHud();
   }, 1000);
 }
 
@@ -250,7 +192,6 @@ function updateHud() {
 }
 
 function showNextWord() {
-  if (words.length === 0) return;
   currentWordElem.textContent = words[currentIndex];
   currentIndex = (currentIndex + 1) % words.length;
 }
@@ -259,13 +200,10 @@ typeInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter") {
     const input = typeInput.value.trim();
     const target = currentWordElem.textContent.trim();
-    if (!target) return;
 
-    if (input === target) {
-      handleCorrect();
-    } else {
-      handleMiss();
-    }
+    if (input === target) handleCorrect();
+    else handleMiss();
+
     typeInput.value = "";
     showNextWord();
   }
@@ -276,17 +214,11 @@ function handleCorrect() {
     combo++;
     if (combo > maxCombo) maxCombo = combo;
 
-    if (combo >= 20) {
-      multi = 4;
-      timeLeft += 10;
-    } else if (combo >= 10) {
-      multi = 4;
-      timeLeft += 5;
-    } else if (combo >= 5) {
-      multi = 2;
-    } else {
-      multi = 1;
-    }
+    if (combo >= 20) { multi = 4; timeLeft += 10; }
+    else if (combo >= 10) { multi = 4; timeLeft += 5; }
+    else if (combo >= 5) multi = 2;
+    else multi = 1;
+
   } else {
     combo = 0;
     multi = 1;
@@ -304,7 +236,6 @@ function handleMiss() {
 
 function endGame() {
   clearInterval(timerId);
-  timerId = null;
   gameUI.classList.add("hidden");
 
   overlay.classList.remove("hidden");
@@ -315,8 +246,7 @@ function endGame() {
     <button id="retry-btn">タイトルに戻る</button>
   `;
 
-  const retryBtn = document.getElementById("retry-btn");
-  retryBtn.addEventListener("click", () => {
+  document.getElementById("retry-btn").addEventListener("click", () => {
     location.reload();
   });
 }

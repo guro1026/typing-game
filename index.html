@@ -7,17 +7,21 @@
 </head>
 <body>
 
-  <!-- 超巨大ネオンロゴ（1行・画面いっぱい） -->
+  <!-- 超巨大ネオンロゴ -->
   <div class="title-logo">
     第１回 KIR タイピング王決定戦！！
   </div>
 
-  <!-- キャッチコピー 4行（TYPE-ATTACK 演出対象） -->
+  <!-- サブタイトル（TYPE-ATTACK 対象） -->
   <div id="catch-container">
-    <div class="catch-line" id="line1"></div>
-    <div class="catch-line" id="line2"></div>
-    <div class="catch-line" id="line3"></div>
-    <div class="catch-line" id="line4"></div>
+    <div class="catch-line" id="catch-main"></div>
+  </div>
+
+  <!-- 多言語（普通表示） -->
+  <div id="multi-lang">
+    <div>Who is the fastest? Aim for the Speed King!</div>
+    <div>Qui est le plus rapide ? Deviens le Speed King!</div>
+    <div>Chi è il più veloce? Punta al Speed King!</div>
   </div>
 
   <!-- 名前入力 -->
@@ -66,7 +70,7 @@
     </div>
   </div>
 
-  <!-- READY / RESULT オーバーレイ -->
+  <!-- READY / RESULT -->
   <div id="overlay" class="hidden"></div>
 
   <script src="game.js"></script>

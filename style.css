@@ -6,19 +6,17 @@ body {
   color: white;
 }
 
-/* 超巨大ネオンロゴ（1行・画面いっぱい） */
+/* 超巨大ネオンロゴ */
 .title-logo {
   position: absolute;
   top: 3%;
   left: 50%;
   transform: translateX(-50%);
   white-space: nowrap;
-  font-size: 11vw;            /* 画面幅基準の超巨大サイズ */
+  font-size: 11vw;
   font-weight: 900;
   color: #ff4d4d;
   letter-spacing: 0.25vw;
-  text-align: center;
-  z-index: 10;
   text-shadow:
     0 0 10px #ff1a1a,
     0 0 20px #ff1a1a,
@@ -26,54 +24,34 @@ body {
     0 0 40px #ff3333,
     0 0 70px #ff3333,
     0 0 80px #ff3333;
-  animation: neonPulse 2.5s ease-in-out infinite;
 }
 
-@keyframes neonPulse {
-  0% {
-    text-shadow:
-      0 0 10px #ff1a1a,
-      0 0 20px #ff1a1a,
-      0 0 30px #ff1a1a,
-      0 0 40px #ff3333,
-      0 0 70px #ff3333,
-      0 0 80px #ff3333;
-  }
-  50% {
-    text-shadow:
-      0 0 20px #ff4d4d,
-      0 0 40px #ff4d4d,
-      0 0 60px #ff4d4d,
-      0 0 80px #ff6666,
-      0 0 120px #ff6666,
-      0 0 150px #ff6666;
-  }
-  100% {
-    text-shadow:
-      0 0 10px #ff1a1a,
-      0 0 20px #ff1a1a,
-      0 0 30px #ff1a1a,
-      0 0 40px #ff3333,
-      0 0 70px #ff3333,
-      0 0 80px #ff3333;
-  }
-}
-
-/* キャッチコピー 4行（TYPE-ATTACK 対象） */
+/* サブタイトル（TYPE-ATTACK） */
 #catch-container {
   position: absolute;
   top: 22%;
   left: 50%;
   transform: translateX(-50%);
   text-align: center;
-  z-index: 5;
 }
 
 .catch-line {
-  font-size: 4vw;       /* ロゴより2〜3周り小さい */
+  font-size: 4vw;
   font-weight: 700;
-  margin: 10px 0;
   letter-spacing: 0.15vw;
+  color: #ffffff;
+}
+
+/* 多言語（普通表示） */
+#multi-lang {
+  position: absolute;
+  top: 32%;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  font-size: 1.8vw;
+  opacity: 0.9;
+  line-height: 1.4;
 }
 
 /* 名前入力 */
@@ -82,7 +60,6 @@ body {
   bottom: 20%;
   width: 100%;
   text-align: center;
-  z-index: 15;
 }
 
 #fullname {
@@ -93,7 +70,6 @@ body {
   border: 3px solid #ff4d4d;
   background: rgba(0,0,0,0.6);
   color: white;
-  outline: none;
 }
 
 #name-confirm {
@@ -107,18 +83,11 @@ body {
   cursor: pointer;
 }
 
-#name-error {
-  color: #ff8080;
-  margin-top: 10px;
-}
-
-/* コース選択 */
 #course-container {
   position: absolute;
   bottom: 10%;
   width: 100%;
   text-align: center;
-  z-index: 15;
 }
 
 .course-btn {
@@ -130,42 +99,19 @@ body {
   border: 3px solid #ff4d4d;
   color: white;
   cursor: pointer;
-  transition: 0.2s;
 }
 
-.course-btn:hover {
-  transform: scale(1.1);
-  background: #ff4d4d;
-}
-
-.hidden {
-  display: none;
-}
+.hidden { display: none; }
 
 /* ゲームUI */
-#game-ui {
-  position: absolute;
-  inset: 0;
-}
+#game-ui { position: absolute; inset: 0; }
 
-/* HUD 左（TIME） */
 #hud-left {
   position: absolute;
   top: 20px;
   left: 20px;
-  text-align: left;
 }
 
-.hud-label {
-  font-size: 18px;
-  opacity: 0.7;
-}
-
-#time-value {
-  font-size: 40px;
-}
-
-/* HUD 右（SCORE / COMBO / MULTI） */
 #hud-right {
   position: absolute;
   top: 20px;
@@ -173,30 +119,17 @@ body {
   text-align: right;
 }
 
-.hud-block {
-  margin-bottom: 10px;
+#current-word {
+  font-size: 56px;
 }
 
-#score-value,
-#combo-value,
-#multi-value {
-  font-size: 28px;
-}
-
-/* 中央 WORD */
 #word-area {
   position: absolute;
   top: 45%;
   left: 50%;
   transform: translate(-50%, -50%);
-  text-align: center;
 }
 
-#current-word {
-  font-size: 56px;
-}
-
-/* 下 INPUT */
 #input-area {
   position: absolute;
   bottom: 10%;
@@ -208,14 +141,12 @@ body {
   width: 500px;
   height: 50px;
   font-size: 24px;
-  padding: 5px 10px;
   border: 3px solid #ff4d4d;
   background: rgba(0,0,0,0.6);
   color: white;
-  outline: none;
 }
 
-/* READY / RESULT オーバーレイ */
+/* READY / RESULT */
 #overlay {
   position: absolute;
   inset: 0;
@@ -224,27 +155,4 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  text-align: center;
-  z-index: 20;
-}
-
-#overlay .main-text {
-  font-size: 48px;
-  margin-bottom: 20px;
-}
-
-#overlay .sub-text {
-  font-size: 24px;
-  opacity: 0.8;
-  margin-bottom: 10px;
-}
-
-#overlay button {
-  margin-top: 20px;
-  padding: 10px 30px;
-  font-size: 20px;
-  background: #ff4d4d;
-  border: none;
-  color: white;
-  cursor: pointer;
 }
