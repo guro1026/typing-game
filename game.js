@@ -1,11 +1,11 @@
 // ===============================
-//  4言語巨大フェードイン
+//  キャッチコピー 4行（TYPE-ATTACK）
 // ===============================
 
 const lines = [
   "最速は誰だ！！スピードキングを目指せ！",
   "Who is the fastest? Aim for the Speed King!",
-  "Qui est le plus rapide ? Deviens le Speed King !",
+  "Qui est le plus rapide ? Deviens le Speed King!",
   "Chi è il più veloce? Punta al Speed King!"
 ];
 
@@ -16,31 +16,64 @@ const lineElems = [
   document.getElementById("line4")
 ];
 
-async function fadeInLine(text, elem) {
-  elem.innerHTML = "";
-
-  for (let i = 0; i < text.length; i++) {
-    const span = document.createElement("span");
-    span.textContent = text[i];
-    span.style.opacity = 0;
-    span.style.transition = "opacity 5s linear";
-    elem.appendChild(span);
-
-    setTimeout(() => {
-      span.style.opacity = 1;
-    }, 50);
-
-    await new Promise(res => setTimeout(res, 5000));
-  }
+function randomColor() {
+  const colors = [
+    "#ff4d4d", "#ff884d", "#ffd24d", "#a6ff4d",
+    "#4dffb8", "#4dd2ff", "#4d6aff", "#b84dff",
+    "#ff4df2", "#ff4d88"
+  ];
+  return colors[Math.floor(Math.random() * colors.length)];
 }
 
-async function startFadeIn() {
+// 4行同時 TYPE-ATTACK（1行5秒・ランダム順・ランダム色）
+async function typeAttackAllLines(lines, elems) {
+  const allSpans = [];
+
   for (let i = 0; i < lines.length; i++) {
-    await fadeInLine(lines[i], lineElems[i]);
+    const text = lines[i];
+    const elem = elems[i];
+    elem.innerHTML = "";
+
+    const chars = text.split("");
+    const totalTime = 5000;
+    const perChar = totalTime / chars.length;
+
+    const spans = chars.map(c => {
+      const span = document.createElement("span");
+      span.textContent = c;
+      span.style.opacity = 0;
+      span.style.display = "inline-block";
+      span.style.transform = "scale(0.2) rotate(0deg)";
+      span.style.transition = `opacity 0.1s linear, transform 0.15s ease-out`;
+      span.style.color = randomColor();
+      elem.appendChild(span);
+      return span;
+    });
+
+    const order = [...Array(chars.length).keys()].sort(() => Math.random() - 0.5);
+    allSpans.push({ spans, order, perChar });
+  }
+
+  const maxLen = Math.max(...allSpans.map(x => x.order.length));
+
+  for (let step = 0; step < maxLen; step++) {
+    for (let row = 0; row < allSpans.length; row++) {
+      const { spans, order } = allSpans[row];
+      if (step < order.length) {
+        const idx = order[step];
+        const span = spans[idx];
+        span.style.opacity = 1;
+        span.style.transform = "scale(1.4) rotate(8deg)";
+        setTimeout(() => {
+          span.style.transform = "scale(1.0) rotate(0deg)";
+        }, 120);
+      }
+    }
+    await new Promise(res => setTimeout(res, allSpans[0].perChar));
   }
 }
-startFadeIn();
 
+typeAttackAllLines(lines, lineElems);
 
 // ===============================
 //  名前入力
@@ -75,7 +108,6 @@ nameBtn.addEventListener("click", () => {
   courseContainer.classList.remove("hidden");
 });
 
-
 // ===============================
 //  コース選択 → READY画面
 // ===============================
@@ -92,8 +124,8 @@ function hideTitleScreen() {
   const title = document.querySelector(".title-logo");
   if (title) title.style.display = "none";
 
-  const fade = document.getElementById("fadein-container");
-  if (fade) fade.style.display = "none";
+  const catchContainer = document.getElementById("catch-container");
+  if (catchContainer) catchContainer.style.display = "none";
 
   const nameBox = document.getElementById("name-container");
   if (nameBox) nameBox.style.display = "none";
@@ -101,7 +133,6 @@ function hideTitleScreen() {
   const courseBox = document.getElementById("course-container");
   if (courseBox) courseBox.style.display = "none";
 }
-
 
 // ===============================
 //  READY画面（スペースで開始）
@@ -128,7 +159,6 @@ document.addEventListener("keydown", (e) => {
     startGame(selectedCourse);
   }
 });
-
 
 // ===============================
 //  ゲーム本編
@@ -167,7 +197,6 @@ async function loadCsv(course) {
   const res = await fetch(file);
   const text = await res.text();
   const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l);
-  // 1列目を単語として使う
   return lines.map(line => line.split(",")[0]);
 }
 
@@ -259,7 +288,6 @@ function handleCorrect() {
       multi = 1;
     }
   } else {
-    // 通常モード：常に1倍、時間ボーナスなし
     combo = 0;
     multi = 1;
   }
