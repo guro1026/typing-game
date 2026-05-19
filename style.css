@@ -10,18 +10,17 @@ body {
 }
 
 /* ============================
-   超巨大ネオンロゴ（最適化済み）
+   超巨大ネオンロゴ（少し小さく）
 ============================ */
 .title-logo {
   position: absolute;
-  top: 3%;
+  top: 4%;                     /* ← 少し下げて余裕を作る */
   left: 50%;
   transform: translateX(-50%);
   white-space: nowrap;
 
-  /* ← ここが今回の最重要修正点 */
-  font-size: 6.8vw;          /* 画面にピッタリ収まる最適値 */
-  letter-spacing: 0.12vw;    /* 文字間隔も最適化 */
+  font-size: 6vw;              /* ← 6.8vw → 6vw に縮小 */
+  letter-spacing: 0.10vw;      /* ← さらに詰めて横幅を抑える */
 
   font-weight: 900;
   color: #ff4d4d;
@@ -36,34 +35,34 @@ body {
 }
 
 /* ============================
-   サブタイトル（TYPE-ATTACK 対象）
+   サブタイトル（TYPE-ATTACK）
 ============================ */
 #catch-container {
   position: absolute;
-  top: 28%;                 /* ← ロゴと干渉しない最適位置 */
+  top: 26%;                    /* ← 28% → 26% に上げてバランス調整 */
   left: 50%;
   transform: translateX(-50%);
   text-align: center;
 }
 
 .catch-line {
-  font-size: 2.8vw;     /* ← 4vw → 2.8vw に縮小（最適） */
+  font-size: 2.4vw;            /* ← 2.8vw → 2.4vw に縮小 */
   font-weight: 700;
-  letter-spacing: 0.15vw;
+  letter-spacing: 0.12vw;
   color: #ffffff;
 }
 
-
 /* ============================
-   多言語（普通表示）
+   多言語（全体的に小さく）
 ============================ */
 #multi-lang {
   position: absolute;
-  top: 38%;                 /* ← サブタイトルと自然な距離 */
+  top: 35%;                    /* ← 38% → 35% に調整 */
   left: 50%;
   transform: translateX(-50%);
   text-align: center;
-  font-size: 1.8vw;
+
+  font-size: 1.5vw;            /* ← 1.8vw → 1.5vw に縮小 */
   opacity: 0.9;
   line-height: 1.4;
 }
@@ -73,15 +72,15 @@ body {
 ============================ */
 #name-container {
   position: absolute;
-  bottom: 20%;
+  bottom: 22%;                 /* ← 少し上げてバランス調整 */
   width: 100%;
   text-align: center;
 }
 
 #fullname {
-  width: 400px;
-  height: 50px;
-  font-size: 24px;
+  width: 360px;                /* ← 400px → 360px */
+  height: 46px;                /* ← 50px → 46px */
+  font-size: 22px;
   padding: 5px 10px;
   border: 3px solid #ff4d4d;
   background: rgba(0,0,0,0.6);
@@ -90,18 +89,13 @@ body {
 
 #name-confirm {
   margin-left: 10px;
-  height: 50px;
-  font-size: 20px;
-  padding: 0 20px;
+  height: 46px;
+  font-size: 18px;
+  padding: 0 18px;
   background: #ff4d4d;
   border: none;
   color: white;
   cursor: pointer;
-}
-
-#name-error {
-  color: #ff8080;
-  margin-top: 10px;
 }
 
 /* ============================
@@ -115,10 +109,10 @@ body {
 }
 
 .course-btn {
-  width: 250px;
-  height: 80px;
+  width: 220px;                /* ← 250px → 220px */
+  height: 70px;                /* ← 80px → 70px */
   margin: 0 10px;
-  font-size: 24px;
+  font-size: 22px;             /* ← 24px → 22px */
   background: rgba(0,0,0,0.6);
   border: 3px solid #ff4d4d;
   color: white;
@@ -127,63 +121,63 @@ body {
 }
 
 .course-btn:hover {
-  transform: scale(1.1);
+  transform: scale(1.08);
   background: #ff4d4d;
 }
 
 .hidden { display: none; }
 
 /* ============================
-   ゲームUI
+   ゲームUI（少し縮小）
 ============================ */
 #game-ui { position: absolute; inset: 0; }
 
 #hud-left {
   position: absolute;
-  top: 20px;
-  left: 20px;
+  top: 18px;
+  left: 18px;
 }
 
 #hud-right {
   position: absolute;
-  top: 20px;
-  right: 20px;
+  top: 18px;
+  right: 18px;
   text-align: right;
 }
 
 .hud-label {
-  font-size: 18px;
+  font-size: 16px;             /* ← 18px → 16px */
   opacity: 0.7;
 }
 
 #score-value,
 #combo-value,
 #multi-value {
-  font-size: 28px;
+  font-size: 24px;             /* ← 28px → 24px */
 }
 
 #current-word {
-  font-size: 56px;
+  font-size: 48px;             /* ← 56px → 48px */
 }
 
 #word-area {
   position: absolute;
-  top: 45%;
+  top: 44%;
   left: 50%;
   transform: translate(-50%, -50%);
 }
 
 #input-area {
   position: absolute;
-  bottom: 10%;
+  bottom: 9%;
   left: 50%;
   transform: translateX(-50%);
 }
 
 #type-input {
-  width: 500px;
-  height: 50px;
-  font-size: 24px;
+  width: 460px;                /* ← 500px → 460px */
+  height: 46px;
+  font-size: 22px;
   border: 3px solid #ff4d4d;
   background: rgba(0,0,0,0.6);
   color: white;
@@ -203,23 +197,22 @@ body {
 }
 
 #overlay .main-text {
-  font-size: 48px;
+  font-size: 42px;             /* ← 48px → 42px */
   margin-bottom: 20px;
 }
 
 #overlay .sub-text {
-  font-size: 24px;
+  font-size: 20px;             /* ← 24px → 20px */
   opacity: 0.8;
   margin-bottom: 10px;
 }
 
 #overlay button {
   margin-top: 20px;
-  padding: 10px 30px;
-  font-size: 20px;
+  padding: 10px 26px;
+  font-size: 18px;
   background: #ff4d4d;
   border: none;
   color: white;
   cursor: pointer;
 }
- 
