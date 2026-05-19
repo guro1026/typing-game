@@ -1,56 +1,49 @@
 // ===============================
-//  多言語ランダムフェードイン
+//  4言語巨大フェードイン
 // ===============================
 
-// 多言語テキスト
-const texts = [
+const lines = [
   "最速は誰だ！！スピードキングを目指せ！",
   "Who is the fastest? Aim for the Speed King!",
   "Qui est le plus rapide ? Deviens le Speed King !",
   "Chi è il più veloce? Punta al Speed King!"
 ];
 
-const fadeContainer = document.getElementById("fadein-container");
+const lineElems = [
+  document.getElementById("line1"),
+  document.getElementById("line2"),
+  document.getElementById("line3"),
+  document.getElementById("line4")
+];
 
-// ランダムフェードイン処理
-async function fadeInText(text) {
-  fadeContainer.innerHTML = "";
-  const chars = text.split("");
+// 1文字ずつフェードイン（1文字5秒）
+async function fadeInLine(text, elem) {
+  elem.innerHTML = "";
 
-  // ランダム順に並び替え
-  const order = [...Array(chars.length).keys()].sort(() => Math.random() - 0.5);
-
-  // 空の文字を先に配置
-  chars.forEach(() => {
+  for (let i = 0; i < text.length; i++) {
     const span = document.createElement("span");
+    span.textContent = text[i];
     span.style.opacity = 0;
-    span.style.display = "inline-block";
-    span.style.transition = "0.3s";
-    fadeContainer.appendChild(span);
-  });
+    span.style.transition = "opacity 5s linear";
+    elem.appendChild(span);
 
-  // ランダム順にフェードイン
-  for (let i = 0; i < order.length; i++) {
-    const index = order[i];
-    const span = fadeContainer.children[index];
-    span.textContent = chars[index];
-    span.style.opacity = 1;
-    span.style.transform = "scale(1.2)";
+    // 少し遅れてフェードイン開始
     setTimeout(() => {
-      span.style.transform = "scale(1)";
-    }, 200);
-    await new Promise(res => setTimeout(res, 120));
-  }
+      span.style.opacity = 1;
+    }, 50);
 
-  await new Promise(res => setTimeout(res, 800));
+    // 次の文字まで5秒待つ
+    await new Promise(res => setTimeout(res, 5000));
+  }
 }
 
-// 全言語を順番にフェードイン
+// 4行を順番にフェードイン（常に表示）
 async function startFadeIn() {
-  for (let t of texts) {
-    await fadeInText(t);
+  for (let i = 0; i < lines.length; i++) {
+    await fadeInLine(lines[i], lineElems[i]);
   }
 }
+
 startFadeIn();
 
 
@@ -64,21 +57,20 @@ const nameError = document.getElementById("name-error");
 const courseContainer = document.getElementById("course-container");
 
 // 既存の名前があれば自動入力
-if (localStorage.getItem("kir_fullname")) {
-  nameInput.value = localStorage.getItem("kir_fullname");
+const savedName = localStorage.getItem("kir_fullname");
+if (savedName) {
+  nameInput.value = savedName;
   courseContainer.classList.remove("hidden");
 }
 
 nameBtn.addEventListener("click", () => {
   const name = nameInput.value.trim();
 
-  // フルネーム（姓＋名）チェック
   if (!name.includes(" ")) {
     nameError.textContent = "姓と名の間にスペースを入れてください。";
     return;
   }
 
-  // 日本語フルネームチェック
   if (!/^[\u3000-\u303F\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF]+\s[\u3000-\u303F\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF]+$/.test(name)) {
     nameError.textContent = "日本語のフルネーム（姓＋名）を入力してください。";
     return;
@@ -97,48 +89,41 @@ nameBtn.addEventListener("click", () => {
 document.querySelectorAll(".course-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     const course = btn.dataset.course;
-
-    // タイトル画面を非表示
     hideTitleScreen();
-
-    // ゲーム開始
     startGame(course);
   });
 });
 
-
-// タイトル画面を消す
 function hideTitleScreen() {
-  document.querySelector(".title-logo").style.display = "none";
-  document.getElementById("fadein-container").style.display = "none";
-  document.querySelector(".scroll-text").style.display = "none";
-  document.getElementById("name-container").style.display = "none";
-  document.getElementById("course-container").style.display = "none";
+  const title = document.querySelector(".title-logo");
+  if (title) title.style.display = "none";
+
+  const fade = document.getElementById("fadein-container");
+  if (fade) fade.style.display = "none";
+
+  const nameBox = document.getElementById("name-container");
+  if (nameBox) nameBox.style.display = "none";
+
+  const courseBox = document.getElementById("course-container");
+  if (courseBox) courseBox.style.display = "none";
 }
 
 
 // ===============================
-//  ゲーム開始（ここから本編）
+//  ゲーム開始（仮UI）
 // ===============================
 
 function startGame(course) {
-  console.log("ゲーム開始:", course);
+  const name = localStorage.getItem("kir_fullname") || "NO_NAME";
 
-  // ここにゲーム画面のUIを作る or 表示する
-  // 例として画面中央にテキストを出す
   const gameArea = document.createElement("div");
   gameArea.id = "game-area";
-  gameArea.style.position = "absolute";
-  gameArea.style.top = "50%";
-  gameArea.style.left = "50%";
-  gameArea.style.transform = "translate(-50%, -50%)";
-  gameArea.style.fontSize = "48px";
-  gameArea.style.color = "white";
-  gameArea.textContent = `【${course}】ゲーム開始！`;
+  gameArea.innerHTML = `
+    <div>${name}</div>
+    <div style="margin-top:10px;">コース：${course}</div>
+    <div style="margin-top:20px;">ここからゲーム本編を実装</div>
+  `;
   document.body.appendChild(gameArea);
 
-  // ここから先は Hitoshi のゲームロジックを統合していく
-  // loadDictionary(course);
-  // initGame();
-  // startTimer();
+  // ここに本編ロジックを統合していく
 }
