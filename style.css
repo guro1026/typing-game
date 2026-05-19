@@ -124,7 +124,12 @@ body {
   background: #ff4d4d;
 }
 
-.hidden { display: none; }
+/* ============================
+   非表示制御
+============================ */
+.hidden {
+  display: none !important;
+}
 
 /* ============================
    ゲームUI
@@ -193,6 +198,9 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+
+  /* ← 追加：これで “画面が覆われる” 感が消える */
+  pointer-events: none;
 }
 
 #overlay .main-text {
@@ -214,4 +222,7 @@ body {
   border: none;
   color: white;
   cursor: pointer;
+
+  /* ボタンだけクリック可能にする */
+  pointer-events: auto;
 }
