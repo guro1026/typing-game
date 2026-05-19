@@ -1,5 +1,5 @@
 // ===============================
-//  TYPE-ATTACK（サブタイトル1行）
+//  TYPE-ATTACK（光なし・拡大なし）
 // ===============================
 
 const mainLine = "最速は誰だ！！スピードキングを目指せ！";
@@ -16,9 +16,8 @@ async function typeAttack(line, elem) {
     span.textContent = c;
     span.style.opacity = 0;
     span.style.display = "inline-block";
-    span.style.transform = "scale(0.8)";
-    span.style.transition = `opacity 0.1s linear, transform 0.12s ease-out`;
-    span.style.color = "#ffffff";
+    span.style.transform = "scale(1.0)";   // ← 拡大なし
+    span.style.transition = `opacity 0.1s linear`;
     elem.appendChild(span);
     return span;
   });
@@ -30,13 +29,6 @@ async function typeAttack(line, elem) {
     const span = spans[idx];
 
     span.style.opacity = 1;
-span.style.transform = "scale(1.08)";  // ← 1.15 → 1.08 に弱める
-
-
-setTimeout(() => {
-  span.style.transform = "scale(1.0)";
-}, 100);
-
 
     await new Promise(res => setTimeout(res, perChar));
   }

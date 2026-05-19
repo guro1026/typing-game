@@ -10,26 +10,21 @@ body {
 }
 
 /* ============================
-   超巨大ネオンロゴ（光量弱め）
+   ロゴ（光なし・シャープ）
 ============================ */
 .title-logo {
   position: absolute;
-  top: 6%;                     /* ← さらに下げて余裕を作る */
+  top: 6%;
   left: 50%;
   transform: translateX(-50%);
   white-space: nowrap;
 
-  font-size: 5vw;              /* ← 5.4vw → 5vw に縮小 */
+  font-size: 5vw;
   letter-spacing: 0.08vw;
-
   font-weight: 900;
   color: #ff4d4d;
 
-  /* ← 光量を大幅に弱めて “白膜” を消す */
-  text-shadow:
-    0 0 6px #ff1a1a,
-    0 0 12px #ff1a1a,
-    0 0 18px #ff3333;
+  text-shadow: none;   /* ← 光エフェクト完全削除 */
 }
 
 /* ============================
@@ -37,33 +32,35 @@ body {
 ============================ */
 #catch-container {
   position: absolute;
-  top: 24%;                    /* ← 25% → 24% に微調整 */
+  top: 24%;
   left: 50%;
   transform: translateX(-50%);
   text-align: center;
 }
 
 .catch-line {
-  font-size: 2.3vw;        /* ← 1.9vw → 2.3vw に戻す（潰れ防止） */
+  font-size: 2.1vw;
   font-weight: 700;
-  letter-spacing: 0.05vw;  /* ← 0.08vw → 0.05vw に詰める */
+  letter-spacing: 0.05vw;
   color: #ffffff;
+  text-shadow: none;   /* ← 光なし */
 }
 
-
 /* ============================
-   多言語（さらに小さく）
+   多言語（光なし）
 ============================ */
 #multi-lang {
   position: absolute;
-  top: 33%;                    /* ← 34% → 33% */
+  top: 33%;
   left: 50%;
   transform: translateX(-50%);
   text-align: center;
 
-  font-size: 1.2vw;            /* ← 1.3vw → 1.2vw */
-  opacity: 0.85;
+  font-size: 1.2vw;
+  opacity: 0.9;
   line-height: 1.4;
+
+  text-shadow: none;
 }
 
 /* ============================
@@ -77,7 +74,7 @@ body {
 }
 
 #fullname {
-  width: 300px;                /* ← 330px → 300px */
+  width: 300px;
   height: 40px;
   font-size: 18px;
   padding: 5px 10px;
@@ -108,10 +105,10 @@ body {
 }
 
 .course-btn {
-  width: 180px;                /* ← 200px → 180px */
-  height: 58px;                /* ← 62px → 58px */
+  width: 180px;
+  height: 58px;
   margin: 0 10px;
-  font-size: 18px;             /* ← 20px → 18px */
+  font-size: 18px;
   background: rgba(0,0,0,0.6);
   border: 2px solid #ff4d4d;
   color: white;
@@ -127,7 +124,7 @@ body {
 .hidden { display: none; }
 
 /* ============================
-   ゲームUI（全体的に小さく）
+   ゲームUI
 ============================ */
 #game-ui { position: absolute; inset: 0; }
 
@@ -156,7 +153,7 @@ body {
 }
 
 #current-word {
-  font-size: 38px;             /* ← 42px → 38px */
+  font-size: 38px;
 }
 
 #word-area {
@@ -174,7 +171,7 @@ body {
 }
 
 #type-input {
-  width: 400px;                /* ← 430px → 400px */
+  width: 400px;
   height: 40px;
   font-size: 18px;
   border: 2px solid #ff4d4d;
@@ -196,12 +193,12 @@ body {
 }
 
 #overlay .main-text {
-  font-size: 34px;             /* ← 38px → 34px */
+  font-size: 34px;
   margin-bottom: 20px;
 }
 
 #overlay .sub-text {
-  font-size: 16px;             /* ← 18px → 16px */
+  font-size: 16px;
   opacity: 0.8;
   margin-bottom: 10px;
 }
