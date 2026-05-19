@@ -1,50 +1,50 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>KIR タイピング王 決定戦</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <title>KIR Typing Game</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<div id="game-root">
+  <!-- 背景動画（最背面） -->
+  <video id="bg-video" autoplay muted loop>
+    <source src="assets/title-bg.mp4" type="video/mp4">
+  </video>
 
-  <!-- タイトル画面 -->
-  <div id="title-screen">
-    <div id="title-logo">KIR タイピング王 決定戦</div>
-
-    <div id="start-buttons">
-      <button class="stage-btn" data-stage="greeting">挨拶ステージ</button>
-      <button class="stage-btn" data-stage="business">ビジネス会話</button>
-      <button class="stage-btn" data-stage="it">IT業界あるある</button>
-      <button class="stage-btn" data-stage="mail">メール文言</button>
-    </div>
-
-    <div id="secret-input"></div>
+  <!-- 赤ネオンロゴ -->
+  <div class="title-logo">
+    第１回 KIR タイピング王決定戦！！
   </div>
 
-  <!-- ゲーム画面 -->
-  <div id="game-screen" class="hidden">
+  <!-- 多言語ランダムフェードイン -->
+  <div id="fadein-container"></div>
 
-    <div id="hud">
-      <div id="player-label">PLAYER: GUEST</div>
-      <div id="score-label">SCORE: 0</div>
-      <div id="multi-label">MULTI: x1</div>
-      <div id="time-label">TIME: 60</div>
-      <div id="combo-label">COMBO: 0</div>
+  <!-- 横スクロールテキスト -->
+  <div class="scroll-text">
+    <div class="scroll-inner">
+      最速は誰だ！！スピードキングを目指せ！
+      Who is the fastest? Aim for the Speed King!
+      Qui est le plus rapide ? Deviens le Speed King !
+      Chi è il più veloce? Punta al Speed King!
     </div>
-
-    <div id="word-area">
-      <div id="kanji-display"></div>
-      <div id="romaji-display"></div> <!-- ← これが無いと絶対に動かない -->
-    </div>
-
-    <div id="message"></div>
-
   </div>
 
-</div>
+  <!-- 名前入力 -->
+  <div id="name-container">
+    <input type="text" id="fullname" placeholder="フルネーム（姓＋名）を入力" />
+    <button id="name-confirm">名前を確定する</button>
+    <p id="name-error"></p>
+  </div>
 
-<script src="game.js"></script>
+  <!-- コース選択 -->
+  <div id="course-container" class="hidden">
+    <button class="course-btn" data-course="easy">初級コース</button>
+    <button class="course-btn" data-course="normal">中級コース</button>
+    <button class="course-btn" data-course="hard">上級コース</button>
+    <button class="course-btn" data-course="expert">超上級コース</button>
+  </div>
+
+  <script src="game.js"></script>
 </body>
 </html>

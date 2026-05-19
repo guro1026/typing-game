@@ -1,270 +1,82 @@
-// ===============================
-// 変数
-// ===============================
-let score = 0;
-let combo = 0;
-let multiplier = 1;
-let timeLeft = 60;
-let currentStage = "";
-let timerId = null;
+// 多言語テキスト
+const texts = [
+  "最速は誰だ！！スピードキングを目指せ！",
+  "Who is the fastest? Aim for the Speed King!",
+  "Qui est le plus rapide ? Deviens le Speed King !",
+  "Chi è il più veloce? Punta al Speed King!"
+];
 
-let isKeepItReal = false;
-let secretBuffer = "";
-let secretStartTime = 0;
+const fadeContainer = document.getElementById("fadein-container");
 
-let words = [];
-let currentWord = null;
-let inputIndex = 0;
+// ランダムフェードイン処理
+async function fadeInText(text) {
+  fadeContainer.innerHTML = "";
+  const chars = text.split("");
 
-// ===============================
-// Web Audio API
-// ===============================
-let audioCtx;
-let hitBuffer = null;
-let beepBuffer = null;
+  // ランダム順に並び替え
+  const order = [...Array(chars.length).keys()].sort(() => Math.random() - 0.5);
 
-async function initAudio() {
-  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  // 空の文字を先に配置
+  chars.forEach(() => {
+    const span = document.createElement("span");
+    span.style.opacity = 0;
+    span.style.display = "inline-block";
+    span.style.transition = "0.3s";
+    fadeContainer.appendChild(span);
+  });
 
-  async function loadSound(url) {
-    const res = await fetch(url);
-    const arrayBuf = await res.arrayBuffer();
-    return await audioCtx.decodeAudioData(arrayBuf);
+  // ランダム順にフェードイン
+  for (let i = 0; i < order.length; i++) {
+    const index = order[i];
+    const span = fadeContainer.children[index];
+    span.textContent = chars[index];
+    span.style.opacity = 1;
+    span.style.transform = "scale(1.2)";
+    setTimeout(() => {
+      span.style.transform = "scale(1)";
+    }, 200);
+    await new Promise(res => setTimeout(res, 120));
   }
 
-  hitBuffer = await loadSound("sounds/hit.mp3");
-  beepBuffer = await loadSound("sounds/beep.mp3");
+  await new Promise(res => setTimeout(res, 800));
 }
 
-function playBuffer(buffer, volume = 0.25) {
-  if (!audioCtx || !buffer) return;
-  const source = audioCtx.createBufferSource();
-  const gain = audioCtx.createGain();
-  source.buffer = buffer;
-  gain.gain.value = volume;
-  source.connect(gain).connect(audioCtx.destination);
-  source.start(0);
-}
-
-// ===============================
-// 裏モード入力判定
-// ===============================
-document.addEventListener("keydown", (e) => {
-  const titleVisible = !document.getElementById("title-screen").classList.contains("hidden");
-  if (!titleVisible) return;
-
-  if (secretBuffer.length === 0) {
-    secretStartTime = performance.now();
+// 全言語を順番にフェードイン
+async function startFadeIn() {
+  for (let t of texts) {
+    await fadeInText(t);
   }
+}
+startFadeIn();
 
-  secretBuffer += e.key.toLowerCase();
 
-  if (secretBuffer === "keepitreal") {
-    const elapsed = (performance.now() - secretStartTime) / 1000;
-    if (elapsed <= 10) {
-      isKeepItReal = true;
-      document.getElementById("secret-input").textContent = "裏モード発動";
-    }
-  }
+// 名前入力処理
+const nameInput = document.getElementById("fullname");
+const nameBtn = document.getElementById("name-confirm");
+const nameError = document.getElementById("name-error");
+const courseContainer = document.getElementById("course-container");
 
-  if (!"keepitreal".startsWith(secretBuffer)) {
-    secretBuffer = "";
-  }
-});
-
-// ===============================
-// CSV読み込み（壊れた行を除外 + CRLF除去）
-// ===============================
-async function loadCSV(stageKey) {
-  const fileMap = {
-    greeting: "words_easy.csv",
-    business: "words_business.csv",
-    it: "words_it.csv",
-    mail: "words_mail.csv"
-  };
-
-  const file = fileMap[stageKey];
-  const res = await fetch(file);
-  const text = await res.text();
-
-  words = text
-    .trim()
-    .split("\n")
-    .slice(1)
-    .map(line => {
-      const cols = line.split(",");
-      if (cols.length < 3) return null; // ★ 壊れた行を除外
-
-      const jp = cols[0].trim();
-      const hira = cols[1].trim();
-
-      let roma = cols[2]
-        .replace(/\r/g, "")
-        .replace(/\uFEFF/g, "")
-        .replace(/ー/g, "-")
-        .replace(/　/g, "")
-        .replace(/\s+/g, "")
-        .trim();
-
-      if (!roma) return null; // ★ romaji が空なら除外
-
-      return { jp, hira, roma };
-    })
-    .filter(v => v !== null);
-
-  console.log("読み込んだ単語数:", words.length);
+// 既存の名前があれば自動入力
+if (localStorage.getItem("kir_fullname")) {
+  nameInput.value = localStorage.getItem("kir_fullname");
+  courseContainer.classList.remove("hidden");
 }
 
-// ===============================
-// ゲーム開始
-// ===============================
-async function startGame(stageKey) {
-  currentStage = stageKey;
+nameBtn.addEventListener("click", () => {
+  const name = nameInput.value.trim();
 
-  document.getElementById("title-screen").classList.add("hidden");
-  document.getElementById("game-screen").classList.remove("hidden");
-
-  score = 0;
-  combo = 0;
-  multiplier = 1;
-  timeLeft = 60;
-
-  updateHud();
-
-  if (!audioCtx) {
-    await initAudio();
-  }
-
-  await loadCSV(stageKey);
-  nextWord();
-
-  timerId = setInterval(() => {
-    timeLeft--;
-    updateHud();
-    if (timeLeft <= 0) endGame();
-  }, 1000);
-}
-
-// ===============================
-// HUD更新
-// ===============================
-function updateHud() {
-  document.getElementById("score-label").textContent = `SCORE: ${score}`;
-  document.getElementById("multi-label").textContent = `MULTI: x${multiplier}`;
-  document.getElementById("time-label").textContent = `TIME: ${timeLeft}`;
-  document.getElementById("combo-label").textContent = `COMBO: ${combo}`;
-}
-
-// ===============================
-// 次の単語
-// ===============================
-function nextWord() {
-  currentWord = words[Math.floor(Math.random() * words.length)];
-  inputIndex = 0;
-
-  console.log("次の単語:", currentWord);
-
-  document.getElementById("kanji-display").textContent = currentWord.jp;
-  document.getElementById("romaji-display").textContent = currentWord.roma;
-}
-
-// ===============================
-// キー入力
-// ===============================
-document.addEventListener("keydown", (e) => {
-  const gameVisible = !document.getElementById("game-screen").classList.contains("hidden");
-  if (!gameVisible) return;
-
-  if (e.key === "Escape") {
-    endGame();
+  // フルネーム（姓＋名）チェック
+  if (!name.includes(" ")) {
+    nameError.textContent = "姓と名の間にスペースを入れてください。";
     return;
   }
 
-  const expected = currentWord.roma[inputIndex];
-  const key = e.key.toLowerCase();
-
-  if (key === expected) {
-
-    playBuffer(hitBuffer, 0.25);
-
-    inputIndex++;
-
-    if (inputIndex >= currentWord.roma.length) {
-      combo++;
-      applyComboBonus();
-      score += 10 * multiplier;
-      updateHud();
-      nextWord();
-    } else {
-      document.getElementById("romaji-display").textContent =
-        currentWord.roma.slice(inputIndex);
-    }
-  } else {
-    onMiss();
+  if (!/^[\u3000-\u303F\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF]+\s[\u3000-\u303F\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF]+$/.test(name)) {
+    nameError.textContent = "日本語のフルネーム（姓＋名）を入力してください。";
+    return;
   }
-});
 
-// ===============================
-// コンボボーナス
-// ===============================
-function applyComboBonus() {
-  if (isKeepItReal) {
-    if (combo >= 40) {
-      multiplier = 32;
-      timeLeft += 20;
-    } else if (combo >= 30) {
-      multiplier = 16;
-      timeLeft += 15;
-    } else if (combo >= 20) {
-      multiplier = 8;
-      timeLeft += 10;
-    } else if (combo >= 10) {
-      multiplier = 4;
-      timeLeft += 5;
-    } else if (combo >= 5) {
-      multiplier = 2;
-    } else {
-      multiplier = 1;
-    }
-  } else {
-    if (combo >= 10) multiplier = 3;
-    else if (combo >= 5) multiplier = 2;
-    else multiplier = 1;
-  }
-}
-
-// ===============================
-// ミス処理
-// ===============================
-function onMiss() {
-  combo = 0;
-  multiplier = 1;
-  updateHud();
-
-  playBuffer(beepBuffer, 0.25);
-
-  document.getElementById("message").textContent = "MISS!";
-  setTimeout(() => {
-    document.getElementById("message").textContent = "";
-  }, 300);
-}
-
-// ===============================
-// ゲーム終了
-// ===============================
-function endGame() {
-  clearInterval(timerId);
-
-  document.getElementById("game-screen").classList.add("hidden");
-  document.getElementById("title-screen").classList.remove("hidden");
-}
-
-// ===============================
-// ステージボタン
-// ===============================
-document.querySelectorAll(".stage-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    const stage = btn.dataset.stage;
-    startGame(stage);
-  });
+  localStorage.setItem("kir_fullname", name);
+  nameError.textContent = "";
+  courseContainer.classList.remove("hidden");
 });
