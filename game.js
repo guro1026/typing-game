@@ -1,47 +1,11 @@
 // ===============================
-//  4言語巨大フェードイン
+//  4言語フェードインのテキスト設定
 // ===============================
 
-const lines = [
-  "最速は誰だ！！スピードキングを目指せ！",
-  "Who is the fastest? Aim for the Speed King!",
-  "Qui est le plus rapide ? Deviens le Speed King !",
-  "Chi è il più veloce? Punta al Speed King!"
-];
-
-const lineElems = [
-  document.getElementById("line1"),
-  document.getElementById("line2"),
-  document.getElementById("line3"),
-  document.getElementById("line4")
-];
-
-// 1文字ずつフェードイン（1文字5秒）
-async function fadeInLine(text, elem) {
-  elem.innerHTML = "";
-
-  for (let i = 0; i < text.length; i++) {
-    const span = document.createElement("span");
-    span.textContent = text[i];
-    span.style.opacity = 0;
-    span.style.transition = "opacity 5s linear";
-    elem.appendChild(span);
-
-    setTimeout(() => {
-      span.style.opacity = 1;
-    }, 50);
-
-    await new Promise(res => setTimeout(res, 5000));
-  }
-}
-
-async function startFadeIn() {
-  for (let i = 0; i < lines.length; i++) {
-    await fadeInLine(lines[i], lineElems[i]);
-  }
-}
-
-startFadeIn();
+document.getElementById("line1").textContent = "最速は誰だ！！スピードキングを目指せ！";
+document.getElementById("line2").textContent = "Who is the fastest? Aim for the Speed King!";
+document.getElementById("line3").textContent = "Qui est le plus rapide ? Deviens le Speed King!";
+document.getElementById("line4").textContent = "Chi è il più veloce? Punta al Speed King!";
 
 
 // ===============================
@@ -67,11 +31,6 @@ nameBtn.addEventListener("click", () => {
     return;
   }
 
-  if (!/^[\u3000-\u303F\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF]+\s[\u3000-\u303F\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF]+$/.test(name)) {
-    nameError.textContent = "日本語のフルネーム（姓＋名）を入力してください。";
-    return;
-  }
-
   localStorage.setItem("kir_fullname", name);
   nameError.textContent = "";
   courseContainer.classList.remove("hidden");
@@ -79,7 +38,7 @@ nameBtn.addEventListener("click", () => {
 
 
 // ===============================
-//  コース選択 → ゲーム開始画面へ
+//  コース選択 → READY
 // ===============================
 
 document.querySelectorAll(".course-btn").forEach(btn => {
@@ -91,63 +50,167 @@ document.querySelectorAll(".course-btn").forEach(btn => {
 });
 
 function hideTitleScreen() {
-  const title = document.querySelector(".title-logo");
-  if (title) title.style.display = "none";
-
-  const fade = document.getElementById("fadein-container");
-  if (fade) fade.style.display = "none";
-
-  const nameBox = document.getElementById("name-container");
-  if (nameBox) nameBox.style.display = "none";
-
-  const courseBox = document.getElementById("course-container");
-  if (courseBox) courseBox.style.display = "none";
+  document.querySelector(".title-logo").style.display = "none";
+  document.getElementById("fadein-container").style.display = "none";
+  document.getElementById("name-container").style.display = "none";
+  document.getElementById("course-container").style.display = "none";
 }
 
-
-// ===============================
-//  「スペースで開始」画面
-// ===============================
-
+const overlay = document.getElementById("overlay");
 let waitingForSpace = false;
+let selectedCourse = null;
 
 function showReadyScreen(course) {
-  const name = localStorage.getItem("kir_fullname") || "NO_NAME";
-
-  const gameArea = document.createElement("div");
-  gameArea.id = "game-area";
-  gameArea.innerHTML = `
-    <div style="font-size:48px;">【${course}】ゲーム開始！</div>
-    <div style="margin-top:20px; font-size:28px; opacity:0.7;">スペースキーでスタート</div>
+  selectedCourse = course;
+  overlay.classList.remove("hidden");
+  overlay.innerHTML = `
+    <div class="main-text">【${course}】ゲーム開始</div>
+    <div class="sub-text">スペースキーでスタート</div>
   `;
-  document.body.appendChild(gameArea);
-
   waitingForSpace = true;
 }
 
-
-// ===============================
-//  スペースキーで本編開始
-// ===============================
-
 document.addEventListener("keydown", (e) => {
-  if (!waitingForSpace) return;
-
-  if (e.code === "Space") {
+  if (waitingForSpace && e.code === "Space") {
     waitingForSpace = false;
-    startRealGame();
+    startGame(selectedCourse);
   }
 });
 
 
 // ===============================
-//  本編開始（ここに統合していく）
+//  ゲーム本編
 // ===============================
 
-function startRealGame() {
-  const gameArea = document.getElementById("game-area");
-  gameArea.innerHTML = `
-    <div style="font-size:40px;">ゲーム本編スタート！</div>
-    <div style="margin-top:20px;">（ここにタイピングゲームを実装）</div>
+const gameUI = document.getElementById("game-ui");
+const timeValue = document.getElementById("time-value");
+const scoreValue = document.getElementById("score-value");
+const comboValue = document.getElementById("combo-value");
+const multiValue = document.getElementById("multi-value");
+const currentWordElem = document.getElementById("current-word");
+const typeInput = document.getElementById("type-input");
+
+let words = [];
+let currentIndex = 0;
+let timeLeft = 60;
+let timerId = null;
+let score = 0;
+let combo = 0;
+let maxCombo = 0;
+let multi = 1;
+let isKeepItReal = false;
+
+function getCsvFileForCourse(course) {
+  switch (course) {
+    case "easy": return "words_easy.csv";
+    case "normal": return "words_business.csv";
+    case "hard": return "words_it.csv";
+    case "expert": return "words_mail.csv";
+  }
+}
+
+async function loadCsv(course) {
+  const file = getCsvFileForCourse(course);
+  const res = await fetch(file);
+  const text = await res.text();
+  return text.split(/\r?\n/).map(l => l.trim()).filter(l => l).map(l => l.split(",")[0]);
+}
+
+async function startGame(course) {
+  overlay.classList.add("hidden");
+
+  const name = localStorage.getItem("kir_fullname") || "";
+  isKeepItReal = name.toLowerCase().includes("keepitreal");
+
+  words = await loadCsv(course);
+
+  gameUI.classList.remove("hidden");
+  timeLeft = 60;
+  score = 0;
+  combo = 0;
+  maxCombo = 0;
+  multi = 1;
+  updateHud();
+
+  currentIndex = 0;
+  showNextWord();
+
+  typeInput.value = "";
+  typeInput.focus();
+
+  timerId = setInterval(() => {
+    timeLeft--;
+    if (timeLeft <= 0) {
+      timeLeft = 0;
+      updateHud();
+      endGame();
+    } else updateHud();
+  }, 1000);
+}
+
+function updateHud() {
+  timeValue.textContent = timeLeft;
+  scoreValue.textContent = score;
+  comboValue.textContent = combo;
+  multiValue.textContent = `x${multi}`;
+}
+
+function showNextWord() {
+  currentWordElem.textContent = words[currentIndex];
+  currentIndex = (currentIndex + 1) % words.length;
+}
+
+typeInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    const input = typeInput.value.trim();
+    const target = currentWordElem.textContent.trim();
+
+    if (input === target) handleCorrect();
+    else handleMiss();
+
+    typeInput.value = "";
+    showNextWord();
+  }
+});
+
+function handleCorrect() {
+  if (isKeepItReal) {
+    combo++;
+    if (combo > maxCombo) maxCombo = combo;
+
+    if (combo >= 20) { multi = 4; timeLeft += 10; }
+    else if (combo >= 10) { multi = 4; timeLeft += 5; }
+    else if (combo >= 5) multi = 2;
+    else multi = 1;
+
+  } else {
+    combo = 0;
+    multi = 1;
+  }
+
+  score += 10 * multi;
+  updateHud();
+}
+
+function handleMiss() {
+  combo = 0;
+  multi = 1;
+  updateHud();
+}
+
+function endGame() {
+  clearInterval(timerId);
+  gameUI.classList.add("hidden");
+
+  overlay.classList.remove("hidden");
+  overlay.innerHTML = `
+    <div class="main-text">結果</div>
+    <div class="sub-text">SCORE：${score}</div>
+    <div class="sub-text">MAX COMBO：${maxCombo}</div>
+    <button id="retry-btn">タイトルに戻る</button>
   `;
+
+  document.getElementById("retry-btn").addEventListener("click", () => {
+    location.reload();
+  });
 }
