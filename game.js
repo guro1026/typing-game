@@ -1,3 +1,7 @@
+// ===============================
+//  多言語ランダムフェードイン
+// ===============================
+
 // 多言語テキスト
 const texts = [
   "最速は誰だ！！スピードキングを目指せ！",
@@ -50,7 +54,10 @@ async function startFadeIn() {
 startFadeIn();
 
 
-// 名前入力処理
+// ===============================
+//  名前入力処理
+// ===============================
+
 const nameInput = document.getElementById("fullname");
 const nameBtn = document.getElementById("name-confirm");
 const nameError = document.getElementById("name-error");
@@ -71,6 +78,7 @@ nameBtn.addEventListener("click", () => {
     return;
   }
 
+  // 日本語フルネームチェック
   if (!/^[\u3000-\u303F\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF]+\s[\u3000-\u303F\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF]+$/.test(name)) {
     nameError.textContent = "日本語のフルネーム（姓＋名）を入力してください。";
     return;
@@ -80,3 +88,57 @@ nameBtn.addEventListener("click", () => {
   nameError.textContent = "";
   courseContainer.classList.remove("hidden");
 });
+
+
+// ===============================
+//  コース選択 → ゲーム開始
+// ===============================
+
+document.querySelectorAll(".course-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const course = btn.dataset.course;
+
+    // タイトル画面を非表示
+    hideTitleScreen();
+
+    // ゲーム開始
+    startGame(course);
+  });
+});
+
+
+// タイトル画面を消す
+function hideTitleScreen() {
+  document.querySelector(".title-logo").style.display = "none";
+  document.getElementById("fadein-container").style.display = "none";
+  document.querySelector(".scroll-text").style.display = "none";
+  document.getElementById("name-container").style.display = "none";
+  document.getElementById("course-container").style.display = "none";
+}
+
+
+// ===============================
+//  ゲーム開始（ここから本編）
+// ===============================
+
+function startGame(course) {
+  console.log("ゲーム開始:", course);
+
+  // ここにゲーム画面のUIを作る or 表示する
+  // 例として画面中央にテキストを出す
+  const gameArea = document.createElement("div");
+  gameArea.id = "game-area";
+  gameArea.style.position = "absolute";
+  gameArea.style.top = "50%";
+  gameArea.style.left = "50%";
+  gameArea.style.transform = "translate(-50%, -50%)";
+  gameArea.style.fontSize = "48px";
+  gameArea.style.color = "white";
+  gameArea.textContent = `【${course}】ゲーム開始！`;
+  document.body.appendChild(gameArea);
+
+  // ここから先は Hitoshi のゲームロジックを統合していく
+  // loadDictionary(course);
+  // initGame();
+  // startTimer();
+}
