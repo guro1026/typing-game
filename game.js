@@ -30,11 +30,13 @@ async function typeAttack(line, elem) {
     const span = spans[idx];
 
     span.style.opacity = 1;
-    span.style.transform = "scale(1.15)";
+span.style.transform = "scale(1.08)";  // ← 1.15 → 1.08 に弱める
 
-    setTimeout(() => {
-      span.style.transform = "scale(1.0)";
-    }, 100);
+
+setTimeout(() => {
+  span.style.transform = "scale(1.0)";
+}, 100);
+
 
     await new Promise(res => setTimeout(res, perChar));
   }
