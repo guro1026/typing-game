@@ -10,26 +10,26 @@ body {
 }
 
 /* ============================
-   超巨大ネオンロゴ（さらに小さく）
+   超巨大ネオンロゴ（光量弱め）
 ============================ */
 .title-logo {
   position: absolute;
-  top: 5%;                     /* ← さらに下げて余裕を作る */
+  top: 6%;                     /* ← さらに下げて余裕を作る */
   left: 50%;
   transform: translateX(-50%);
   white-space: nowrap;
 
-  font-size: 5.4vw;            /* ← 6vw → 5.4vw に縮小（最適） */
-  letter-spacing: 0.10vw;
+  font-size: 5vw;              /* ← 5.4vw → 5vw に縮小 */
+  letter-spacing: 0.08vw;
 
   font-weight: 900;
   color: #ff4d4d;
 
+  /* ← 光量を大幅に弱めて “白膜” を消す */
   text-shadow:
-    0 0 8px #ff1a1a,
-    0 0 16px #ff1a1a,
-    0 0 24px #ff3333,
-    0 0 40px #ff3333;          /* ← 光量も少し弱めて “フィルター感” を消す */
+    0 0 6px #ff1a1a,
+    0 0 12px #ff1a1a,
+    0 0 18px #ff3333;
 }
 
 /* ============================
@@ -37,16 +37,16 @@ body {
 ============================ */
 #catch-container {
   position: absolute;
-  top: 25%;                    /* ← 26% → 25% に微調整 */
+  top: 24%;                    /* ← 25% → 24% に微調整 */
   left: 50%;
   transform: translateX(-50%);
   text-align: center;
 }
 
 .catch-line {
-  font-size: 2.1vw;            /* ← 2.4vw → 2.1vw に縮小 */
+  font-size: 1.9vw;            /* ← 2.1vw → 1.9vw に縮小 */
   font-weight: 700;
-  letter-spacing: 0.10vw;
+  letter-spacing: 0.08vw;
   color: #ffffff;
 }
 
@@ -55,13 +55,13 @@ body {
 ============================ */
 #multi-lang {
   position: absolute;
-  top: 34%;                    /* ← 35% → 34% */
+  top: 33%;                    /* ← 34% → 33% */
   left: 50%;
   transform: translateX(-50%);
   text-align: center;
 
-  font-size: 1.3vw;            /* ← 1.5vw → 1.3vw */
-  opacity: 0.9;
+  font-size: 1.2vw;            /* ← 1.3vw → 1.2vw */
+  opacity: 0.85;
   line-height: 1.4;
 }
 
@@ -70,15 +70,15 @@ body {
 ============================ */
 #name-container {
   position: absolute;
-  bottom: 23%;
+  bottom: 24%;
   width: 100%;
   text-align: center;
 }
 
 #fullname {
-  width: 330px;                /* ← 360px → 330px */
-  height: 42px;
-  font-size: 20px;
+  width: 300px;                /* ← 330px → 300px */
+  height: 40px;
+  font-size: 18px;
   padding: 5px 10px;
   border: 2px solid #ff4d4d;
   background: rgba(0,0,0,0.6);
@@ -87,9 +87,9 @@ body {
 
 #name-confirm {
   margin-left: 10px;
-  height: 42px;
-  font-size: 18px;
-  padding: 0 16px;
+  height: 40px;
+  font-size: 17px;
+  padding: 0 14px;
   background: #ff4d4d;
   border: none;
   color: white;
@@ -101,16 +101,16 @@ body {
 ============================ */
 #course-container {
   position: absolute;
-  bottom: 11%;
+  bottom: 12%;
   width: 100%;
   text-align: center;
 }
 
 .course-btn {
-  width: 200px;                /* ← 220px → 200px */
-  height: 62px;                /* ← 70px → 62px */
+  width: 180px;                /* ← 200px → 180px */
+  height: 58px;                /* ← 62px → 58px */
   margin: 0 10px;
-  font-size: 20px;             /* ← 22px → 20px */
+  font-size: 18px;             /* ← 20px → 18px */
   background: rgba(0,0,0,0.6);
   border: 2px solid #ff4d4d;
   color: white;
@@ -119,7 +119,7 @@ body {
 }
 
 .course-btn:hover {
-  transform: scale(1.06);
+  transform: scale(1.05);
   background: #ff4d4d;
 }
 
@@ -132,30 +132,30 @@ body {
 
 #hud-left {
   position: absolute;
-  top: 16px;
-  left: 16px;
+  top: 14px;
+  left: 14px;
 }
 
 #hud-right {
   position: absolute;
-  top: 16px;
-  right: 16px;
+  top: 14px;
+  right: 14px;
   text-align: right;
 }
 
 .hud-label {
-  font-size: 15px;
+  font-size: 14px;
   opacity: 0.7;
 }
 
 #score-value,
 #combo-value,
 #multi-value {
-  font-size: 22px;
+  font-size: 20px;
 }
 
 #current-word {
-  font-size: 42px;             /* ← 48px → 42px */
+  font-size: 38px;             /* ← 42px → 38px */
 }
 
 #word-area {
@@ -173,9 +173,9 @@ body {
 }
 
 #type-input {
-  width: 430px;                /* ← 460px → 430px */
-  height: 42px;
-  font-size: 20px;
+  width: 400px;                /* ← 430px → 400px */
+  height: 40px;
+  font-size: 18px;
   border: 2px solid #ff4d4d;
   background: rgba(0,0,0,0.6);
   color: white;
@@ -195,20 +195,20 @@ body {
 }
 
 #overlay .main-text {
-  font-size: 38px;             /* ← 42px → 38px */
+  font-size: 34px;             /* ← 38px → 34px */
   margin-bottom: 20px;
 }
 
 #overlay .sub-text {
-  font-size: 18px;             /* ← 20px → 18px */
+  font-size: 16px;             /* ← 18px → 16px */
   opacity: 0.8;
   margin-bottom: 10px;
 }
 
 #overlay button {
   margin-top: 20px;
-  padding: 10px 24px;
-  font-size: 17px;
+  padding: 10px 22px;
+  font-size: 16px;
   background: #ff4d4d;
   border: none;
   color: white;
