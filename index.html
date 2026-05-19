@@ -12,7 +12,7 @@
     第１回 KIR タイピング王決定戦！！
   </div>
 
-  <!-- 4言語巨大フェードインエリア -->
+  <!-- 4言語巨大フェードイン -->
   <div id="fadein-container">
     <div class="fade-line" id="line1"></div>
     <div class="fade-line" id="line2"></div>
@@ -34,6 +34,40 @@
     <button class="course-btn" data-course="hard">上級コース</button>
     <button class="course-btn" data-course="expert">超上級コース</button>
   </div>
+
+  <!-- ゲームUI -->
+  <div id="game-ui" class="hidden">
+    <div id="hud-left">
+      <div class="hud-label">TIME</div>
+      <div id="time-value">60</div>
+    </div>
+
+    <div id="hud-right">
+      <div class="hud-block">
+        <div class="hud-label">SCORE</div>
+        <div id="score-value">0</div>
+      </div>
+      <div class="hud-block">
+        <div class="hud-label">COMBO</div>
+        <div id="combo-value">0</div>
+      </div>
+      <div class="hud-block">
+        <div class="hud-label">MULTI</div>
+        <div id="multi-value">x1</div>
+      </div>
+    </div>
+
+    <div id="word-area">
+      <div id="current-word"></div>
+    </div>
+
+    <div id="input-area">
+      <input type="text" id="type-input" autocomplete="off" />
+    </div>
+  </div>
+
+  <!-- READY画面 / 結果画面 -->
+  <div id="overlay" class="hidden"></div>
 
   <script src="game.js"></script>
 </body>

@@ -1,4 +1,3 @@
-/* 全体 */
 body {
   margin: 0;
   overflow: hidden;
@@ -7,7 +6,7 @@ body {
   color: white;
 }
 
-/* 赤ネオンロゴ */
+/* タイトルロゴ */
 .title-logo {
   position: absolute;
   top: 6%;
@@ -19,7 +18,6 @@ body {
   text-align: center;
   letter-spacing: 4px;
   z-index: 10;
-
   text-shadow:
     0 0 10px #ff1a1a,
     0 0 20px #ff1a1a,
@@ -27,7 +25,6 @@ body {
     0 0 40px #ff3333,
     0 0 70px #ff3333,
     0 0 80px #ff3333;
-
   animation: neonPulse 2.5s ease-in-out infinite;
 }
 
@@ -61,7 +58,6 @@ body {
   }
 }
 
-/* ロゴ上を走る光 */
 .title-logo::after {
   content: "";
   position: absolute;
@@ -97,7 +93,6 @@ body {
   font-size: 52px;
   font-weight: bold;
   margin: 14px 0;
-  opacity: 1; /* 行自体は常に表示 */
 }
 
 /* 名前入力 */
@@ -166,12 +161,109 @@ body {
   display: none;
 }
 
-/* ゲームエリア（仮） */
-#game-area {
+/* ゲームUI */
+#game-ui {
   position: absolute;
-  top: 50%;
+  inset: 0;
+}
+
+/* HUD 左（TIME） */
+#hud-left {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  text-align: left;
+}
+
+.hud-label {
+  font-size: 18px;
+  opacity: 0.7;
+}
+
+#time-value {
+  font-size: 40px;
+}
+
+/* HUD 右（SCORE / COMBO / MULTI） */
+#hud-right {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  text-align: right;
+}
+
+.hud-block {
+  margin-bottom: 10px;
+}
+
+#score-value,
+#combo-value,
+#multi-value {
+  font-size: 28px;
+}
+
+/* 中央 WORD */
+#word-area {
+  position: absolute;
+  top: 40%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 40px;
   text-align: center;
+}
+
+#current-word {
+  font-size: 56px;
+}
+
+/* 下 INPUT */
+#input-area {
+  position: absolute;
+  bottom: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+#type-input {
+  width: 500px;
+  height: 50px;
+  font-size: 24px;
+  padding: 5px 10px;
+  border: 3px solid #ff4d4d;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  outline: none;
+}
+
+/* READY / RESULT オーバーレイ */
+#overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  z-index: 20;
+}
+
+#overlay .main-text {
+  font-size: 48px;
+  margin-bottom: 20px;
+}
+
+#overlay .sub-text {
+  font-size: 24px;
+  opacity: 0.8;
+  margin-bottom: 10px;
+}
+
+#overlay button {
+  margin-top: 20px;
+  padding: 10px 30px;
+  font-size: 20px;
+  background: #ff4d4d;
+  border: none;
+  color: white;
+  cursor: pointer;
 }
