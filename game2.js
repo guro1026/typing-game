@@ -6,12 +6,20 @@ let currentRomaji = "";
 let originalRomaji = "";
 
 // -----------------------------
-// BGM & 効果音
+// BGM（最初は無音で再生）
 // -----------------------------
 const bgm = new Audio("sounds/BGM.mp3");
 bgm.loop = true;
-bgm.volume = 0.25;
+bgm.volume = 0;   // ← 無音スタート
+bgm.play().catch(()=>{});  // ← 無音なので自動再生OK
 
+// 音量スライダー
+const volumeSlider = document.getElementById("volume-slider");
+volumeSlider.addEventListener("input", () => {
+  bgm.volume = volumeSlider.value / 100;
+});
+
+// 効果音
 const seHit = new Audio("sounds/hit.mp3");
 seHit.volume = 0.6;
 
@@ -50,9 +58,6 @@ function validateName() {
   nameBtn.style.display = "inline-block";
 
   document.getElementById("course-buttons").style.display = "block";
-
-  // ★ BGM 再生開始（初回入力成功時）
-  bgm.play();
 }
 
 // -----------------------------
@@ -132,14 +137,13 @@ document.addEventListener("keydown", e => {
       setTimeout(nextWord, 200);
     }
   } else {
-    // ミス音
     seBeep.currentTime = 0;
     seBeep.play();
   }
 });
 
 // -----------------------------
-// キーボード光らせる（106/109配列）
+// キーボード光らせる
 // -----------------------------
 function highlightKey(key) {
   const upper = key.toUpperCase();

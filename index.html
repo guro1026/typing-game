@@ -13,31 +13,40 @@
     <!-- 背景（粒子） -->
     <div id="bg-layer"></div>
 
-    <!-- タイトル画像（爆発＋金文字） -->
+    <!-- タイトル画像 -->
     <img id="title-main" src="images/title_main.png">
 
-    <!-- タイトルの2行テキスト -->
+    <!-- サブテキスト -->
     <div id="title-subtext">
       ようこそ、タイピング修行へ。<br>
       技を磨き、己を鍛えろ。
     </div>
 
-    <!-- 名前入力エリア -->
+    <!-- 名前入力 -->
     <div id="name-area">
       <div id="name-error"></div>
       <input id="name-input" type="text" placeholder="フルネーム（姓　名）を入力">
       <button id="name-submit">決定</button>
     </div>
 
-    <!-- 名前表示ボタン（決定後に表示） -->
+    <!-- 名前表示（決定後） -->
     <button id="name-display" style="display:none;"></button>
 
-    <!-- コース選択（名前決定後に表示） -->
+    <!-- コース選択（名前決定後） -->
     <div id="course-buttons" style="display:none;">
       <button class="course-btn" data-course="easy">EASY</button>
       <button class="course-btn" data-course="business">BUSINESS</button>
       <button class="course-btn" data-course="it">IT</button>
       <button class="course-btn" data-course="mail">MAIL</button>
+    </div>
+
+    <!-- 🔊 音量調整（説明付き） -->
+    <div id="volume-area">
+      <div id="volume-label">
+        🔊 BGMは最初は無音です<br>
+        音量を上げると流れ始めます
+      </div>
+      <input id="volume-slider" type="range" min="0" max="100" value="0">
     </div>
 
   </div>
@@ -48,10 +57,10 @@
     <!-- ひらがな -->
     <div id="word-jp"></div>
 
-    <!-- ローマ字（残り） -->
+    <!-- ローマ字 -->
     <div id="word-romaji"></div>
 
-    <!-- キーボードUI（106/109配列） -->
+    <!-- 106/109 キーボード -->
     <div id="keyboard">
 
       <!-- 1段目 -->

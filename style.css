@@ -33,7 +33,7 @@ body {
   animation: glow 3s infinite ease-in-out;
 }
 
-/* タイトルの2行テキスト */
+/* サブテキスト */
 #title-subtext {
   position: absolute;
   top: 70%;
@@ -43,10 +43,9 @@ body {
   line-height: 1.6;
   color: #d0eaff;
   text-shadow: 0 0 8px #4cf;
-  opacity: 0.95;
 }
 
-/* 名前入力エリア */
+/* 名前入力 */
 #name-area {
   position: absolute;
   top: 78%;
@@ -87,7 +86,7 @@ body {
   height: 24px;
 }
 
-/* 名前表示ボタン */
+/* 名前表示 */
 #name-display {
   position: absolute;
   top: 82%;
@@ -104,7 +103,7 @@ body {
 /* コース選択 */
 #course-buttons {
   position: absolute;
-  bottom: 6%;
+  bottom: 12%;
   width: 100%;
   text-align: center;
 }
@@ -126,6 +125,28 @@ body {
   box-shadow: 0 0 20px #4cf;
 }
 
+/* 音量スライダー */
+#volume-area {
+  position: absolute;
+  bottom: 2%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 320px;
+  text-align: center;
+  color: #d0eaff;
+  font-size: 16px;
+  text-shadow: 0 0 6px #4cf;
+}
+
+#volume-label {
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+
+#volume-slider {
+  width: 100%;
+}
+
 /* ゲーム画面 */
 #game-screen {
   display: none;
@@ -145,7 +166,7 @@ body {
   text-shadow: 0 0 12px #fff;
 }
 
-/* ローマ字（残り） */
+/* ローマ字 */
 #word-romaji {
   margin-top: 10px;
   font-size: 48px;
@@ -153,7 +174,7 @@ body {
   text-shadow: 0 0 10px #4cf;
 }
 
-/* キーボードUI */
+/* キーボード */
 #keyboard {
   position: absolute;
   bottom: 5%;
@@ -177,13 +198,12 @@ body {
   text-shadow: 0 0 6px #000;
 }
 
-/* 押下時の光り */
 .key.active {
   background: #4cf;
   box-shadow: 0 0 20px #4cf;
 }
 
-/* 光アニメーション（タイトル画像） */
+/* タイトル光アニメ */
 @keyframes glow {
   0% { filter: drop-shadow(0 0 8px #4cf); }
   50% { filter: drop-shadow(0 0 32px #9ff); }
