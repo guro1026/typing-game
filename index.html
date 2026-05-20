@@ -1,73 +1,39 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <title>KIR Typing Game</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <title>Typing Game</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <!-- 赤ネオンロゴ（光なし） -->
-  <div class="title-logo">
-    第１回 KIR タイピング王決定戦！！
-  </div>
+  <!-- タイトル画面 -->
+  <div id="title-screen">
 
-  <!-- 4言語巨大フェードイン（テキストは game.js でセット） -->
-  <div id="fadein-container">
-    <div class="fade-line" id="line1"></div>
-    <div class="fade-line" id="line2"></div>
-    <div class="fade-line" id="line3"></div>
-    <div class="fade-line" id="line4"></div>
-  </div>
+    <!-- 背景（黒＋粒子） -->
+    <div id="bg-layer"></div>
 
-  <!-- 名前入力 -->
-  <div id="name-container">
-    <input type="text" id="fullname" placeholder="フルネーム（姓＋名）を入力" />
-    <button id="name-confirm">名前を確定する</button>
-    <p id="name-error"></p>
-  </div>
+    <!-- タイトルロゴ枠 -->
+    <img id="title-frame" src="images/ui_title_frame.png">
 
-  <!-- コース選択 -->
-  <div id="course-container" class="hidden">
-    <button class="course-btn" data-course="easy">初級コース</button>
-    <button class="course-btn" data-course="normal">中級コース</button>
-    <button class="course-btn" data-course="hard">上級コース</button>
-    <button class="course-btn" data-course="expert">超上級コース</button>
-  </div>
-
-  <!-- ゲームUI -->
-  <div id="game-ui" class="hidden">
-    <div id="hud-left">
-      <div class="hud-label">TIME</div>
-      <div id="time-value">60</div>
+    <!-- スクロールテキスト -->
+    <div id="scroll-text">
+      ようこそ、タイピング修行へ。<br>
+      気を高め、己を超えろ。
     </div>
 
-    <div id="hud-right">
-      <div class="hud-block">
-        <div class="hud-label">SCORE</div>
-        <div id="score-value">0</div>
-      </div>
-      <div class="hud-block">
-        <div class="hud-label">COMBO</div>
-        <div id="combo-value">0</div>
-      </div>
-      <div class="hud-block">
-        <div class="hud-label">MULTI</div>
-        <div id="multi-value">x1</div>
-      </div>
+    <!-- コース選択 -->
+    <div id="course-buttons">
+      <button class="course-btn" data-course="easy">EASY</button>
+      <button class="course-btn" data-course="business">BUSINESS</button>
+      <button class="course-btn" data-course="it">IT</button>
+      <button class="course-btn" data-course="mail">MAIL</button>
     </div>
 
-    <div id="word-area">
-      <div id="current-word"></div>
-    </div>
+    <!-- 立ち絵 -->
+    <img id="stand-character" src="images/character_stand.png">
 
-    <div id="input-area">
-      <input type="text" id="type-input" autocomplete="off" />
-    </div>
   </div>
-
-  <!-- READY画面 / 結果画面 -->
-  <div id="overlay" class="hidden"></div>
 
   <script src="game2.js"></script>
 </body>

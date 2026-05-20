@@ -1,254 +1,31 @@
-// ===============================
-//  4言語フェードインのテキスト設定
-// ===============================
-document.getElementById("line1").textContent = "最速は誰だ！！スピードキングを目指せ！";
-document.getElementById("line2").textContent = "Who is the fastest? Aim for the Speed King!";
-document.getElementById("line3").textContent = "Qui est le plus rapide ? Deviens le Speed King!";
-document.getElementById("line4").textContent = "Chi è il più veloce? Punta al Speed King!";
-
-
-// ===============================
-//  名前入力
-// ===============================
-const nameInput = document.getElementById("fullname");
-const nameBtn = document.getElementById("name-confirm");
-const nameError = document.getElementById("name-error");
-const courseContainer = document.getElementById("course-container");
-
-const savedName = localStorage.getItem("kir_fullname");
-if (savedName) {
-  nameInput.value = savedName;
-  courseContainer.classList.remove("hidden");
-}
-
-nameBtn.addEventListener("click", () => {
-  const name = nameInput.value.trim();
-
-  if (!name.includes(" ")) {
-    nameError.textContent = "姓と名の間にスペースを入れてください。";
-    return;
-  }
-
-  localStorage.setItem("kir_fullname", name);
-  nameError.textContent = "";
-  courseContainer.classList.remove("hidden");
-});
-
-
-// ===============================
-//  コース選択 → READY
-// ===============================
-document.querySelectorAll(".course-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    const course = btn.dataset.course;
-    hideTitleScreen();
-    showReadyScreen(course);
-  });
-});
-
-function hideTitleScreen() {
-  document.querySelector(".title-logo").style.display = "none";
-  document.getElementById("fadein-container").style.display = "none";
-  document.getElementById("name-container").style.display = "none";
-  document.getElementById("course-container").style.display = "none";
-}
-
-const overlay = document.getElementById("overlay");
-let waitingForSpace = false;
+let state = "title";
 let selectedCourse = null;
 
-function showReadyScreen(course) {
-  selectedCourse = course;
-  overlay.classList.remove("hidden");
-  overlay.innerHTML = `
-    <div class="main-text">【${course}】ゲーム開始</div>
-    <div class="sub-text">スペースキーでスタート</div>
-  `;
-  waitingForSpace = true;
-}
+// コース選択ボタン
+document.querySelectorAll(".course-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    selectedCourse = btn.dataset.course;
+    console.log("選択コース:", selectedCourse);
 
-document.addEventListener("keydown", (e) => {
-  if (waitingForSpace && e.code === "Space") {
-    waitingForSpace = false;
-    startGame(selectedCourse);
-  }
-});
+    // ここでCSV読み込み（後で実装）
+    // loadCSV(selectedCourse);
 
-
-// ===============================
-//  ゲーム本編
-// ===============================
-const gameUI = document.getElementById("game-ui");
-const timeValue = document.getElementById("time-value");
-const scoreValue = document.getElementById("score-value");
-const comboValue = document.getElementById("combo-value");
-const multiValue = document.getElementById("multi-value");
-const currentWordElem = document.getElementById("current-word");
-const typeInput = document.getElementById("type-input");
-
-let words = [];
-let currentIndex = 0;
-let currentWord = null;
-
-let timeLeft = 60;
-let timerId = null;
-let score = 0;
-let combo = 0;
-let maxCombo = 0;
-let multi = 1;
-let isKeepItReal = false;
-
-
-// ===============================
-//  CSV 読み込み（日本語,ひらがな,ローマ字）
-// ===============================
-function getCsvFileForCourse(course) {
-  switch (course) {
-    case "easy": return "words_easy.csv";
-    case "normal": return "words_business.csv";
-    case "hard": return "words_it.csv";
-    case "expert": return "words_mail.csv";
-  }
-}
-
-async function loadCsv(course) {
-  const file = getCsvFileForCourse(course);
-  const res = await fetch(file);
-  const text = await res.text();
-
-  return text.split(/\r?\n/)
-    .map(l => l.trim())
-    .filter(l => l)
-    .map(l => {
-      const [jp, hira, roma] = l.split(",");
-      return { jp, hira, roma };
-    });
-}
-
-
-// ===============================
-//  ゲーム開始
-// ===============================
-async function startGame(course) {
-  overlay.classList.add("hidden");
-
-  const name = localStorage.getItem("kir_fullname") || "";
-  isKeepItReal = name.toLowerCase().includes("keepitreal");
-
-  words = await loadCsv(course);
-
-  gameUI.classList.remove("hidden");
-  timeLeft = 60;
-  score = 0;
-  combo = 0;
-  maxCombo = 0;
-  multi = 1;
-  updateHud();
-
-  currentIndex = 0;
-  showNextWord();
-
-  typeInput.value = "";
-  typeInput.focus();
-
-  timerId = setInterval(() => {
-    timeLeft--;
-    if (timeLeft <= 0) {
-      timeLeft = 0;
-      updateHud();
-      endGame();
-    } else updateHud();
-  }, 1000);
-}
-
-
-// ===============================
-//  HUD 更新
-// ===============================
-function updateHud() {
-  timeValue.textContent = timeLeft;
-  scoreValue.textContent = score;
-  comboValue.textContent = combo;
-  multiValue.textContent = `x${multi}`;
-}
-
-
-// ===============================
-//  次の単語を表示（ローマ字）
-// ===============================
-function showNextWord() {
-  currentWord = words[currentIndex];
-  currentWordElem.textContent = currentWord.roma;  // ローマ字表示
-  currentIndex = (currentIndex + 1) % words.length;
-}
-
-
-// ===============================
-//  タイピング判定
-// ===============================
-typeInput.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") {
-    const input = typeInput.value.trim();
-    const target = currentWord.roma.trim();
-
-    if (input === target) handleCorrect();
-    else handleMiss();
-
-    typeInput.value = "";
-    showNextWord();
-  }
-});
-
-
-// ===============================
-//  正解処理
-// ===============================
-function handleCorrect() {
-  if (isKeepItReal) {
-    combo++;
-    if (combo > maxCombo) maxCombo = combo;
-
-    if (combo >= 20) { multi = 4; timeLeft += 10; }
-    else if (combo >= 10) { multi = 4; timeLeft += 5; }
-    else if (combo >= 5) multi = 2;
-    else multi = 1;
-
-  } else {
-    combo = 0;
-    multi = 1;
-  }
-
-  score += 10 * multi;
-  updateHud();
-}
-
-
-// ===============================
-//  ミス処理
-// ===============================
-function handleMiss() {
-  combo = 0;
-  multi = 1;
-  updateHud();
-}
-
-
-// ===============================
-//  ゲーム終了
-// ===============================
-function endGame() {
-  clearInterval(timerId);
-  gameUI.classList.add("hidden");
-
-  overlay.classList.remove("hidden");
-  overlay.innerHTML = `
-    <div class="main-text">結果</div>
-    <div class="sub-text">SCORE：${score}</div>
-    <div class="sub-text">MAX COMBO：${maxCombo}</div>
-    <button id="retry-btn">タイトルに戻る</button>
-  `;
-
-  document.getElementById("retry-btn").addEventListener("click", () => {
-    location.reload();
+    // ゲーム開始
+    startGame();
   });
+});
+
+// スペースキーで開始（デバッグ用）
+document.addEventListener("keydown", e => {
+  if (state === "title" && e.code === "Space") {
+    selectedCourse = "easy";
+    startGame();
+  }
+});
+
+function startGame() {
+  state = "game";
+  document.getElementById("title-screen").style.display = "none";
+  console.log("ゲーム開始！");
+  // ここで本編処理を呼ぶ（後で追加）
 }
