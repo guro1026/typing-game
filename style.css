@@ -5,28 +5,11 @@ body {
   font-family: "Yu Gothic", sans-serif;
 }
 
-/* タイトル画像 */
-#title-main {
-  position: absolute;
-  top: 6%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 75%;
-  max-width: 1200px;
-  animation: glow 3s infinite ease-in-out;
-}
-
-/* タイトルの2行テキスト */
-#title-subtext {
-  position: absolute;
-  top: 48%;   /* ← ここが重要：画像と重ならない位置 */
-  width: 100%;
-  text-align: center;
-  font-size: 30px;
-  line-height: 1.6;
-  color: #d0eaff;
-  text-shadow: 0 0 8px #4cf;
-  opacity: 0.95;
+/* タイトル画面 */
+#title-screen {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
 }
 
 /* 背景（粒子） */
@@ -42,7 +25,7 @@ body {
 /* タイトル画像（爆発＋金文字） */
 #title-main {
   position: absolute;
-  top: 6%;
+  top: 5%;
   left: 50%;
   transform: translateX(-50%);
   width: 75%;
@@ -50,16 +33,17 @@ body {
   animation: glow 3s infinite ease-in-out;
 }
 
-/* スクロールテキスト */
-#scroll-text {
+/* タイトルの2行テキスト */
+#title-subtext {
   position: absolute;
-  top: 40%;
+  top: 48%;   /* ← 画像と重ならない位置に調整済み */
   width: 100%;
   text-align: center;
-  font-size: 28px;
+  font-size: 30px;
+  line-height: 1.6;
   color: #d0eaff;
-  animation: scroll 10s linear infinite;
-  opacity: 0.9;
+  text-shadow: 0 0 8px #4cf;
+  opacity: 0.95;
 }
 
 /* コース選択 */
@@ -111,9 +95,4 @@ body {
   0% { filter: drop-shadow(0 0 8px #4cf); }
   50% { filter: drop-shadow(0 0 32px #9ff); }
   100% { filter: drop-shadow(0 0 8px #4cf); }
-}
-
-@keyframes scroll {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(-40px); }
 }
