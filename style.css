@@ -36,7 +36,7 @@ body {
 /* タイトルの2行テキスト */
 #title-subtext {
   position: absolute;
-  top: 48%;   /* ← 画像と重ならない位置に調整済み */
+  top: 58%;   /* ← ここを大きく下げた（重なり防止） */
   width: 100%;
   text-align: center;
   font-size: 30px;
