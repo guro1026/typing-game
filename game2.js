@@ -5,20 +5,52 @@ let currentWord = "";
 let typed = "";
 
 // -----------------------------
-// タイトル画面 → ゲーム開始
+// 名前入力チェック
+// -----------------------------
+document.getElementById("name-submit").addEventListener("click", validateName);
+
+function validateName() {
+  const input = document.getElementById("name-input");
+  const error = document.getElementById("name-error");
+  const name = input.value.trim();
+
+  // 漢字/ひらがな/カタカナ + 全角スペース + 漢字/ひらがな/カタカナ
+  const fullNameRegex =
+    /^[\u4E00-\u9FFF\u3040-\u309F\u30A0-\u30FF]+　[\u4E00-\u9FFF\u3040-\u309F\u30A0-\u30FF]+$/;
+
+  if (!fullNameRegex.test(name)) {
+    error.textContent = "※ フルネーム（姓　名）を全角スペースで入力してください";
+    input.classList.add("error");
+    return;
+  }
+
+  // OK
+  input.classList.remove("error");
+  error.textContent = "";
+
+  // 保存
+  localStorage.setItem("playerName", name);
+
+  // 名前入力エリアを非表示
+  document.getElementById("name-area").style.display = "none";
+
+  // 名前ボタンを表示
+  const nameBtn = document.getElementById("name-display");
+  nameBtn.textContent = name;
+  nameBtn.style.display = "inline-block";
+
+  // コース選択ボタンを表示
+  document.getElementById("course-buttons").style.display = "block";
+}
+
+// -----------------------------
+// コース選択 → ゲーム開始
 // -----------------------------
 document.querySelectorAll(".course-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     selectedCourse = btn.dataset.course;
     startGame();
   });
-});
-
-document.addEventListener("keydown", e => {
-  if (state === "title" && e.code === "Space") {
-    selectedCourse = "easy";
-    startGame();
-  }
 });
 
 function startGame() {
@@ -45,7 +77,6 @@ function loadCSV(course) {
 function initGame() {
   state = "playing";
   document.getElementById("game-screen").style.display = "block";
-
   nextWord();
 }
 

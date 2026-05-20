@@ -22,7 +22,7 @@ body {
   filter: blur(1.5px);
 }
 
-/* タイトル画像（爆発＋金文字） */
+/* タイトル画像 */
 #title-main {
   position: absolute;
   top: 5%;
@@ -36,7 +36,7 @@ body {
 /* タイトルの2行テキスト */
 #title-subtext {
   position: absolute;
-  top: 68%;   /* ← ここを大きく下げた（重なり防止） */
+  top: 70%;
   width: 100%;
   text-align: center;
   font-size: 30px;
@@ -46,10 +46,65 @@ body {
   opacity: 0.95;
 }
 
+/* 名前入力エリア */
+#name-area {
+  position: absolute;
+  top: 78%;
+  width: 100%;
+  text-align: center;
+}
+
+#name-input {
+  width: 320px;
+  padding: 12px;
+  font-size: 22px;
+  border: 2px solid #4cf;
+  border-radius: 6px;
+  background: rgba(0,0,0,0.5);
+  color: white;
+  text-align: center;
+}
+
+#name-input.error {
+  border-color: #ff4c4c;
+  box-shadow: 0 0 12px #ff4c4c;
+}
+
+#name-submit {
+  margin-left: 10px;
+  padding: 12px 20px;
+  font-size: 20px;
+  border: 2px solid #4cf;
+  background: rgba(0,80,255,0.4);
+  color: white;
+  cursor: pointer;
+}
+
+#name-error {
+  color: #ff4c4c;
+  font-size: 20px;
+  margin-bottom: 10px;
+  height: 24px;
+}
+
+/* 名前表示ボタン */
+#name-display {
+  position: absolute;
+  top: 82%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 14px 40px;
+  font-size: 26px;
+  border: 2px solid #4cf;
+  border-radius: 8px;
+  background: rgba(0, 80, 255, 0.4);
+  color: white;
+}
+
 /* コース選択 */
 #course-buttons {
   position: absolute;
-  bottom: 12%;
+  bottom: 6%;
   width: 100%;
   text-align: center;
 }
@@ -90,7 +145,7 @@ body {
   color: #4cf;
 }
 
-/* アニメーション */
+/* 光アニメーション */
 @keyframes glow {
   0% { filter: drop-shadow(0 0 8px #4cf); }
   50% { filter: drop-shadow(0 0 32px #9ff); }

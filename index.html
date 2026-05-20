@@ -22,8 +22,18 @@
       技を磨き、己を鍛えろ。
     </div>
 
-    <!-- コース選択 -->
-    <div id="course-buttons">
+    <!-- 名前入力エリア -->
+    <div id="name-area">
+      <div id="name-error"></div>
+      <input id="name-input" type="text" placeholder="フルネーム（姓　名）を入力">
+      <button id="name-submit">決定</button>
+    </div>
+
+    <!-- 名前表示ボタン（決定後に表示） -->
+    <button id="name-display" style="display:none;"></button>
+
+    <!-- コース選択（名前決定後に表示） -->
+    <div id="course-buttons" style="display:none;">
       <button class="course-btn" data-course="easy">EASY</button>
       <button class="course-btn" data-course="business">BUSINESS</button>
       <button class="course-btn" data-course="it">IT</button>
