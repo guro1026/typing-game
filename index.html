@@ -10,16 +10,18 @@
   <!-- タイトル画面 -->
   <div id="title-screen">
 
-    <!-- 背景（黒＋粒子） -->
     <div id="bg-layer"></div>
 
-    <!-- タイトルロゴ枠 -->
+    <!-- ロゴ枠 -->
     <img id="title-frame" src="images/ui_title_frame.png">
+
+    <!-- ロゴテキスト -->
+    <div id="logo-text">タイピングをしてかめはめ波を撃て！</div>
 
     <!-- スクロールテキスト -->
     <div id="scroll-text">
       ようこそ、タイピング修行へ。<br>
-      気を高め、己を超えろ。
+      技を磨き、己を鍛えろ。
     </div>
 
     <!-- コース選択 -->
@@ -30,9 +32,12 @@
       <button class="course-btn" data-course="mail">MAIL</button>
     </div>
 
-    <!-- 立ち絵 -->
-    <img id="stand-character" src="images/character_stand.png">
+  </div>
 
+  <!-- ゲーム画面 -->
+  <div id="game-screen">
+    <div id="word-box"></div>
+    <div id="input-box"></div>
   </div>
 
   <script src="game2.js"></script>

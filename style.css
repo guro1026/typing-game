@@ -1,266 +1,122 @@
-/* ============================
-   基本設定（背景をHUD風に）
-============================ */
 body {
   margin: 0;
   overflow: hidden;
-  background:
-    linear-gradient(#0a0a0a 1px, transparent 1px),
-    linear-gradient(90deg, #0a0a0a 1px, transparent 1px),
-    #000;
-  background-size: 40px 40px;
-  font-family: "Orbitron", "Yu Gothic", sans-serif;
-  color: white;
+  background: black;
+  font-family: "Yu Gothic", sans-serif;
 }
 
-/* ============================
-   タイトルロゴ（ネオン化）
-============================ */
-.title-logo {
+/* タイトル画面 */
+#title-screen {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+}
+
+#bg-layer {
   position: absolute;
-  top: 6%;
+  width: 100%;
+  height: 100%;
+  background: url("images/effect_particles.png") center/cover no-repeat;
+  opacity: 0.15;
+  filter: blur(1.5px);
+}
+
+/* ロゴ枠 */
+#title-frame {
+  position: absolute;
+  top: 5%;
   left: 50%;
   transform: translateX(-50%);
-  white-space: nowrap;
+  width: 55%;
+  animation: glow 3s infinite ease-in-out;
+}
 
-  font-size: 5vw;
-  letter-spacing: 0.08vw;
-  font-weight: 900;
-  color: #ff4d4d;
-
+/* ロゴテキスト */
+#logo-text {
+  position: absolute;
+  top: 18%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 42px;
+  font-weight: bold;
+  color: #dff6ff;
   text-shadow:
-    0 0 10px #ff4d4d,
-    0 0 20px #ff1a1a,
-    0 0 40px #ff0000;
-
-  opacity: 0;
-  animation: fadeIn 1.5s ease forwards;
+    0 0 8px #4cf,
+    0 0 16px #8ff,
+    0 0 24px #8ff;
+  animation: logoGlow 3s infinite ease-in-out;
 }
 
-/* ============================
-   4言語フェードイン（光らせる）
-============================ */
-#fadein-container {
+/* スクロールテキスト */
+#scroll-text {
   position: absolute;
-  top: 22%;
-  left: 50%;
-  transform: translateX(-50%);
-  text-align: center;
-}
-
-.fade-line {
-  font-size: 2vw;
-  font-weight: 700;
-  opacity: 0;
-  margin: 0.4vw 0;
-
-  text-shadow: 0 0 8px #ffffffaa;
-
-  animation: fadeIn 1.5s ease forwards;
-}
-
-#line1 { animation-delay: 1.0s; }
-#line2 { animation-delay: 1.6s; }
-#line3 { animation-delay: 2.2s; }
-#line4 { animation-delay: 2.8s; }
-
-/* ============================
-   フェードイン共通
-============================ */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* ============================
-   名前入力
-============================ */
-#name-container {
-  position: absolute;
-  bottom: 24%;
+  top: 32%;
   width: 100%;
   text-align: center;
-
-  opacity: 0;
-  animation: fadeIn 3.5s ease forwards;
+  font-size: 28px;
+  color: #d0eaff;
+  animation: scroll 10s linear infinite;
+  opacity: 0.9;
 }
 
-#fullname {
-  width: 320px;
-  height: 42px;
-  font-size: 18px;
-  padding: 5px 10px;
-  border: 2px solid #ff4d4d;
-  background: rgba(0,0,0,0.6);
-  color: white;
-  box-shadow: 0 0 10px #ff4d4d55;
-}
-
-#name-confirm {
-  margin-left: 10px;
-  height: 42px;
-  font-size: 17px;
-  padding: 0 14px;
-  background: #ff4d4d;
-  border: none;
-  color: white;
-  cursor: pointer;
-  box-shadow: 0 0 10px #ff4d4d;
-  transition: 0.2s;
-}
-
-#name-confirm:hover {
-  background: #ff1a1a;
-  box-shadow: 0 0 20px #ff1a1a;
-}
-
-/* ============================
-   コース選択（ゲームボタン化）
-============================ */
-#course-container {
+/* コース選択 */
+#course-buttons {
   position: absolute;
   bottom: 12%;
   width: 100%;
   text-align: center;
-
-  opacity: 0;
-  animation: fadeIn 4.2s ease forwards;
 }
 
 .course-btn {
-  width: 200px;
-  height: 60px;
-  margin: 0 12px;
-  font-size: 20px;
-
-  background: rgba(0,0,0,0.4);
-  border: 2px solid #ff4d4d;
+  font-size: 26px;
+  padding: 12px 28px;
+  margin: 0 15px;
+  border: 2px solid #4cf;
+  border-radius: 8px;
+  background: rgba(0, 80, 255, 0.4);
   color: white;
-
   cursor: pointer;
   transition: 0.2s;
-
-  box-shadow: 0 0 12px #ff4d4d55;
 }
 
 .course-btn:hover {
-  transform: scale(1.08);
-  background: #ff4d4d;
-  box-shadow: 0 0 25px #ff1a1a;
+  background: rgba(0, 150, 255, 0.8);
+  box-shadow: 0 0 20px #4cf;
 }
 
-/* ============================
-   非表示制御
-============================ */
-.hidden {
-  display: none !important;
-}
-
-/* ============================
-   ゲームUI
-============================ */
-#game-ui { position: absolute; inset: 0; }
-
-#hud-left {
-  position: absolute;
-  top: 14px;
-  left: 14px;
-}
-
-#hud-right {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  text-align: right;
-}
-
-.hud-label {
-  font-size: 14px;
-  opacity: 0.7;
-}
-
-#score-value,
-#combo-value,
-#multi-value {
-  font-size: 22px;
-  text-shadow: 0 0 8px #ff4d4d;
-}
-
-/* ★ タイピング単語をデカく・強く */
-#current-word {
-  font-size: 70px;
-  font-weight: 900;
-  letter-spacing: 3px;
-  text-shadow: 0 0 12px #ffffffaa;
-}
-
-#word-area {
-  position: absolute;
-  top: 44%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-
-#input-area {
-  position: absolute;
-  bottom: 9%;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-#type-input {
-  width: 420px;
-  height: 42px;
-  font-size: 20px;
-  border: 2px solid #ff4d4d;
-  background: rgba(0,0,0,0.6);
+/* ゲーム画面 */
+#game-screen {
+  display: none;
   color: white;
-  box-shadow: 0 0 10px #ff4d4d55;
+  text-align: center;
+  padding-top: 120px;
+  font-size: 48px;
 }
 
-/* ============================
-   READY / RESULT
-============================ */
-#overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,0.8);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-
-  pointer-events: none;
+#word-box {
+  font-size: 60px;
+  margin-bottom: 40px;
 }
 
-#overlay .main-text {
+#input-box {
   font-size: 40px;
-  margin-bottom: 20px;
-  text-shadow: 0 0 12px #ffffffaa;
+  color: #4cf;
 }
 
-#overlay .sub-text {
-  font-size: 18px;
-  opacity: 0.8;
-  margin-bottom: 10px;
+/* アニメーション */
+@keyframes glow {
+  0% { filter: drop-shadow(0 0 8px #4cf); }
+  50% { filter: drop-shadow(0 0 32px #9ff); }
+  100% { filter: drop-shadow(0 0 8px #4cf); }
 }
 
-#overlay button {
-  margin-top: 20px;
-  padding: 12px 26px;
-  font-size: 18px;
-  background: #ff4d4d;
-  border: none;
-  color: white;
-  cursor: pointer;
-
-  pointer-events: auto;
-
-  box-shadow: 0 0 15px #ff4d4d;
-  transition: 0.2s;
+@keyframes logoGlow {
+  0% { text-shadow: 0 0 8px #4cf; }
+  50% { text-shadow: 0 0 28px #9ff; }
+  100% { text-shadow: 0 0 8px #4cf; }
 }
 
-#overlay button:hover {
-  background: #ff1a1a;
-  box-shadow: 0 0 25px #ff1a1a;
+@keyframes scroll {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-40px); }
 }
