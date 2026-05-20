@@ -12,6 +12,7 @@ body {
   height: 100vh;
 }
 
+/* 背景（粒子） */
 #bg-layer {
   position: absolute;
   width: 100%;
@@ -21,36 +22,21 @@ body {
   filter: blur(1.5px);
 }
 
-/* ロゴ枠 */
-#title-frame {
+/* タイトル画像（爆発＋金文字） */
+#title-main {
   position: absolute;
-  top: 5%;
+  top: 6%;
   left: 50%;
   transform: translateX(-50%);
-  width: 55%;
+  width: 75%;
+  max-width: 1200px;
   animation: glow 3s infinite ease-in-out;
-}
-
-/* ロゴテキスト */
-#logo-text {
-  position: absolute;
-  top: 18%;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 42px;
-  font-weight: bold;
-  color: #dff6ff;
-  text-shadow:
-    0 0 8px #4cf,
-    0 0 16px #8ff,
-    0 0 24px #8ff;
-  animation: logoGlow 3s infinite ease-in-out;
 }
 
 /* スクロールテキスト */
 #scroll-text {
   position: absolute;
-  top: 32%;
+  top: 40%;
   width: 100%;
   text-align: center;
   font-size: 28px;
@@ -108,12 +94,6 @@ body {
   0% { filter: drop-shadow(0 0 8px #4cf); }
   50% { filter: drop-shadow(0 0 32px #9ff); }
   100% { filter: drop-shadow(0 0 8px #4cf); }
-}
-
-@keyframes logoGlow {
-  0% { text-shadow: 0 0 8px #4cf; }
-  50% { text-shadow: 0 0 28px #9ff; }
-  100% { text-shadow: 0 0 8px #4cf; }
 }
 
 @keyframes scroll {
