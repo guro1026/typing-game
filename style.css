@@ -5,11 +5,28 @@ body {
   font-family: "Yu Gothic", sans-serif;
 }
 
-/* タイトル画面 */
-#title-screen {
-  position: relative;
-  width: 100vw;
-  height: 100vh;
+/* タイトル画像 */
+#title-main {
+  position: absolute;
+  top: 6%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 75%;
+  max-width: 1200px;
+  animation: glow 3s infinite ease-in-out;
+}
+
+/* タイトルの2行テキスト */
+#title-subtext {
+  position: absolute;
+  top: 48%;   /* ← ここが重要：画像と重ならない位置 */
+  width: 100%;
+  text-align: center;
+  font-size: 30px;
+  line-height: 1.6;
+  color: #d0eaff;
+  text-shadow: 0 0 8px #4cf;
+  opacity: 0.95;
 }
 
 /* 背景（粒子） */
