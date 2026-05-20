@@ -10,8 +10,18 @@ let originalRomaji = "";
 // -----------------------------
 const bgm = new Audio("sounds/BGM.mp3");
 bgm.loop = true;
-bgm.volume = 0;   // ← 無音スタート
-bgm.play().catch(()=>{});  // ← 無音なので自動再生OK
+bgm.volume = 0;
+
+// ページ読み込み時に無音で再生を試す
+bgm.play().catch(() => {
+  // 自動再生が拒否された場合は、最初の操作で再生
+  document.addEventListener("click", tryPlayOnce, { once: true });
+  document.addEventListener("keydown", tryPlayOnce, { once: true });
+});
+
+function tryPlayOnce() {
+  bgm.play().catch(()=>{});
+}
 
 // 音量スライダー
 const volumeSlider = document.getElementById("volume-slider");
@@ -27,7 +37,7 @@ const seBeep = new Audio("sounds/beep.mp3");
 seBeep.volume = 0.6;
 
 // -----------------------------
-// 名前入力チェック
+// 名前入力
 // -----------------------------
 document.getElementById("name-submit").addEventListener("click", validateName);
 
@@ -61,7 +71,7 @@ function validateName() {
 }
 
 // -----------------------------
-// コース選択 → ゲーム開始
+// コース選択
 // -----------------------------
 document.querySelectorAll(".course-btn").forEach(btn => {
   btn.addEventListener("click", () => {
@@ -125,7 +135,6 @@ document.addEventListener("keydown", e => {
 
   if (!target) return;
 
-  // 正解
   if (key === target) {
     seHit.currentTime = 0;
     seHit.play();
