@@ -129,23 +129,61 @@ body {
 /* ゲーム画面 */
 #game-screen {
   display: none;
+  width: 100vw;
+  height: 100vh;
+  background: url("images/game_bg.png") center/cover no-repeat;
   color: white;
   text-align: center;
-  padding-top: 120px;
+  position: relative;
+}
+
+/* ひらがな */
+#word-jp {
+  margin-top: 18%;
+  font-size: 80px;
+  font-weight: bold;
+  text-shadow: 0 0 12px #fff;
+}
+
+/* ローマ字（残り） */
+#word-romaji {
+  margin-top: 10px;
   font-size: 48px;
+  color: #aee7ff;
+  text-shadow: 0 0 10px #4cf;
 }
 
-#word-box {
-  font-size: 60px;
-  margin-bottom: 40px;
+/* キーボードUI */
+#keyboard {
+  position: absolute;
+  bottom: 5%;
+  width: 100%;
+  text-align: center;
 }
 
-#input-box {
-  font-size: 40px;
-  color: #4cf;
+.key-row {
+  margin: 6px 0;
 }
 
-/* 光アニメーション */
+.key {
+  display: inline-block;
+  min-width: 48px;
+  padding: 10px 6px;
+  margin: 2px;
+  border: 2px solid #4cf;
+  border-radius: 6px;
+  background: rgba(0, 80, 255, 0.4);
+  font-size: 20px;
+  text-shadow: 0 0 6px #000;
+}
+
+/* 押下時の光り */
+.key.active {
+  background: #4cf;
+  box-shadow: 0 0 20px #4cf;
+}
+
+/* 光アニメーション（タイトル画像） */
 @keyframes glow {
   0% { filter: drop-shadow(0 0 8px #4cf); }
   50% { filter: drop-shadow(0 0 32px #9ff); }

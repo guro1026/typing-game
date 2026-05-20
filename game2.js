@@ -1,8 +1,9 @@
 let state = "title";
 let selectedCourse = null;
 let words = [];
-let currentWord = "";
-let typed = "";
+let currentJP = "";
+let currentRomaji = "";
+let originalRomaji = "";
 
 // -----------------------------
 // 名前入力チェック
@@ -56,63 +57,98 @@ document.querySelectorAll(".course-btn").forEach(btn => {
 function startGame() {
   state = "loading";
   document.getElementById("title-screen").style.display = "none";
+  document.getElementById("game-screen").style.display = "block";
   loadCSV(selectedCourse);
 }
 
 // -----------------------------
-// CSV読み込み
+// CSV読み込み（words_◯◯.csv）
+// 形式：日本語,ひらがな,ローマ字
 // -----------------------------
 function loadCSV(course) {
   fetch(`words_${course}.csv`)
     .then(res => res.text())
     .then(text => {
       words = text.trim().split("\n").map(w => w.trim());
-      initGame();
+      nextWord();
     });
 }
 
 // -----------------------------
-// ゲーム初期化
-// -----------------------------
-function initGame() {
-  state = "playing";
-  document.getElementById("game-screen").style.display = "block";
-  nextWord();
-}
-
-// -----------------------------
-// 次の単語
+// 次の単語へ（ランダム）
 // -----------------------------
 function nextWord() {
-  typed = "";
-  currentWord = words[Math.floor(Math.random() * words.length)];
+  if (!words.length) return;
+
+  const line = words[Math.floor(Math.random() * words.length)];
+  const cols = line.split(",");
+
+  currentJP = cols[1] || "";       // ひらがな
+  currentRomaji = cols[2] || "";   // ローマ字（残り）
+  originalRomaji = currentRomaji;
+
   updateDisplay();
+  state = "playing";
 }
 
 // -----------------------------
 // 表示更新
 // -----------------------------
 function updateDisplay() {
-  document.getElementById("word-box").textContent = currentWord;
-  document.getElementById("input-box").textContent = typed;
+  document.getElementById("word-jp").textContent = currentJP;
+  document.getElementById("word-romaji").textContent = currentRomaji;
 }
 
 // -----------------------------
-// キー入力
+// キー入力（寿司打方式）
 // -----------------------------
 document.addEventListener("keydown", e => {
   if (state !== "playing") return;
 
-  const key = e.key.toLowerCase();
-  const target = currentWord[typed.length]?.toLowerCase();
+  const key = e.key;
 
-  if (key === target) {
-    typed += key;
+  // 1文字も残ってないなら何もしない
+  if (!currentRomaji || currentRomaji.length === 0) return;
 
-    if (typed.length === currentWord.length) {
-      nextWord();
+  const target = currentRomaji[0].toLowerCase();
+  const pressed = key.toLowerCase();
+
+  // キーボード光らせる
+  highlightKey(key);
+
+  // 正解
+  if (pressed === target) {
+    currentRomaji = currentRomaji.slice(1);
+    updateDisplay();
+
+    // 単語終了
+    if (currentRomaji.length === 0) {
+      // ちょっと間を置いて次の単語へ
+      setTimeout(nextWord, 200);
     }
+  } else {
+    // 寿司打方式なら「ミスは無視 or ミスカウントのみ」
+    // ここでミス音を鳴らしたり、エフェクトを入れてもOK
   }
-
-  updateDisplay();
 });
+
+// -----------------------------
+// キーボードUIを光らせる（106/109配列）
+// -----------------------------
+function highlightKey(key) {
+  let label = key;
+
+  // Shift付き記号などは必要に応じてマッピングしてもよい
+  // ここでは単純に大文字化して比較
+  const upper = label.toUpperCase();
+
+  const keyEl = [...document.querySelectorAll(".key")]
+    .find(k => k.textContent.toUpperCase() === upper);
+
+  if (!keyEl) return;
+
+  keyEl.classList.add("active");
+  setTimeout(() => {
+    keyEl.classList.remove("active");
+  }, 150);
+}
