@@ -219,7 +219,7 @@ body {
 /* ★ キーボード（ローマ字のすぐ下に配置） */
 #keyboard {
   position: absolute;
-  top: 55%;   /* ← ここが重要：ローマ字のすぐ下に来る */
+  top: 25%;   /* ← ここが重要：ローマ字のすぐ下に来る */
   width: 100%;
   text-align: center;
 }
