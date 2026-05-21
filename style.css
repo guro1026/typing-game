@@ -216,10 +216,10 @@ body {
   box-shadow: 0 0 12px #4cf inset;
 }
 
-/* キーボード */
+/* ★ キーボード（ローマ字のすぐ下に配置） */
 #keyboard {
   position: absolute;
-  bottom: 5%;
+  top: 55%;   /* ← ここが重要：ローマ字のすぐ下に来る */
   width: 100%;
   text-align: center;
 }
