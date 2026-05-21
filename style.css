@@ -1,4 +1,6 @@
-/* 基本 */
+/* ============================
+   基本
+============================ */
 body {
   margin: 0;
   overflow: hidden;
@@ -6,191 +8,95 @@ body {
   font-family: "Yu Gothic", sans-serif;
 }
 
-/* タイトル画面 */
-#title-screen {
+/* ============================
+   お題（最前面）
+============================ */
+#word-jp, #word-romaji {
   position: relative;
-  width: 100vw;
-  height: 100vh;
+  z-index: 10;
+  text-shadow:
+    0 0 12px #000,
+    0 0 24px #000,
+    0 0 36px #000;
 }
 
-#bg-layer {
+/* ============================
+   キャラ（お題の下）
+============================ */
+#character {
   position: absolute;
-  width: 100%;
-  height: 100%;
-  background: url("images/effect_particles.png") center/cover no-repeat;
-  opacity: 0.15;
-  filter: blur(1.5px);
-}
-
-#title-girl {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  height: 90vh;
-  transform: scaleX(-1);
-  filter: drop-shadow(0 0 20px #ff66cc);
+  bottom: 5%;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 75vh;
   pointer-events: none;
+  z-index: 5;
+  filter:
+    drop-shadow(0 0 18px #4cf)
+    drop-shadow(0 0 32px #0ff);
+  animation: auraPulse 1.6s infinite ease-in-out;
 }
 
-#title-boy {
+@keyframes auraPulse {
+  0%   { filter: drop-shadow(0 0 14px #4cf) drop-shadow(0 0 26px #0ff); }
+  50%  { filter: drop-shadow(0 0 26px #9ff) drop-shadow(0 0 40px #0ff); }
+  100% { filter: drop-shadow(0 0 14px #4cf) drop-shadow(0 0 26px #0ff); }
+}
+
+/* ============================
+   気弾（キャラより前）
+============================ */
+#ki-ball {
   position: absolute;
-  bottom: 0;
-  right: 0;
-  height: 90vh;
-  filter: drop-shadow(0 0 20px #4cf);
+  bottom: 32%;
+  left: 50%;
+  transform: translateX(-50%) scale(0.2);
+  transition: transform 0.1s ease-out;
   pointer-events: none;
+  z-index: 6;
 }
 
-#title-main {
+#ki-ball.blue  { filter: drop-shadow(0 0 20px #4cf); }
+#ki-ball.white { filter: drop-shadow(0 0 25px #fff); }
+#ki-ball.gold  { filter: drop-shadow(0 0 30px #ffdd55); }
+
+.pulse {
+  animation: pulseAnim 0.8s infinite ease-in-out;
+}
+
+@keyframes pulseAnim {
+  0%   { transform: translateX(-50%) scale(1); }
+  50%  { transform: translateX(-50%) scale(1.08); }
+  100% { transform: translateX(-50%) scale(1); }
+}
+
+/* ============================
+   ビーム
+============================ */
+#beam {
   position: absolute;
-  top: 5%;
+  bottom: 35%;
   left: 50%;
+  width: 0;
+  height: 26px;
+  background: linear-gradient(to right, white, cyan, transparent);
   transform: translateX(-50%);
-  width: 75%;
-  max-width: 1200px;
-  animation: glow 3s infinite ease-in-out;
+  opacity: 0;
+  z-index: 7;
 }
 
-#title-subtext {
-  position: absolute;
-  top: 67%;
-  width: 100%;
-  text-align: center;
-  font-size: 30px;
-  line-height: 1.6;
-  color: #d0eaff;
-  text-shadow: 0 0 8px #4cf;
+.beam-fire {
+  animation: beamFire 0.4s ease-out forwards;
 }
 
-/* 名前入力 */
-#name-area {
-  position: absolute;
-  top: 78%;
-  width: 100%;
-  text-align: center;
+@keyframes beamFire {
+  0%   { width: 0; opacity: 1; }
+  100% { width: 200vw; opacity: 0; }
 }
 
-#name-input {
-  width: 320px;
-  padding: 12px;
-  font-size: 22px;
-  border: 2px solid #4cf;
-  border-radius: 6px;
-  background: rgba(0,0,0,0.5);
-  color: white;
-  text-align: center;
-}
-
-#name-input.error {
-  border-color: #ff4c4c;
-  box-shadow: 0 0 12px #ff4c4c;
-}
-
-#name-submit {
-  margin-left: 10px;
-  padding: 12px 20px;
-  font-size: 20px;
-  border: 2px solid #4cf;
-  background: rgba(0,80,255,0.4);
-  color: white;
-  cursor: pointer;
-}
-
-#name-error {
-  color: #ff4c4c;
-  font-size: 20px;
-  margin-bottom: 10px;
-  height: 24px;
-}
-
-/* 名前表示 */
-#name-display {
-  position: absolute;
-  top: 82%;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 14px 40px;
-  font-size: 26px;
-  border: 2px solid #4cf;
-  border-radius: 8px;
-  background: rgba(0, 80, 255, 0.4);
-  color: white;
-}
-
-/* コース選択 */
-#course-buttons {
-  position: absolute;
-  bottom: 20%;
-  width: 100%;
-  text-align: center;
-}
-
-.course-btn {
-  font-size: 26px;
-  padding: 12px 28px;
-  margin: 0 15px;
-  border: 2px solid #4cf;
-  border-radius: 8px;
-  background: rgba(0, 80, 255, 0.4);
-  color: white;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.course-btn:hover {
-  background: rgba(0, 150, 255, 0.8);
-  box-shadow: 0 0 20px #4cf;
-}
-
-/* タイトル音量 */
-#volume-area {
-  position: absolute;
-  bottom: 3%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 320px;
-  text-align: center;
-  color: #d0eaff;
-  font-size: 16px;
-  text-shadow: 0 0 6px #4cf;
-}
-
-#volume-label {
-  margin-bottom: 6px;
-  line-height: 1.4;
-}
-
-#volume-slider {
-  width: 100%;
-}
-
-/* ゲーム画面 */
-#game-screen {
-  display: none;
-  width: 100vw;
-  height: 100vh;
-  background: url("images/game_bg.png") center/cover no-repeat;
-  color: white;
-  text-align: center;
-  position: relative;
-}
-
-/* 日本語・ローマ字 */
-#word-jp {
-  margin-top: 12%;
-  font-size: 80px;
-  font-weight: bold;
-  text-shadow: 0 0 12px #fff;
-}
-
-#word-romaji {
-  margin-top: 10px;
-  font-size: 48px;
-  color: #aee7ff;
-  text-shadow: 0 0 10px #4cf;
-}
-
-/* HUD（3倍） */
+/* ============================
+   HUD
+============================ */
 #hud {
   position: absolute;
   top: 2%;
@@ -216,113 +122,9 @@ body {
   box-shadow: 0 0 25px #4cf inset;
 }
 
-/* キャラ（気弾構え） */
-#character {
-  position: absolute;
-  bottom: 5%;
-  left: 50%;
-  transform: translateX(-50%);
-  height: 75vh;
-  pointer-events: none;
-  z-index: 2;
-  filter:
-    drop-shadow(0 0 18px #4cf)
-    drop-shadow(0 0 32px #0ff);
-  animation: auraPulse 1.6s infinite ease-in-out;
-}
-
-@keyframes auraPulse {
-  0%   { filter: drop-shadow(0 0 14px #4cf) drop-shadow(0 0 26px #0ff); }
-  50%  { filter: drop-shadow(0 0 26px #9ff) drop-shadow(0 0 40px #0ff); }
-  100% { filter: drop-shadow(0 0 14px #4cf) drop-shadow(0 0 26px #0ff); }
-}
-
-/* 気弾（オーブ） */
-#ki-ball {
-  position: absolute;
-  bottom: 32%;
-  left: 50%;
-  transform: translateX(-50%) scale(0.2);
-  transition: transform 0.15s ease-out;
-  pointer-events: none;
-  z-index: 3;
-}
-
-#ki-ball.blue  { filter: drop-shadow(0 0 20px #4cf); }
-#ki-ball.white { filter: drop-shadow(0 0 25px #fff); }
-#ki-ball.gold  { filter: drop-shadow(0 0 30px #ffdd55); }
-
-.pulse {
-  animation: pulseAnim 0.8s infinite ease-in-out;
-}
-
-@keyframes pulseAnim {
-  0%   { transform: translateX(-50%) scale(1); }
-  50%  { transform: translateX(-50%) scale(1.08); }
-  100% { transform: translateX(-50%) scale(1); }
-}
-
-/* ビーム */
-#beam {
-  position: absolute;
-  bottom: 35%;
-  left: 50%;
-  width: 0;
-  height: 26px;
-  background: linear-gradient(to right, white, cyan, transparent);
-  transform: translateX(-50%);
-  opacity: 0;
-  z-index: 4;
-}
-
-.beam-fire {
-  animation: beamFire 0.4s ease-out forwards;
-}
-
-@keyframes beamFire {
-  0% {
-    width: 0;
-    opacity: 1;
-  }
-  100% {
-    width: 200vw;
-    opacity: 0;
-  }
-}
-
-/* 白フラッシュ */
-.flash {
-  animation: flashAnim 0.3s;
-}
-
-@keyframes flashAnim {
-  0%   { background: rgba(255,255,255,0); }
-  50%  { background: rgba(255,255,255,1); }
-  100% { background: rgba(255,255,255,0); }
-}
-
-/* ゲーム中の音量 */
-#volume-area-game {
-  position: absolute;
-  bottom: 3%;
-  right: 3%;
-  width: 180px;
-  text-align: center;
-  color: #6cf;
-  font-size: 18px;
-  text-shadow: 0 0 10px #39f;
-}
-
-#volume-label-game {
-  margin-bottom: 4px;
-  font-size: 18px;
-  letter-spacing: 2px;
-  font-weight: bold;
-  color: #9df;
-  text-shadow: 0 0 12px #4cf;
-}
-
-/* キーボード（横2倍） */
+/* ============================
+   キーボード（横2倍）
+============================ */
 #keyboard {
   position: absolute;
   top: 25%;
@@ -351,11 +153,4 @@ body {
 .key.active {
   background: #4cf;
   box-shadow: 0 0 20px #4cf;
-}
-
-/* タイトル光アニメ */
-@keyframes glow {
-  0%   { filter: drop-shadow(0 0 8px #4cf); }
-  50%  { filter: drop-shadow(0 0 32px #9ff); }
-  100% { filter: drop-shadow(0 0 8px #4cf); }
 }

@@ -1,4 +1,6 @@
-// 状態
+// ============================
+// 状態管理
+// ============================
 let state = "title";
 let selectedCourse = null;
 let words = [];
@@ -12,7 +14,9 @@ let maxCombo = 0;
 let timeLeft = 60;
 let timerInterval = null;
 
+// ============================
 // BGM
+// ============================
 const bgm = new Audio("sounds/BGM.mp3");
 bgm.loop = true;
 bgm.volume = 0;
@@ -27,7 +31,7 @@ bgm.play().catch(() => {
   document.addEventListener("keydown", once);
 });
 
-// 音量スライダー（タイトル＆ゲーム）
+// 音量同期
 const volumeSliderTitle = document.getElementById("volume-slider");
 const volumeSliderGame = document.getElementById("volume-slider-game");
 
@@ -44,14 +48,18 @@ volumeSliderGame.addEventListener("input", () => {
   syncVolumeSlider(volumeSliderGame.value);
 });
 
+// ============================
 // 効果音
+// ============================
 const seHit = new Audio("sounds/hit.mp3");
 seHit.volume = 0.6;
 
 const seBeep = new Audio("sounds/beep.mp3");
 seBeep.volume = 0.6;
 
+// ============================
 // ESCでタイトルへ
+// ============================
 document.addEventListener("keydown", e => {
   if (e.key === "Escape") {
     returnToTitle();
@@ -75,7 +83,9 @@ function returnToTitle() {
   updateHUD();
 }
 
+// ============================
 // 名前入力（全角スペース）
+// ============================
 document.getElementById("name-submit").addEventListener("click", validateName);
 
 function validateName() {
@@ -108,7 +118,9 @@ function validateName() {
   document.getElementById("course-buttons").style.display = "block";
 }
 
+// ============================
 // コース選択
+// ============================
 document.querySelectorAll(".course-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     selectedCourse = btn.dataset.course;
@@ -116,7 +128,9 @@ document.querySelectorAll(".course-btn").forEach(btn => {
   });
 });
 
+// ============================
 // ゲーム開始
+// ============================
 function startGame() {
   state = "loading";
   document.getElementById("title-screen").style.display = "none";
@@ -128,14 +142,12 @@ function startGame() {
   timeLeft = 60;
   updateHUD();
 
-  // キャラ切替（男/女ランダム）
+  // キャラ切替（ランダム）
   const charImg = document.getElementById("character");
   const isWoman = Math.random() < 0.5;
-  if (isWoman) {
-    charImg.src = "images/character_women_kiball.png";
-  } else {
-    charImg.src = "images/character_men_kiball.png";
-  }
+  charImg.src = isWoman
+    ? "images/character_women_kiball.png"
+    : "images/character_men_kiball.png";
 
   // 気弾初期化
   kiPower = 0;
@@ -149,7 +161,9 @@ function startGame() {
   loadCSV(selectedCourse);
 }
 
+// ============================
 // タイマー
+// ============================
 function startTimer() {
   if (timerInterval) clearInterval(timerInterval);
 
@@ -164,7 +178,9 @@ function startTimer() {
   }, 1000);
 }
 
+// ============================
 // 終了
+// ============================
 function endGame() {
   state = "end";
 
@@ -184,7 +200,9 @@ function endGame() {
   }, 700);
 }
 
+// ============================
 // CSV読み込み
+// ============================
 function loadCSV(course) {
   fetch(`words_${course}.csv`)
     .then(res => res.text())
@@ -195,7 +213,9 @@ function loadCSV(course) {
     });
 }
 
+// ============================
 // 次の単語
+// ============================
 function nextWord() {
   if (timeLeft <= 0) return;
 
@@ -210,20 +230,26 @@ function nextWord() {
   state = "playing";
 }
 
+// ============================
 // 表示更新
+// ============================
 function updateDisplay() {
   document.getElementById("word-jp").textContent = currentJP;
   document.getElementById("word-romaji").textContent = currentRomaji;
 }
 
+// ============================
 // HUD更新
+// ============================
 function updateHUD() {
   document.getElementById("hud-score").textContent = score;
   document.getElementById("hud-combo").textContent = combo;
   document.getElementById("hud-time").textContent = timeLeft;
 }
 
+// ============================
 // キー入力
+// ============================
 document.addEventListener("keydown", e => {
   if (state !== "playing") return;
   if (timeLeft <= 0) return;
@@ -250,7 +276,8 @@ document.addEventListener("keydown", e => {
     score += add;
     updateHUD();
 
-    kiPower += 2;
+    // 気弾成長（強化版）
+    kiPower += 6;
     if (kiPower > 100) kiPower = 100;
     updateKiBall();
     updateKiColor(combo);
@@ -273,7 +300,9 @@ document.addEventListener("keydown", e => {
   }
 });
 
+// ============================
 // キーボード光
+// ============================
 function highlightKey(key) {
   const upper = key.toUpperCase();
 
@@ -288,15 +317,17 @@ function highlightKey(key) {
   }, 150);
 }
 
+// ============================
 // 気弾
+// ============================
 let kiPower = 0;
 
 function updateKiBall() {
   const ball = document.getElementById("ki-ball");
-  const scale = 0.2 + (kiPower / 100) * 1.0;
+  const scale = 0.2 + (kiPower / 100) * 1.6;  // ← 成長強化
   ball.style.transform = `translateX(-50%) scale(${scale})`;
 
-  if (kiPower > 40) {
+  if (kiPower > 20) {
     ball.classList.add("pulse");
   }
 }
@@ -314,7 +345,9 @@ function updateKiColor(combo) {
   }
 }
 
+// ============================
 // ビーム
+// ============================
 function fireBeam() {
   const beam = document.getElementById("beam");
   beam.classList.add("beam-fire");
