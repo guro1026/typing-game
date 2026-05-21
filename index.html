@@ -7,25 +7,23 @@
 </head>
 <body>
 
-  <!-- ============================
-       タイトル画面
-  ============================ -->
+  <!-- タイトル画面 -->
   <div id="title-screen">
 
     <div id="bg-layer"></div>
 
-    <!-- 左：女性キャラ -->
+    <!-- ★ 左側：女性キャラ（左右反転） -->
     <img id="title-girl" src="images/character_Woman.png">
 
-    <!-- 右：男性キャラ -->
+    <!-- ★ 右側：男性キャラ -->
     <img id="title-boy" src="images/character_men.png">
 
-    <!-- タイトルロゴ -->
+    <!-- タイトル画像（爆発エフェクト含む） -->
     <img id="title-main" src="images/title_main.png">
 
     <div id="title-subtext">
-      タイピングをして かめはめ波を撃て！<br>
-      ようこそ、タイピング修行へ。
+      ようこそ、タイピング修行へ。<br>
+      技を磨き、己を鍛えろ。
     </div>
 
     <!-- 名前入力 -->
@@ -46,7 +44,7 @@
       <button class="course-btn" data-course="mail">MAIL</button>
     </div>
 
-    <!-- 音量スライダー -->
+    <!-- タイトル画面の音量スライダー -->
     <div id="volume-area">
       <div id="volume-label">
         🔊 BGMは最初は無音です<br>
@@ -62,14 +60,14 @@
   ============================ -->
   <div id="game-screen" style="display:none;">
 
-    <!-- HUD -->
+    <!-- HUD（スカウター風） -->
     <div id="hud">
       <div class="hud-item">TIME: <span id="hud-time">60</span></div>
       <div class="hud-item">SCORE: <span id="hud-score">0</span></div>
       <div class="hud-item">COMBO: <span id="hud-combo">0</span></div>
     </div>
 
-    <!-- ゲーム中の音量 -->
+    <!-- ゲーム中の音量スライダー -->
     <div id="volume-area-game">
       <div id="volume-label-game">BGM</div>
       <input id="volume-slider-game" type="range" min="0" max="100" value="0">
@@ -95,7 +93,7 @@
     <div id="beam"></div>
 
     <!-- ============================
-         キーボード（中央）
+         キーボード（横2倍・縦1倍）
     ============================ -->
     <div id="keyboard">
 
