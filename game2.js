@@ -127,13 +127,17 @@ function endGame() {
 }
 
 // -----------------------------
-// CSV読み込み
+// CSV読み込み（ヘッダー対応版）
 // -----------------------------
 function loadCSV(course) {
   fetch(`words_${course}.csv`)
     .then(res => res.text())
     .then(text => {
-      words = text.trim().split("\n").map(w => w.trim());
+      const lines = text.trim().split("\n");
+
+      // 1行目（ヘッダー）を除外
+      words = lines.slice(1).map(line => line.trim());
+
       nextWord();
     });
 }
@@ -147,8 +151,8 @@ function nextWord() {
   const line = words[Math.floor(Math.random() * words.length)];
   const cols = line.split(",");
 
-  currentJP = cols[1] || "";
-  currentRomaji = cols[2] || "";
+  currentJP = cols[0] || "";      // 日本語
+  currentRomaji = cols[2] || "";  // ローマ字
   originalRomaji = currentRomaji;
 
   updateDisplay();
@@ -164,7 +168,7 @@ function updateDisplay() {
 }
 
 // -----------------------------
-// HUD更新（スコア・コンボ・タイマー）
+// HUD更新
 // -----------------------------
 function updateHUD() {
   document.getElementById("hud-score").textContent = score;
