@@ -7,7 +7,9 @@
 </head>
 <body>
 
-  <!-- タイトル画面 -->
+  <!-- ============================
+       タイトル画面
+  ============================ -->
   <div id="title-screen">
 
     <div id="bg-layer"></div>
@@ -18,12 +20,12 @@
     <!-- 右：男性キャラ -->
     <img id="title-boy" src="images/character_men.png">
 
-    <!-- タイトル画像（爆発＋ロゴ想定） -->
+    <!-- タイトルロゴ -->
     <img id="title-main" src="images/title_main.png">
 
     <div id="title-subtext">
       タイピングをして かめはめ波を撃て！<br>
-      ようこそ、タイピング修行へ。技を磨き、己を鍛えろ。
+      ようこそ、タイピング修行へ。
     </div>
 
     <!-- 名前入力 -->
@@ -55,8 +57,10 @@
 
   </div>
 
-  <!-- ゲーム画面 -->
-  <div id="game-screen">
+  <!-- ============================
+       ゲーム画面
+  ============================ -->
+  <div id="game-screen" style="display:none;">
 
     <!-- HUD -->
     <div id="hud">
@@ -71,20 +75,28 @@
       <input id="volume-slider-game" type="range" min="0" max="100" value="0">
     </div>
 
-    <!-- 日本語・ローマ字 -->
+    <!-- ============================
+         お題（最前面）
+    ============================ -->
     <div id="word-jp"></div>
     <div id="word-romaji"></div>
 
-    <!-- キャラ（気弾構え） -->
+    <!-- ============================
+         キャラ（お題の下）
+    ============================ -->
     <img id="character" src="images/character_men_kiball.png">
 
-    <!-- 気弾（オーブ） -->
+    <!-- ============================
+         気弾（キャラより前）
+    ============================ -->
     <img id="ki-ball" src="images/kiball_blue.png" class="blue">
 
     <!-- ビーム -->
     <div id="beam"></div>
 
-    <!-- キーボード -->
+    <!-- ============================
+         キーボード（中央）
+    ============================ -->
     <div id="keyboard">
 
       <div class="key-row">
