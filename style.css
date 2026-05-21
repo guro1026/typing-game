@@ -222,7 +222,7 @@ body {
   top: 25%;   /* ← ローマ字のすぐ下 */
   width: 100%;
   text-align: center;
-  transform: scale(2);        /* ← 横2倍・縦2倍 */
+  transform: scale(2, 1.25);        /* ← 横2倍・縦2倍 */
   transform-origin: top center; /* ← 上方向に固定して拡大 */
 }
 
