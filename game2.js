@@ -5,11 +5,10 @@ let currentJP = "";
 let currentRomaji = "";
 let originalRomaji = "";
 
-// -----------------------------
 // スコア・コンボ・タイマー
-// -----------------------------
 let score = 0;
 let combo = 0;
+let maxCombo = 0;
 let timeLeft = 60;
 let timerInterval = null;
 
@@ -26,7 +25,7 @@ bgm.play().catch(() => {
 });
 
 function tryPlayOnce() {
-  bgm.play().catch(()=>{});
+  bgm.play().catch(() => {});
 }
 
 // 音量スライダー
@@ -35,7 +34,7 @@ volumeSlider.addEventListener("input", () => {
   bgm.volume = volumeSlider.value / 100;
 });
 
-// 効果音（今は使わないが残しておく）
+// 効果音（hit / beep は使う）
 const seHit = new Audio("sounds/hit.mp3");
 seHit.volume = 0.6;
 
@@ -58,6 +57,7 @@ function validateName() {
   if (!fullNameRegex.test(name)) {
     error.textContent = "※ フルネーム（姓　名）を全角スペースで入力してください";
     input.classList.add("error");
+    seBeep.currentTime = 0;
     seBeep.play();
     return;
   }
@@ -93,6 +93,7 @@ function startGame() {
 
   score = 0;
   combo = 0;
+  maxCombo = 0;
   timeLeft = 60;
   updateHUD();
 
@@ -104,6 +105,8 @@ function startGame() {
 // タイマー開始
 // -----------------------------
 function startTimer() {
+  if (timerInterval) clearInterval(timerInterval);
+
   timerInterval = setInterval(() => {
     timeLeft--;
     updateHUD();
@@ -120,7 +123,7 @@ function startTimer() {
 // -----------------------------
 function endGame() {
   state = "end";
-  alert(`終了！\nスコア：${score}\n最大コンボ：${combo}`);
+  alert(`終了！\nスコア：${score}\n最大コンボ：${maxCombo}`);
 }
 
 // -----------------------------
@@ -139,6 +142,8 @@ function loadCSV(course) {
 // 次の単語へ
 // -----------------------------
 function nextWord() {
+  if (timeLeft <= 0) return;
+
   const line = words[Math.floor(Math.random() * words.length)];
   const cols = line.split(",");
 
@@ -172,6 +177,7 @@ function updateHUD() {
 // -----------------------------
 document.addEventListener("keydown", e => {
   if (state !== "playing") return;
+  if (timeLeft <= 0) return;
 
   const key = e.key.toLowerCase();
   const target = currentRomaji[0]?.toLowerCase();
@@ -182,6 +188,9 @@ document.addEventListener("keydown", e => {
 
   if (key === target) {
     // 正解
+    seHit.currentTime = 0;
+    seHit.play();
+
     currentRomaji = currentRomaji.slice(1);
     updateDisplay();
 
@@ -196,12 +205,16 @@ document.addEventListener("keydown", e => {
     // 単語クリア
     if (currentRomaji.length === 0) {
       combo++;
+      if (combo > maxCombo) maxCombo = combo;
       updateHUD();
       setTimeout(nextWord, 200);
     }
 
   } else {
     // ミス → コンボリセット
+    seBeep.currentTime = 0;
+    seBeep.play();
+
     combo = 0;
     updateHUD();
   }

@@ -33,7 +33,7 @@ body {
 
 #title-subtext {
   position: absolute;
-  top: 70%;
+  top: 67%;  /* ← かぶり防止で少し上げた */
   width: 100%;
   text-align: center;
   font-size: 30px;
@@ -169,7 +169,7 @@ body {
   text-shadow: 0 0 10px #4cf;
 }
 
-/* HUD */
+/* HUD（スコア・コンボ・タイマー） */
 #hud {
   position: absolute;
   top: 2%;
