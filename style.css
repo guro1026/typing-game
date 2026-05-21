@@ -216,12 +216,14 @@ body {
   box-shadow: 0 0 12px #4cf inset;
 }
 
-/* ★ キーボード（ローマ字のすぐ下に配置） */
+/* ★ キーボード（2倍拡大） */
 #keyboard {
   position: absolute;
-  top: 25%;   /* ← ここが重要：ローマ字のすぐ下に来る */
+  top: 25%;   /* ← ローマ字のすぐ下 */
   width: 100%;
   text-align: center;
+  transform: scale(2);        /* ← 横2倍・縦2倍 */
+  transform-origin: top center; /* ← 上方向に固定して拡大 */
 }
 
 .key-row {
