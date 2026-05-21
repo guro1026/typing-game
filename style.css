@@ -1,6 +1,4 @@
-/* ============================
-   基本設定
-============================ */
+/* 基本 */
 body {
   margin: 0;
   overflow: hidden;
@@ -8,9 +6,7 @@ body {
   font-family: "Yu Gothic", sans-serif;
 }
 
-/* ============================
-   タイトル画面
-============================ */
+/* タイトル画面 */
 #title-screen {
   position: relative;
   width: 100vw;
@@ -26,7 +22,6 @@ body {
   filter: blur(1.5px);
 }
 
-/* 左：女性キャラ（反転） */
 #title-girl {
   position: absolute;
   bottom: 0;
@@ -37,7 +32,6 @@ body {
   pointer-events: none;
 }
 
-/* 右：男性キャラ */
 #title-boy {
   position: absolute;
   bottom: 0;
@@ -148,7 +142,7 @@ body {
   box-shadow: 0 0 20px #4cf;
 }
 
-/* タイトル画面の音量スライダー */
+/* タイトル音量 */
 #volume-area {
   position: absolute;
   bottom: 3%;
@@ -170,9 +164,7 @@ body {
   width: 100%;
 }
 
-/* ============================
-   ゲーム画面
-============================ */
+/* ゲーム画面 */
 #game-screen {
   display: none;
   width: 100vw;
@@ -185,7 +177,7 @@ body {
 
 /* 日本語・ローマ字 */
 #word-jp {
-  margin-top: 18%;
+  margin-top: 12%;
   font-size: 80px;
   font-weight: bold;
   text-shadow: 0 0 12px #fff;
@@ -198,9 +190,7 @@ body {
   text-shadow: 0 0 10px #4cf;
 }
 
-/* ============================
-   HUD（3倍）
-============================ */
+/* HUD（3倍） */
 #hud {
   position: absolute;
   top: 2%;
@@ -226,12 +216,31 @@ body {
   box-shadow: 0 0 25px #4cf inset;
 }
 
-/* ============================
-   気弾（成長・色変化・脈動）
-============================ */
+/* キャラ（気弾構え） */
+#character {
+  position: absolute;
+  bottom: 5%;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 75vh;
+  pointer-events: none;
+  z-index: 2;
+  filter:
+    drop-shadow(0 0 18px #4cf)
+    drop-shadow(0 0 32px #0ff);
+  animation: auraPulse 1.6s infinite ease-in-out;
+}
+
+@keyframes auraPulse {
+  0%   { filter: drop-shadow(0 0 14px #4cf) drop-shadow(0 0 26px #0ff); }
+  50%  { filter: drop-shadow(0 0 26px #9ff) drop-shadow(0 0 40px #0ff); }
+  100% { filter: drop-shadow(0 0 14px #4cf) drop-shadow(0 0 26px #0ff); }
+}
+
+/* 気弾（オーブ） */
 #ki-ball {
   position: absolute;
-  top: 40%;
+  bottom: 32%;
   left: 50%;
   transform: translateX(-50%) scale(0.2);
   transition: transform 0.15s ease-out;
@@ -253,19 +262,17 @@ body {
   100% { transform: translateX(-50%) scale(1); }
 }
 
-/* ============================
-   ビーム発射演出
-============================ */
+/* ビーム */
 #beam {
   position: absolute;
-  top: 45%;
+  bottom: 35%;
   left: 50%;
   width: 0;
-  height: 20px;
+  height: 26px;
   background: linear-gradient(to right, white, cyan, transparent);
   transform: translateX(-50%);
   opacity: 0;
-  z-index: 10;
+  z-index: 4;
 }
 
 .beam-fire {
@@ -283,9 +290,7 @@ body {
   }
 }
 
-/* ============================
-   白フラッシュ
-============================ */
+/* 白フラッシュ */
 .flash {
   animation: flashAnim 0.3s;
 }
@@ -296,9 +301,7 @@ body {
   100% { background: rgba(255,255,255,0); }
 }
 
-/* ============================
-   ゲーム中の音量
-============================ */
+/* ゲーム中の音量 */
 #volume-area-game {
   position: absolute;
   bottom: 3%;
@@ -319,9 +322,7 @@ body {
   text-shadow: 0 0 12px #4cf;
 }
 
-/* ============================
-   キーボード（横2倍）
-============================ */
+/* キーボード（横2倍） */
 #keyboard {
   position: absolute;
   top: 25%;
@@ -352,12 +353,9 @@ body {
   box-shadow: 0 0 20px #4cf;
 }
 
-/* ============================
-   タイトル光アニメ
-============================ */
+/* タイトル光アニメ */
 @keyframes glow {
   0%   { filter: drop-shadow(0 0 8px #4cf); }
   50%  { filter: drop-shadow(0 0 32px #9ff); }
   100% { filter: drop-shadow(0 0 8px #4cf); }
 }
- 

@@ -12,18 +12,18 @@
 
     <div id="bg-layer"></div>
 
-    <!-- 左：女性キャラ（反転） -->
+    <!-- 左：女性キャラ -->
     <img id="title-girl" src="images/character_Woman.png">
 
     <!-- 右：男性キャラ -->
     <img id="title-boy" src="images/character_men.png">
 
-    <!-- タイトル画像 -->
+    <!-- タイトル画像（爆発＋ロゴ想定） -->
     <img id="title-main" src="images/title_main.png">
 
     <div id="title-subtext">
-      ようこそ、タイピング修行へ。<br>
-      技を磨き、己を鍛えろ。
+      タイピングをして かめはめ波を撃て！<br>
+      ようこそ、タイピング修行へ。技を磨き、己を鍛えろ。
     </div>
 
     <!-- 名前入力 -->
@@ -58,7 +58,7 @@
   <!-- ゲーム画面 -->
   <div id="game-screen">
 
-    <!-- HUD（スカウター風） -->
+    <!-- HUD -->
     <div id="hud">
       <div class="hud-item">TIME: <span id="hud-time">60</span></div>
       <div class="hud-item">SCORE: <span id="hud-score">0</span></div>
@@ -68,17 +68,20 @@
     <!-- ゲーム中の音量 -->
     <div id="volume-area-game">
       <div id="volume-label-game">BGM</div>
-      <input id="volume-slider" type="range" min="0" max="100" value="0">
+      <input id="volume-slider-game" type="range" min="0" max="100" value="0">
     </div>
 
     <!-- 日本語・ローマ字 -->
     <div id="word-jp"></div>
     <div id="word-romaji"></div>
 
-    <!-- ★ 気弾（成長・色変化・脈動） -->
-    <img id="ki-ball" src="images/kiball_blue.png">
+    <!-- キャラ（気弾構え） -->
+    <img id="character" src="images/character_men_kiball.png">
 
-    <!-- ★ ビーム（発射演出） -->
+    <!-- 気弾（オーブ） -->
+    <img id="ki-ball" src="images/kiball_blue.png" class="blue">
+
+    <!-- ビーム -->
     <div id="beam"></div>
 
     <!-- キーボード -->
