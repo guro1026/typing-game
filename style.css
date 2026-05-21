@@ -21,6 +21,27 @@ body {
   filter: blur(1.5px);
 }
 
+/* ★ 左側の女性キャラ（左右反転） */
+#title-girl {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 90vh;
+  transform: scaleX(-1);
+  filter: drop-shadow(0 0 20px #4cf);
+  pointer-events: none;
+}
+
+/* ★ 右側の男性キャラ */
+#title-boy {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  height: 90vh;
+  filter: drop-shadow(0 0 20px #4cf);
+  pointer-events: none;
+}
+
 #title-main {
   position: absolute;
   top: 5%;
@@ -169,7 +190,7 @@ body {
   text-shadow: 0 0 10px #4cf;
 }
 
-/* ★ ゲーム中のボリュームつまみ */
+/* ゲーム中の音量つまみ */
 #volume-area-game {
   position: absolute;
   bottom: 3%;
@@ -190,7 +211,7 @@ body {
   text-shadow: 0 0 12px #4cf;
 }
 
-/* ★ HUD（スカウター風） */
+/* HUD（スカウター風） */
 #hud {
   position: absolute;
   top: 2%;
@@ -216,14 +237,14 @@ body {
   box-shadow: 0 0 12px #4cf inset;
 }
 
-/* ★ キーボード（2倍拡大） */
+/* キーボード（横2倍） */
 #keyboard {
   position: absolute;
-  top: 25%;   /* ← ローマ字のすぐ下 */
+  top: 25%;
   width: 100%;
   text-align: center;
-  transform: scale(2, 1.25);        /* ← 横2倍・縦2倍 */
-  transform-origin: top center; /* ← 上方向に固定して拡大 */
+  transform: scale(2, 1);
+  transform-origin: top center;
 }
 
 .key-row {
