@@ -37,7 +37,7 @@
       <button class="course-btn" data-course="mail">MAIL</button>
     </div>
 
-    <!-- 音量スライダー -->
+    <!-- タイトル画面の音量スライダー -->
     <div id="volume-area">
       <div id="volume-label">
         🔊 BGMは最初は無音です<br>
@@ -51,11 +51,17 @@
   <!-- ゲーム画面 -->
   <div id="game-screen">
 
-    <!-- HUD -->
+    <!-- HUD（スカウター風） -->
     <div id="hud">
       <div class="hud-item">TIME: <span id="hud-time">60</span></div>
       <div class="hud-item">SCORE: <span id="hud-score">0</span></div>
       <div class="hud-item">COMBO: <span id="hud-combo">0</span></div>
+    </div>
+
+    <!-- ★ ゲーム中にもボリューム表示 -->
+    <div id="volume-area-game">
+      <div id="volume-label-game">BGM</div>
+      <input id="volume-slider" type="range" min="0" max="100" value="0">
     </div>
 
     <div id="word-jp"></div>

@@ -33,7 +33,7 @@ body {
 
 #title-subtext {
   position: absolute;
-  top: 67%;  /* ← かぶり防止で少し上げた */
+  top: 67%;
   width: 100%;
   text-align: center;
   font-size: 30px;
@@ -122,7 +122,7 @@ body {
   box-shadow: 0 0 20px #4cf;
 }
 
-/* 音量スライダー */
+/* タイトル画面の音量スライダー */
 #volume-area {
   position: absolute;
   bottom: 3%;
@@ -169,19 +169,51 @@ body {
   text-shadow: 0 0 10px #4cf;
 }
 
-/* HUD（スコア・コンボ・タイマー） */
+/* ★ ゲーム中のボリュームつまみ */
+#volume-area-game {
+  position: absolute;
+  bottom: 3%;
+  right: 3%;
+  width: 180px;
+  text-align: center;
+  color: #6cf;
+  font-size: 18px;
+  text-shadow: 0 0 10px #39f;
+}
+
+#volume-label-game {
+  margin-bottom: 4px;
+  font-size: 18px;
+  letter-spacing: 2px;
+  font-weight: bold;
+  color: #9df;
+  text-shadow: 0 0 12px #4cf;
+}
+
+/* ★ HUD（スカウター風） */
 #hud {
   position: absolute;
   top: 2%;
-  right: 3%;
+  right: 2%;
   text-align: right;
-  color: #d0eaff;
-  font-size: 28px;
-  text-shadow: 0 0 10px #4cf;
+  font-size: 32px;
+  font-weight: bold;
+  color: #9df;
+  letter-spacing: 2px;
+  text-shadow:
+    0 0 10px #4cf,
+    0 0 20px #4cf,
+    0 0 30px #0ff;
+  font-family: "Impact", "Arial Black", sans-serif;
 }
 
 .hud-item {
-  margin: 6px 0;
+  margin: 8px 0;
+  padding: 4px 12px;
+  background: rgba(0, 40, 80, 0.4);
+  border: 2px solid #4cf;
+  border-radius: 6px;
+  box-shadow: 0 0 12px #4cf inset;
 }
 
 /* キーボード */
