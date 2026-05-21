@@ -28,18 +28,49 @@ function tryPlayOnce() {
   bgm.play().catch(() => {});
 }
 
-// 音量スライダー
+// 音量スライダー（タイトル＆ゲーム共通）
 const volumeSlider = document.getElementById("volume-slider");
 volumeSlider.addEventListener("input", () => {
   bgm.volume = volumeSlider.value / 100;
 });
 
-// 効果音（hit / beep は使う）
+// 効果音（hit / beep）
 const seHit = new Audio("sounds/hit.mp3");
 seHit.volume = 0.6;
 
 const seBeep = new Audio("sounds/beep.mp3");
 seBeep.volume = 0.6;
+
+// -----------------------------
+// ESCで強制タイトル戻り
+// -----------------------------
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") {
+    returnToTitle();
+  }
+});
+
+function returnToTitle() {
+  // タイマー停止
+  if (timerInterval) clearInterval(timerInterval);
+
+  // 状態リセット
+  state = "title";
+  score = 0;
+  combo = 0;
+  maxCombo = 0;
+  timeLeft = 60;
+
+  // ★ BGMを無音に戻す（boryu0）
+  bgm.volume = 0;
+  volumeSlider.value = 0;
+
+  // 画面切り替え
+  document.getElementById("game-screen").style.display = "none";
+  document.getElementById("title-screen").style.display = "block";
+
+  updateHUD();
+}
 
 // -----------------------------
 // 名前入力
@@ -119,7 +150,7 @@ function startTimer() {
 }
 
 // -----------------------------
-// 終了処理（今は仮）
+// 終了処理（仮）
 // -----------------------------
 function endGame() {
   state = "end";
@@ -127,7 +158,7 @@ function endGame() {
 }
 
 // -----------------------------
-// CSV読み込み（ヘッダー対応版）
+// CSV読み込み（ヘッダー対応）
 // -----------------------------
 function loadCSV(course) {
   fetch(`words_${course}.csv`)
