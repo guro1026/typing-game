@@ -1,167 +1,257 @@
 // ============================
-//  グローバル変数
+//  状態管理
 // ============================
-let words = []; // ← CSVから読み込む
-let currentIndex = 0;
-let currentPos = 0;
+let state = "title";
+let selectedCourse = null;
+let words = [];
+let currentJP = "";
+let currentRomaji = "";
+let originalRomaji = "";
 
-let timeLeft = 60;
-let timerId = null;
-
+// スコア・コンボ・タイマー
 let score = 0;
 let combo = 0;
-
-let kiPower = 0; // 0〜100
+let maxCombo = 0;
+let timeLeft = 60;
+let timerInterval = null;
 
 // ============================
-//  初期化
+//  BGM（最初は無音で再生）
 // ============================
-window.addEventListener("load", () => {
-  setupTitle();
-  setupKeyboardHighlight();
+const bgm = new Audio("sounds/BGM.mp3");
+bgm.loop = true;
+bgm.volume = 0;
+
+bgm.play().catch(() => {
+  document.addEventListener("click", tryPlayOnce, { once: true });
+  document.addEventListener("keydown", tryPlayOnce, { once: true });
+});
+
+function tryPlayOnce() {
+  bgm.play().catch(() => {});
+}
+
+// 音量スライダー（タイトル＆ゲーム共通）
+const volumeSlider = document.getElementById("volume-slider");
+volumeSlider.addEventListener("input", () => {
+  bgm.volume = volumeSlider.value / 100;
+});
+
+// 効果音
+const seHit = new Audio("sounds/hit.mp3");
+seHit.volume = 0.6;
+
+const seBeep = new Audio("sounds/beep.mp3");
+seBeep.volume = 0.6;
+
+// ============================
+// ESCで強制タイトル戻り
+// ============================
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") {
+    returnToTitle();
+  }
+});
+
+function returnToTitle() {
+  if (timerInterval) clearInterval(timerInterval);
+
+  state = "title";
+  score = 0;
+  combo = 0;
+  maxCombo = 0;
+  timeLeft = 60;
+
+  bgm.volume = 0;
+  volumeSlider.value = 0;
+
+  document.getElementById("game-screen").style.display = "none";
+  document.getElementById("title-screen").style.display = "block";
+
+  updateHUD();
+}
+
+// ============================
+// 名前入力（全角スペース）
+// ============================
+document.getElementById("name-submit").addEventListener("click", validateName);
+
+function validateName() {
+  const input = document.getElementById("name-input");
+  const error = document.getElementById("name-error");
+  const name = input.value.trim();
+
+  const fullNameRegex =
+    /^[\u4E00-\u9FFF\u3040-\u309F\u30A0-\u30FF]+　[\u4E00-\u9FFF\u3040-\u309F\u30A0-\u30FF]+$/;
+
+  if (!fullNameRegex.test(name)) {
+    error.textContent = "※ フルネーム（姓　名）を全角スペースで入力してください";
+    input.classList.add("error");
+    seBeep.currentTime = 0;
+    seBeep.play();
+    return;
+  }
+
+  input.classList.remove("error");
+  error.textContent = "";
+
+  localStorage.setItem("playerName", name);
+
+  document.getElementById("name-area").style.display = "none";
+
+  const nameBtn = document.getElementById("name-display");
+  nameBtn.textContent = name;
+  nameBtn.style.display = "inline-block";
+
+  document.getElementById("course-buttons").style.display = "block";
+}
+
+// ============================
+// コース選択
+// ============================
+document.querySelectorAll(".course-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    selectedCourse = btn.dataset.course;
+    startGame();
+  });
 });
 
 // ============================
-//  タイトル画面まわり
-// ============================
-function setupTitle() {
-  const nameInput = document.getElementById("name-input");
-  const nameSubmit = document.getElementById("name-submit");
-  const nameError = document.getElementById("name-error");
-  const nameDisplay = document.getElementById("name-display");
-  const courseButtons = document.getElementById("course-buttons");
-
-  nameSubmit.addEventListener("click", () => {
-    const name = nameInput.value.trim();
-    if (!name || !name.includes(" ")) {
-      nameError.textContent = "姓と名の間にスペースを入れてください";
-      nameInput.classList.add("error");
-      return;
-    }
-    nameError.textContent = "";
-    nameInput.classList.remove("error");
-
-    nameDisplay.textContent = name;
-    nameDisplay.style.display = "inline-block";
-    courseButtons.style.display = "block";
-  });
-
-  document.querySelectorAll(".course-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const course = btn.dataset.course;
-      loadCSV(course);
-    });
-  });
-}
-
-// ============================
-//  CSV 読み込み
-// ============================
-function loadCSV(course) {
-  const fileMap = {
-    easy: "words_easy.csv",
-    business: "words_business.csv",
-    it: "words_it.csv",
-    mail: "words_mail.csv"
-  };
-
-  const file = fileMap[course];
-
-  fetch(file)
-    .then(res => res.text())
-    .then(text => {
-      words = parseCSV(text);
-      startGame();
-    })
-    .catch(err => {
-      alert("CSV の読み込みに失敗しました: " + err);
-    });
-}
-
-// ============================
-//  CSV → 配列変換
-// ============================
-function parseCSV(text) {
-  const lines = text.trim().split("\n");
-  const result = [];
-
-  for (let i = 1; i < lines.length; i++) {
-    const [jp, hira, roma] = lines[i].split(",");
-    result.push({ jp, hira, roma });
-  }
-  return result;
-}
-
-// ============================
-//  ゲーム開始
+// ゲーム開始
 // ============================
 function startGame() {
+  state = "loading";
   document.getElementById("title-screen").style.display = "none";
   document.getElementById("game-screen").style.display = "block";
 
   score = 0;
   combo = 0;
-  kiPower = 0;
+  maxCombo = 0;
   timeLeft = 60;
-  currentIndex = 0;
-  currentPos = 0;
-
   updateHUD();
-  updateKiBall();
-  updateKiColor(combo);
 
-  setWord(words[currentIndex]);
+  startTimer();
+  loadCSV(selectedCourse);
+}
 
-  if (timerId) clearInterval(timerId);
-  timerId = setInterval(() => {
+// ============================
+// タイマー
+// ============================
+function startTimer() {
+  if (timerInterval) clearInterval(timerInterval);
+
+  timerInterval = setInterval(() => {
     timeLeft--;
+    updateHUD();
+
     if (timeLeft <= 0) {
-      timeLeft = 0;
-      updateHUD();
-      clearInterval(timerId);
+      clearInterval(timerInterval);
       endGame();
-    } else {
-      updateHUD();
     }
   }, 1000);
-
-  window.addEventListener("keydown", handleKey);
 }
 
 // ============================
-//  単語セット
+// 終了処理
 // ============================
-function setWord(wordObj) {
-  document.getElementById("word-jp").textContent = wordObj.jp;
-  document.getElementById("word-romaji").textContent = wordObj.roma;
+function endGame() {
+  state = "end";
 
-  currentPos = 0;
-  updateRomajiDisplay();
+  // 気弾MAX
+  kiPower = 100;
+  updateKiBall();
+
+  // 白フラッシュ
+  document.body.classList.add("flash");
+  setTimeout(() => {
+    document.body.classList.remove("flash");
+  }, 300);
+
+  // ビーム発射
+  fireBeam();
+
+  setTimeout(() => {
+    alert(`修行終了！\nスコア：${score}\n最大コンボ：${maxCombo}`);
+    location.reload();
+  }, 600);
 }
 
-function updateRomajiDisplay() {
-  const roma = document.getElementById("word-romaji");
-  const word = words[currentIndex].roma;
-  const done = word.slice(0, currentPos);
-  const rest = word.slice(currentPos);
-  roma.innerHTML = `<span style="color:#888">${done}</span><span>${rest}</span>`;
+// ============================
+// CSV読み込み
+// ============================
+function loadCSV(course) {
+  fetch(`words_${course}.csv`)
+    .then(res => res.text())
+    .then(text => {
+      const lines = text.trim().split("\n");
+      words = lines.slice(1).map(line => line.trim());
+      nextWord();
+    });
 }
 
 // ============================
-//  キー入力処理
+// 次の単語へ
 // ============================
-function handleKey(e) {
+function nextWord() {
+  if (timeLeft <= 0) return;
+
+  const line = words[Math.floor(Math.random() * words.length)];
+  const cols = line.split(",");
+
+  currentJP = cols[0] || "";
+  currentRomaji = cols[2] || "";
+  originalRomaji = currentRomaji;
+
+  updateDisplay();
+  state = "playing";
+}
+
+// ============================
+// 表示更新
+// ============================
+function updateDisplay() {
+  document.getElementById("word-jp").textContent = currentJP;
+  document.getElementById("word-romaji").textContent = currentRomaji;
+}
+
+// ============================
+// HUD更新
+// ============================
+function updateHUD() {
+  document.getElementById("hud-score").textContent = score;
+  document.getElementById("hud-combo").textContent = combo;
+  document.getElementById("hud-time").textContent = timeLeft;
+}
+
+// ============================
+// キー入力（寿司打方式）
+// ============================
+document.addEventListener("keydown", e => {
+  if (state !== "playing") return;
+  if (timeLeft <= 0) return;
+
   const key = e.key.toLowerCase();
-  const word = words[currentIndex].roma;
-  const expected = word[currentPos];
+  const target = currentRomaji[0]?.toLowerCase();
 
-  if (!expected) return;
+  highlightKey(e.key);
 
-  if (key === expected.toLowerCase()) {
+  if (!target) return;
+
+  if (key === target) {
     // 正解
-    currentPos++;
-    score += 10;
-    combo++;
+    seHit.currentTime = 0;
+    seHit.play();
+
+    currentRomaji = currentRomaji.slice(1);
+    updateDisplay();
+
+    // スコア加算（倍率）
+    let add = 1;
+    if (combo >= 5) add = 5;
+    else if (combo >= 3) add = 3;
+
+    score += add;
+    updateHUD();
 
     // 気弾成長
     kiPower += 2;
@@ -169,35 +259,47 @@ function handleKey(e) {
     updateKiBall();
     updateKiColor(combo);
 
-    updateHUD();
-    updateRomajiDisplay();
-    highlightKeyboard(key);
-
-    if (currentPos >= word.length) {
-      currentIndex = (currentIndex + 1) % words.length;
-      setWord(words[currentIndex]);
+    // 単語クリア
+    if (currentRomaji.length === 0) {
+      combo++;
+      if (combo > maxCombo) maxCombo = combo;
+      updateHUD();
+      setTimeout(nextWord, 200);
     }
+
   } else {
     // ミス
+    seBeep.currentTime = 0;
+    seBeep.play();
+
     combo = 0;
-    updateKiColor(combo);
     updateHUD();
-    highlightKeyboard(key, true);
+    updateKiColor(combo);
   }
+});
+
+// ============================
+// キーボード光らせる
+// ============================
+function highlightKey(key) {
+  const upper = key.toUpperCase();
+
+  const keyEl = [...document.querySelectorAll(".key")]
+    .find(k => k.textContent.toUpperCase() === upper);
+
+  if (!keyEl) return;
+
+  keyEl.classList.add("active");
+  setTimeout(() => {
+    keyEl.classList.remove("active");
+  }, 150);
 }
 
 // ============================
-//  HUD 更新
+// 気弾（成長・色変化・脈動）
 // ============================
-function updateHUD() {
-  document.getElementById("hud-time").textContent = timeLeft;
-  document.getElementById("hud-score").textContent = score;
-  document.getElementById("hud-combo").textContent = combo;
-}
+let kiPower = 0;
 
-// ============================
-//  気弾関連
-// ============================
 function updateKiBall() {
   const ball = document.getElementById("ki-ball");
   const scale = 0.2 + (kiPower / 100) * 1.0;
@@ -222,7 +324,7 @@ function updateKiColor(combo) {
 }
 
 // ============================
-//  ビーム発射 & 終了演出
+// ビーム発射
 // ============================
 function fireBeam() {
   const beam = document.getElementById("beam");
@@ -230,50 +332,4 @@ function fireBeam() {
   setTimeout(() => {
     beam.classList.remove("beam-fire");
   }, 500);
-}
-
-function endGame() {
-  window.removeEventListener("keydown", handleKey);
-
-  kiPower = 100;
-  updateKiBall();
-
-  document.body.classList.add("flash");
-  setTimeout(() => {
-    document.body.classList.remove("flash");
-  }, 300);
-
-  fireBeam();
-
-  setTimeout(() => {
-    alert(`修行終了！\nSCORE: ${score}\nMAX COMBO: ${combo}`);
-    location.reload();
-  }, 600);
-}
-
-// ============================
-//  キーボードハイライト
-// ============================
-let keyMap = {};
-
-function setupKeyboardHighlight() {
-  document.querySelectorAll("#keyboard .key").forEach(el => {
-    const label = el.textContent.trim().toLowerCase();
-    if (label.length === 1) {
-      keyMap[label] = el;
-    }
-  });
-}
-
-function highlightKeyboard(key, miss = false) {
-  const el = keyMap[key];
-  if (!el) return;
-  el.classList.add("active");
-  if (miss) {
-    el.style.background = "#f44";
-  }
-  setTimeout(() => {
-    el.classList.remove("active");
-    el.style.background = "";
-  }, 120);
 }
