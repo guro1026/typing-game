@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>結果発表 - Typing Game</title>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      font-family: "Yu Gothic", sans-serif;
+    }
+
+    #results-screen {
+      width: 100vw;
+      height: 100vh;
+      color: white;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      background: #000; /* JSで上書きされる */
+    }
+
+    /* タイトル（120px → 60px） */
+    #result-title {
+      font-size: 60px;
+      font-weight: bold;
+      margin-top: 3%;
+      text-shadow:
+        0 0 20px #fff,
+        0 0 40px #ff0,
+        0 0 60px #ff0;
+    }
+
+    /* 結果ボックス（48px → 24px） */
+    .result-box {
+      margin: 15px auto;
+      padding: 15px 30px;
+      width: 60%;
+      background: rgba(0,0,0,0.45);
+      border: 3px solid #fff;
+      border-radius: 12px;
+      font-size: 24px;
+      text-shadow: 0 0 10px #000;
+    }
+
+    /* コメント（20px） */
+    #comment-box {
+      font-size: 20px;
+      padding: 15px 25px;
+      width: 60%;
+      margin: 20px auto;
+      background: rgba(0,0,0,0.55);
+      border: 2px solid #fff;
+      border-radius: 10px;
+      text-shadow: 0 0 10px #000;
+    }
+
+    /* 右上のキャラシルエット */
+    #character-image {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      height: 22vh;
+      filter: drop-shadow(0 0 20px #fff);
+      opacity: 0.9;
+    }
+
+    /* ボタン（40px → 20px） */
+    #back-btn {
+      margin-top: 25px;
+      padding: 12px 28px;
+      font-size: 20px;
+      border: 3px solid #fff;
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border-radius: 10px;
+      cursor: pointer;
+      text-shadow: 0 0 10px #000;
+    }
+
+    #back-btn:hover {
+      background: rgba(255,255,255,0.35);
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="results-screen">
+
+    <div id="result-title">RESULT</div>
+
+    <!-- 性別で切り替わるキャラシルエット（右上） -->
+    <img id="character-image" src="" alt="character">
+
+    <div class="result-box">
+      スコア：<span id="r-score"></span>
+    </div>
+
+    <div class="result-box">
+      最大コンボ：<span id="r-maxcombo"></span>
+    </div>
+
+    <div class="result-box">
+      総タイプ数：<span id="r-total"></span>
+      ／ ミス：<span id="r-miss"></span>
+    </div>
+
+    <div id="comment-box">
+      <span id="r-comment"></span>
+    </div>
+
+    <button id="back-btn">タイトルへ戻る</button>
+
+  </div>
+
+  <script>
+    // ============================
+    // localStorage から結果を取得
+    // ============================
+    const score = localStorage.getItem("score") || 0;
+    const maxCombo = localStorage.getItem("maxCombo") || 0;
+    const totalTyped = localStorage.getItem("totalTyped") || 0;
+    const missCount = localStorage.getItem("missCount") || 0;
+    const weaknessComment = localStorage.getItem("weaknessComment") || "";
+    const gender = localStorage.getItem("gender") || "men";
+
+    // ============================
+    // 表示に反映
+    // ============================
+    document.getElementById("r-score").textContent = score;
+    document.getElementById("r-maxcombo").textContent = maxCombo;
+    document.getElementById("r-total").textContent = totalTyped;
+    document.getElementById("r-miss").textContent = missCount;
+    document.getElementById("r-comment").textContent = weaknessComment;
+
+    // ============================
+    // 性別で背景切り替え（紺／濃赤）
+    // ============================
+    const resultScreen = document.getElementById("results-screen");
+
+    if (gender === "female") {
+      // 濃い赤（ワインレッドより深い）
+      resultScreen.style.background =
+        'linear-gradient(135deg, #7a0014, #b3001d)';
+    } else {
+      // 紺（深いネイビー）
+      resultScreen.style.background =
+        'linear-gradient(135deg, #0a1a3f, #1c2e5a)';
+    }
+
+    // ============================
+    // 性別でキャラシルエット切り替え（右上）
+    // ============================
+    const charImg = document.getElementById("character-image");
+
+    if (gender === "female") {
+      charImg.src = "images/character/women/silhouette_woman.png";
+    } else {
+      charImg.src = "images/character/men/silhouette_man.png";
+    }
+
+    // ============================
+    // タイトルへ戻る
+    // ============================
+    document.getElementById("back-btn").addEventListener("click", () => {
+      location.href = "index.html";
+    });
+  </script>
+
+</body>
+</html>

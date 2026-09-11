@@ -1,0 +1,391 @@
+/* ============================================================
+   全画像のアスペクト比を統一（どの画面サイズでも潰れない）
+============================================================ */
+img {
+  object-fit: contain;        /* 画像の縦横比を維持して表示 */
+  max-width: 100%;            /* 親要素を超えない */
+  max-height: 100%;
+  pointer-events: none;       /* 画像をクリック不可にする（UIの邪魔防止） */
+}
+
+/* ============================================================
+   基本設定（画面全体）
+============================================================ */
+body {
+  margin: 0;
+  overflow: hidden;           /* スクロール禁止（ゲーム画面固定） */
+  background: black;
+  font-family: "Yu Gothic", sans-serif;
+}
+
+/* ============================================================
+   タイトル画面
+============================================================ */
+#title-screen {
+  position: relative;
+  width: 100vw;               /* 画面幅いっぱい */
+  height: 100vh;              /* 画面高さいっぱい */
+}
+
+/* タイトル背景のキラキラ粒子 */
+#bg-layer {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: url("images/effects/particles_blue.png") center/cover no-repeat;
+  opacity: 0.15;              /* 薄く光らせる */
+  z-index: 1;
+  filter: blur(1.5px);        /* ぼかして幻想感 */
+}
+
+/* 左の女性キャラ（立ち絵） */
+#title-girl {
+  position: absolute;
+  bottom: 0;
+  left: 8vw;                  /* 画面幅に応じて位置調整 */
+  height: 75vh;               /* 画面高さに応じてサイズ調整 */
+  transform: scaleX(-1);      /* 左向きに反転 */
+  filter: drop-shadow(0 0 20px #ff66cc); /* ピンクの光 */
+  z-index: 8;
+}
+
+/* 右の男性キャラ（立ち絵） */
+#title-boy {
+  position: absolute;
+  bottom: 0;
+  right: 8vw;
+  height: 75vh;
+  filter: drop-shadow(0 0 20px #4cf); /* 青い光 */
+  z-index: 8;
+}
+
+/* タイトルロゴ（中央） */
+#title-main {
+  position: absolute;
+  top: 8vh;
+  left: 50%;
+  transform: translateX(-50%); /* 中央揃え */
+  width: 45vw;                 /* 画面幅に応じてサイズ可変 */
+  max-width: 1200px;
+  animation: glow 3s infinite ease-in-out; /* 光るアニメ */
+  z-index: 5;
+}
+
+/* サブタイトル */
+#title-subtext {
+  position: absolute;
+  top: 68vh;
+  width: 100%;
+  text-align: center;
+  font-size: 4vw;
+  font-weight: 700;
+  color: #ffe27a;
+  z-index: 20;
+  text-shadow:
+    0 0 4px #000,
+    0 0 8px #000,
+    0 0 12px #000,
+    0 0 20px #ffae00;          /* 金色の光 */
+}
+
+/* 名前入力エリア */
+#name-area {
+  position: absolute;
+  top: 82vh;
+  width: 100%;
+  text-align: center;
+  z-index: 30;
+}
+
+/* 名前入力欄 */
+#name-input {
+  width: 20vw;
+  min-width: 240px;            /* 小さい画面でも崩れない */
+  padding: 12px;
+  font-size: 1.2vw;
+  border: 2px solid #2cf;
+  border-radius: 6px;
+  background: rgba(0,0,0,0.5);
+  color: white;
+  text-align: center;
+}
+
+/* 決定ボタン */
+#name-submit {
+  margin-left: 10px;
+  padding: 12px 24px;
+  font-size: 1.1vw;
+  border: 2px solid #4cf;
+  background: rgba(0,80,255,0.4);
+  color: white;
+  cursor: pointer;
+}
+
+/* コース選択ボタン */
+#course-buttons {
+  position: absolute;
+  top: 90vh;
+  width: 100%;
+  text-align: center;
+  z-index: 50;
+}
+
+.course-btn {
+  font-size: 1.4vw;
+  padding: 8px 16px;
+  margin: 0 15px;
+  border: 2px solid #4cf;
+  border-radius: 8px;
+  background: rgba(0, 80, 255, 0.4);
+  color: white;
+  cursor: pointer;
+}
+
+/* タイトル画面の音量調整 */
+#volume-area {
+  position: absolute;
+  bottom: 3vh;
+  right: 3vw;
+  width: 260px;
+  text-align: center;
+  color: #d0eaff;
+  font-size: 16px;
+  text-shadow: 0 0 6px #4cf;
+  z-index: 50;
+}
+
+/* ============================================================
+   ゲーム画面
+============================================================ */
+#game-screen {
+  display: none;
+  width: 100vw;
+  height: 100vh;
+  /* ★ これを削除する（最重要） */
+  /* background: url("images/bg/game_bg.png") center/cover no-repeat; */
+
+  color: white;
+  text-align: center;
+  position: relative;
+}
+
+/* お題（日本語・ローマ字） */
+#word-jp {
+  position: absolute;
+  top: 10vh;                     /* ← 日本語はここ */
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 4vw;
+  font-weight: bold;
+  z-index: 8500;
+  width: 100%;
+  pointer-events: none;
+  text-shadow:
+    0 0 12px #000,
+    0 0 24px #000,
+    0 0 36px #000,
+    0 0 48px #000;
+}
+
+#word-romaji {
+  position: absolute;
+  top: 20vh;                     /* ← ローマ字はここ */
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 2vw;
+  z-index: 8500;
+  width: 100%;
+  pointer-events: none;
+  text-shadow:
+    0 0 12px #000,
+    0 0 24px #000,
+    0 0 36px #000,
+    0 0 48px #000;
+}
+
+
+/* ファイター（キャラ＋気弾） */
+#fighter {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40vw;
+  height: 70vh;
+  z-index: 8000;
+}
+
+/* キャラ画像（気を溜める姿） */
+#character {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 100%;
+  z-index: 8001;
+  filter:
+    drop-shadow(0 0 18px #4cf)
+    drop-shadow(0 0 32px #0ff); /* 青いオーラ */
+  animation: auraPulse 1.6s infinite ease-in-out;
+}
+
+/* 気弾（位置固定） */
+#ki-ball {
+  position: absolute;
+  top: 50%;
+  left: 45%;
+  z-index: 9000;
+
+  width: 300px;
+  height: 300px;
+
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+
+/* 男性キャラ：青気弾 */
+#ki-ball.blue {
+  filter: drop-shadow(0 0 20px #4cf);
+}
+
+/* 女性キャラ：ピンク気弾 */
+#ki-ball.pink {
+  filter:
+    drop-shadow(0 0 20px #ff66cc)
+    drop-shadow(0 0 35px #ff99dd)
+    drop-shadow(0 0 50px #ffb6e6);
+}
+
+/* 覚醒パルス（JSと競合しないscaleのみ） 
+.pulse {
+  animation: pulseAnim 0.8s infinite ease-in-out;
+}
+
+@keyframes pulseAnim {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+*/
+/* ビーム（発射アニメ） */
+#beam {
+  position: absolute;
+  bottom: 35%;
+  left: 50%;
+  width: 0;
+  height: 26px;
+  background: linear-gradient(to right, white, cyan, transparent);
+  transform: translateX(-50%);
+  opacity: 0;
+  z-index: 7000;
+}
+
+.beam-fire {
+  animation: beamFire 0.4s ease-out forwards;
+}
+
+@keyframes beamFire {
+  0%   { width: 0; opacity: 1; }
+  100% { width: 200vw; opacity: 0; }
+}
+
+/* 画面フラッシュ（ビーム発射時） */
+body.flash {
+  animation: flashAnim 0.25s ease-out;
+}
+
+@keyframes flashAnim {
+  0%   { background-color: rgba(255,255,255,0.9); }
+  100% { background-color: rgba(0,0,0,0); }
+}
+
+/* HUD（スコア・タイム・コンボ） */
+#hud {
+  position: absolute;
+  top: 2vh;
+  right: 2vw;
+  text-align: right;
+  font-size: 4vw;
+  font-weight: bold;
+  color: #9df;
+  text-shadow:
+    0 0 20px #4cf,
+    0 0 40px #4cf,
+    0 0 60px #0ff;
+  z-index: 7000;
+}
+
+.hud-item {
+  margin: 20px 0;
+  padding: 10px 20px;
+  background: rgba(0, 40, 80, 0.4);
+  border: 4px solid #4cf;
+  border-radius: 10px;
+  box-shadow: 0 0 25px #4cf inset;
+}
+
+/* キーボード（光るキー） */
+#keyboard {
+  position: absolute;
+  top: 74vh;
+  width: 100%;
+  text-align: center;
+  transform: scale(2, 1); /* 横長にして迫力UP */
+  transform-origin: center center;
+  z-index: 10000;
+}
+
+.key-row {
+  margin: 6px 0;
+}
+
+.key {
+  display: inline-block;
+  min-width: 48px;
+  padding: 10px 6px;
+  margin: 2px;
+  border: 2px solid #4cf;
+  border-radius: 6px;
+  background: rgba(0, 80, 255, 0.4);
+  font-size: 20px;
+  text-shadow: 0 0 6px #000;
+}
+
+.key.active {
+  background: #4cf;
+  box-shadow: 0 0 20px #4cf;
+}
+
+/* タイトルロゴの光アニメ */
+@keyframes glow {
+  0%   { filter: drop-shadow(0 0 8px #4cf); }
+  50%  { filter: drop-shadow(0 0 32px #9ff); }
+  100% { filter: drop-shadow(0 0 8px #4cf); }
+}
+/* ============================
+   ★ 女性テーマ（pink-theme）
+============================ */
+body.pink-theme #hud {
+  color: #ffb6e6;
+  text-shadow:
+    0 0 20px #ff66cc,
+    0 0 40px #ff99dd,
+    0 0 60px #ffb6e6;
+}
+
+body.pink-theme .hud-item {
+  border: 4px solid #ff66cc;
+  box-shadow: 0 0 25px #ff99dd inset;
+}
+
+body.pink-theme .key {
+  border: 2px solid #ff66cc;
+  background: rgba(255, 80, 200, 0.4);
+}
+
+body.pink-theme .key.active {
+  background: #ff66cc;
+  box-shadow: 0 0 20px #ff66cc;
+}
